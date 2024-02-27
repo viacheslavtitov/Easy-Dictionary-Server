@@ -1,4 +1,4 @@
-package main
+package internal
 
 import (
 	"bytes"
@@ -22,7 +22,7 @@ type Env struct {
 	DBName         string
 }
 
-func loadEnv(environment string) *Env {
+func LoadEnv(environment string) *Env {
 	log.Default().Printf("Load environment %s", environment)
 	viper.AddRemoteProvider("firestore", "google-cloud-project-id", "collection/document")
 	viper.SetConfigType("json")

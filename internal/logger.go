@@ -1,10 +1,10 @@
-package main
+package internal
 
 import (
 	"go.uber.org/zap"
 )
 
-func initLogger(env Env) {
+func InitLogger(env Env) {
 	var config zap.Config
 	switch env.AppEnv {
 	case "local":
