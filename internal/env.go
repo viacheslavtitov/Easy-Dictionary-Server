@@ -8,21 +8,34 @@ import (
 
 	firebase "firebase.google.com/go"
 	"github.com/spf13/viper"
+	"github.com/tillberg/autorestart"
 	"google.golang.org/api/option"
 )
 
 type Env struct {
-	AppEnv         string
-	ServerAddress  string
-	ContextTimeout int
-	DBHost         string
-	DBPort         string
-	DBUser         string
-	DBPass         string
-	DBName         string
+	AppEnv string `json:"app_env"`
+	Test   string `json:"test"`
+	// ServerAddress  string
+	// ContextTimeout int
+	// DBHost         string
+	// DBPort         string
+	// DBUser         string
+	// DBPass         string
+	// DBName         string
 }
 
+const (
+	envName = "app_env"
+)
+
 func LoadEnv(environment string) *Env {
+	// token := loadToekn()
+	// if token == nil {
+	// 	log.Default().Println("Token wasn't loaded")
+	// 	return nil
+	// }
+	// log.Default().Printf("AccessToken = %s", token.AccessToken)
+
 	log.Default().Printf("Load environment %s", environment)
 	viper.AddRemoteProvider("firestore", "google-cloud-project-id", "collection/document")
 	viper.SetConfigType("json")
@@ -33,11 +46,11 @@ func LoadEnv(environment string) *Env {
 		return nil
 	}
 	client, err := app.Firestore(context.Background())
-	defer client.Close()
 	if err != nil {
 		log.Default().Fatal("Couldn't init", err)
 		return nil
 	}
+	defer client.Close()
 	doc, err := client.Collection("Environment").Doc(environment).Get(context.Background())
 	if err != nil {
 		log.Default().Fatal("Couldn't load config collection from Cloud Firestore", err)
@@ -53,16 +66,22 @@ func LoadEnv(environment string) *Env {
 	if err != nil {
 		log.Default().Fatal("Couldn't read config file", err)
 		return nil
+	} else {
+		log.Default().Println("Config was loaded")
+		log.Default().Println(viper.AllKeys())
 	}
-	env := Env{AppEnv: viper.GetString("APP_ENV")}
+
+	env := Env{AppEnv: viper.GetString(envName), Test: viper.GetString("test")}
 	switch env.AppEnv {
 	case "local":
 		{
 			log.Default().Println("The App is running in local env")
+			log.Default().Printf("%s", jsonData)
 		}
 	case "development":
 		{
 			log.Default().Println("The App is running in development env")
+			log.Default().Printf("%s", jsonData)
 		}
 	case "production":
 		{
@@ -74,5 +93,54 @@ func LoadEnv(environment string) *Env {
 			return nil
 		}
 	}
+	streamChanges := client.Collection("Environment").Doc(environment).Snapshots(context.Background())
+	defer streamChanges.Stop()
+	for {
+		log.Default().Println("Config was changed")
+		snap, err := streamChanges.Next()
+		if err != nil {
+			log.Fatalln(err)
+		}
+		jsonData, err := json.Marshal(snap.Data())
+		if err != nil {
+			log.Fatalln(err)
+		}
+		log.Default().Printf("%s", jsonData)
+		err = viper.ReadConfig(bytes.NewBuffer(jsonData))
+		if err != nil {
+			log.Default().Fatal("Couldn't read remote config", err)
+			return nil
+		} else {
+			log.Default().Println("Config was loaded")
+			log.Default().Println(viper.AllKeys())
+		}
+		newEnv := Env{AppEnv: viper.GetString(envName), Test: viper.GetString("test")}
+		if newEnv == env {
+			log.Default().Println("New config equals previous")
+		} else {
+			log.Default().Println("New config is not equal previous")
+			go autorestart.RestartViaExec()
+		}
+	}
 	return &env
 }
+
+// func loadToekn() *oauth2.Token {
+// 	var token *oauth2.Token
+// 	ctx := context.Background()
+// 	scopes := []string{
+// 		"https://www.googleapis.com/auth/cloud-platform",
+// 	}
+// 	credentials, err := auth.FindDefaultCredentials(ctx, scopes...)
+// 	if err == nil {
+// 		log.Default().Printf("found default credentials. %v", credentials)
+// 		token, err = credentials.TokenSource.Token()
+// 		log.Default().Printf("token: %v, err: %v", token, err)
+// 		if err != nil {
+// 			log.Default().Println(err)
+// 		}
+// 	} else {
+// 		log.Default().Println(err)
+// 	}
+// 	return token
+// }

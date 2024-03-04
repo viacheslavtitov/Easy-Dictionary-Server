@@ -46,6 +46,9 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.18.2 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
+	github.com/tillberg/autorestart v0.0.0-20220524165049-22c3f5bc7fce // indirect
+	github.com/tillberg/stringset v0.0.0-20220429204947-12df33ab1cd6 // indirect
+	github.com/tillberg/watcher v0.0.0-20200309151633-e9412552417a // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	go.opencensus.io v0.24.0 // indirect
@@ -69,6 +72,7 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20231120223509-83a465c0220f // indirect
 	google.golang.org/grpc v1.59.0 // indirect
 	google.golang.org/protobuf v1.32.0 // indirect
+	gopkg.in/fsnotify/fsnotify.v1 v1.4.7 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
