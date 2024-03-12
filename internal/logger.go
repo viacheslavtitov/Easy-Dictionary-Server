@@ -23,4 +23,5 @@ func InitLogger(env Env) {
 	logger, _ := config.Build()
 	defer logger.Sync()
 	zap.ReplaceGlobals(logger)
+	zap.L().Info("Logger was initialized")
 }

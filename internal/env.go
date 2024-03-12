@@ -6,9 +6,10 @@ import (
 	"encoding/json"
 	"log"
 
+	"cloud.google.com/go/firestore"
 	firebase "firebase.google.com/go"
 	"github.com/spf13/viper"
-	"github.com/tillberg/autorestart"
+	"google.golang.org/api/iterator"
 	"google.golang.org/api/option"
 )
 
@@ -28,7 +29,7 @@ const (
 	envName = "app_env"
 )
 
-func LoadEnv(environment string) *Env {
+func LoadEnv(environment string, changeEnvChan chan Env) *Env {
 	// token := loadToekn()
 	// if token == nil {
 	// 	log.Default().Println("Token wasn't loaded")
@@ -50,7 +51,7 @@ func LoadEnv(environment string) *Env {
 		log.Default().Fatal("Couldn't init", err)
 		return nil
 	}
-	defer client.Close()
+	// defer client.Close()
 	doc, err := client.Collection("Environment").Doc(environment).Get(context.Background())
 	if err != nil {
 		log.Default().Fatal("Couldn't load config collection from Cloud Firestore", err)
@@ -94,35 +95,50 @@ func LoadEnv(environment string) *Env {
 		}
 	}
 	streamChanges := client.Collection("Environment").Doc(environment).Snapshots(context.Background())
-	defer streamChanges.Stop()
+	go readNewConfig(streamChanges, client, changeEnvChan, &env)
+	return &env
+}
+
+func readNewConfig(streamChanges *firestore.DocumentSnapshotIterator, client *firestore.Client, changeChan chan Env, currentEnv *Env) {
 	for {
-		log.Default().Println("Config was changed")
 		snap, err := streamChanges.Next()
 		if err != nil {
-			log.Fatalln(err)
+			if err == iterator.Done {
+				continue
+			}
+			log.Default().Println("Failed to read next stream changes")
+			log.Default().Println(err)
+			continue
 		}
 		jsonData, err := json.Marshal(snap.Data())
 		if err != nil {
-			log.Fatalln(err)
+			log.Default().Println(err)
+			continue
 		}
+		log.Default().Println("Config was changed")
 		log.Default().Printf("%s", jsonData)
 		err = viper.ReadConfig(bytes.NewBuffer(jsonData))
 		if err != nil {
 			log.Default().Fatal("Couldn't read remote config", err)
-			return nil
+			return
 		} else {
-			log.Default().Println("Config was loaded")
+			log.Default().Printf("Config was loaded keys = %d", len(viper.AllKeys()))
 			log.Default().Println(viper.AllKeys())
+			if len(viper.AllKeys()) == 0 {
+				continue
+			}
 		}
 		newEnv := Env{AppEnv: viper.GetString(envName), Test: viper.GetString("test")}
-		if newEnv == env {
+		if newEnv == *currentEnv {
 			log.Default().Println("New config equals previous")
 		} else {
 			log.Default().Println("New config is not equal previous")
-			go autorestart.RestartViaExec()
+			changeChan <- newEnv
+			break
 		}
 	}
-	return &env
+	defer streamChanges.Stop()
+	defer client.Close()
 }
 
 // func loadToekn() *oauth2.Token {
