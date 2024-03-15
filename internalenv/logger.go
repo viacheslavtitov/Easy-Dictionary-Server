@@ -1,10 +1,10 @@
-package internal
+package internalenv
 
 import (
 	"go.uber.org/zap"
 )
 
-func InitLogger(env Env) {
+func InitLogger(env *Env) {
 	var config zap.Config
 	switch env.AppEnv {
 	case "local":
@@ -23,5 +23,5 @@ func InitLogger(env Env) {
 	logger, _ := config.Build()
 	defer logger.Sync()
 	zap.ReplaceGlobals(logger)
-	zap.L().Info("Logger was initialized")
+	zap.S().Info("Logger was initialized")
 }

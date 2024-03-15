@@ -1,4 +1,4 @@
-package internal
+package internalenv
 
 import (
 	"bytes"
@@ -14,9 +14,15 @@ import (
 )
 
 type Env struct {
-	AppEnv string `json:"app_env"`
-	Test   string `json:"test"`
-	// ServerAddress  string
+	AppEnv        string `json:"app_env"`
+	ServerAddress string `json:"address"`
+	ServerPort    string `json:"port"`
+	TimeOut       int    `json:"timeout"`
+	DBName        string `json:"db_name"`
+	DBHost        string `json:"db_host"`
+	DBPort        int    `json:"db_port"`
+	DBUser        string `json:"db_user"`
+	DBPassword    string `json:"db_password"`
 	// ContextTimeout int
 	// DBHost         string
 	// DBPort         string
@@ -25,8 +31,24 @@ type Env struct {
 	// DBName         string
 }
 
+type EnvInteface interface {
+	CombineServerAddress() string
+}
+
+func (env *Env) CombineServerAddress() string {
+	return env.ServerAddress + ":" + env.ServerPort
+}
+
 const (
-	envName = "app_env"
+	envName       = "app_env"
+	serverAddress = "address"
+	serverPort    = "port"
+	timeOut       = "timeout"
+	dbname        = "db_name"
+	dbhost        = "db_host"
+	dbport        = "db_port"
+	dbuser        = "db_user"
+	dbpassword    = "db_password"
 )
 
 func LoadEnv(environment string, changeEnvChan chan Env) *Env {
@@ -72,7 +94,7 @@ func LoadEnv(environment string, changeEnvChan chan Env) *Env {
 		log.Default().Println(viper.AllKeys())
 	}
 
-	env := Env{AppEnv: viper.GetString(envName), Test: viper.GetString("test")}
+	env := parseEnv()
 	switch env.AppEnv {
 	case "local":
 		{
@@ -128,7 +150,7 @@ func readNewConfig(streamChanges *firestore.DocumentSnapshotIterator, client *fi
 				continue
 			}
 		}
-		newEnv := Env{AppEnv: viper.GetString(envName), Test: viper.GetString("test")}
+		newEnv := parseEnv()
 		if newEnv == *currentEnv {
 			log.Default().Println("New config equals previous")
 		} else {
@@ -139,6 +161,18 @@ func readNewConfig(streamChanges *firestore.DocumentSnapshotIterator, client *fi
 	}
 	defer streamChanges.Stop()
 	defer client.Close()
+}
+
+func parseEnv() Env {
+	return Env{AppEnv: viper.GetString(envName),
+		ServerAddress: viper.GetString(serverAddress),
+		ServerPort:    viper.GetString(serverPort),
+		TimeOut:       viper.GetInt(timeOut),
+		DBName:        viper.GetString(dbname),
+		DBHost:        viper.GetString(dbhost),
+		DBPort:        viper.GetInt(dbport),
+		DBUser:        viper.GetString(dbuser),
+		DBPassword:    viper.GetString(dbpassword)}
 }
 
 // func loadToekn() *oauth2.Token {
