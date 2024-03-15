@@ -14,9 +14,10 @@ import (
 )
 
 type Env struct {
-	AppEnv string `json:"app_env"`
-	Test   string `json:"test"`
-	// ServerAddress  string
+	AppEnv        string `json:"app_env"`
+	ServerAddress string `json:"address"`
+	ServerPort    string `json:"port"`
+	TimeOut       int    `json:"timeout"`
 	// ContextTimeout int
 	// DBHost         string
 	// DBPort         string
@@ -25,8 +26,19 @@ type Env struct {
 	// DBName         string
 }
 
+type EnvInteface interface {
+	CombineServerAddress() string
+}
+
+func (env *Env) CombineServerAddress() string {
+	return env.ServerAddress + ":" + env.ServerPort
+}
+
 const (
-	envName = "app_env"
+	envName       = "app_env"
+	serverAddress = "address"
+	serverPort    = "port"
+	timeOut       = "timeout"
 )
 
 func LoadEnv(environment string, changeEnvChan chan Env) *Env {
@@ -72,7 +84,7 @@ func LoadEnv(environment string, changeEnvChan chan Env) *Env {
 		log.Default().Println(viper.AllKeys())
 	}
 
-	env := Env{AppEnv: viper.GetString(envName), Test: viper.GetString("test")}
+	env := parseEnv()
 	switch env.AppEnv {
 	case "local":
 		{
@@ -128,7 +140,7 @@ func readNewConfig(streamChanges *firestore.DocumentSnapshotIterator, client *fi
 				continue
 			}
 		}
-		newEnv := Env{AppEnv: viper.GetString(envName), Test: viper.GetString("test")}
+		newEnv := parseEnv()
 		if newEnv == *currentEnv {
 			log.Default().Println("New config equals previous")
 		} else {
@@ -139,6 +151,12 @@ func readNewConfig(streamChanges *firestore.DocumentSnapshotIterator, client *fi
 	}
 	defer streamChanges.Stop()
 	defer client.Close()
+}
+
+func parseEnv() Env {
+	return Env{AppEnv: viper.GetString(envName), ServerAddress: viper.GetString(serverAddress),
+		ServerPort: viper.GetString(serverPort),
+		TimeOut:    viper.GetInt(timeOut)}
 }
 
 // func loadToekn() *oauth2.Token {
