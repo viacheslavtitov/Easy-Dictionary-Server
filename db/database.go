@@ -4,6 +4,8 @@ import (
 	internalenv "easy-dictionary-server/internalenv"
 	utils "easy-dictionary-server/internalenv/utils"
 
+	"strconv"
+
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"go.uber.org/zap"
@@ -14,7 +16,7 @@ type Database struct {
 }
 
 func Setup(env *internalenv.Env) *Database {
-	sqlConnectQuery := "user=" + env.DBUser + " sslmode=disable password=" + env.DBPassword + " host=" + env.DBHost
+	sqlConnectQuery := PrepareConnectionQuery(env)
 	zap.S().Debug(sqlConnectQuery)
 	db, err := sqlx.Open("postgres", sqlConnectQuery)
 	if err != nil {
@@ -33,7 +35,7 @@ func Setup(env *internalenv.Env) *Database {
 	}
 
 	//create database if not exists
-	sqlCreateDB := "SELECT 'CREATE DATABASE " + env.DBName + " OWNER = " + env.DBUser + " ENCODING = UTF8' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '" + env.DBName + "')"
+	sqlCreateDB := PrepareRunSetupBaseDBQuery(env)
 	zap.S().Debug(sqlCreateDB)
 	result, err := db.Exec(sqlCreateDB)
 	if err != nil {
@@ -56,4 +58,12 @@ func Setup(env *internalenv.Env) *Database {
 		}
 	}
 	return &database
+}
+
+func PrepareConnectionQuery(env *internalenv.Env) string {
+	return "user=" + env.DBUser + " sslmode=disable password=" + env.DBPassword + " host=" + env.DBHost + " dbname=" + env.DBName + " port=" + strconv.Itoa(env.DBPort)
+}
+
+func PrepareRunSetupBaseDBQuery(env *internalenv.Env) string {
+	return "SELECT 'CREATE DATABASE " + env.DBName + " OWNER = " + env.DBUser + " ENCODING = UTF8' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '" + env.DBName + "')"
 }
