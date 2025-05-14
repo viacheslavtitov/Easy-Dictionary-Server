@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"sort"
 
 	"easy-dictionary-server/domain"
 
@@ -44,30 +43,39 @@ func (ur *userRepository) GetByEmail(c context.Context, email string) (*domain.U
 	if error != nil {
 		zap.S().Debugf("fetch error %s", error.Error())
 	} else {
-		idx := sort.Search(len(users), func(i int) bool {
-			return users[i].Email == email
-		})
-		zap.S().Debugf("found index %d", idx)
-		if idx <= len(users) && idx >= 0 {
-			return &users[idx-1], nil
+		var foundUser *domain.User
+		for i := range users {
+			if users[i].Email == email {
+				foundUser = &users[i]
+				break
+			}
+
+		}
+		if foundUser != nil {
+			return foundUser, nil
 		}
 	}
 	return nil, ErrUserNotFound
 }
 
 func (ur *userRepository) GetByID(c context.Context, id int) (*domain.User, error) {
+	zap.S().Debugf("GetByID %d", id)
 	users, error := ur.Fetch(c)
 	//TODO: will be fetch from database
 	if error != nil {
-		idx := sort.Search(len(users), func(i int) bool {
-			return users[i].ID == id
-		})
-		if idx < len(users) && idx >= 0 {
-			return &users[idx], nil
-		} else {
-			return nil, ErrUserNotFound
-		}
+		zap.S().Debugf("fetch error %s", error.Error())
 	} else {
-		return nil, error
+		var foundUser *domain.User
+		for i := range users {
+			if users[i].ID == id {
+				foundUser = &users[i]
+				break
+			}
+
+		}
+		if foundUser != nil {
+			return foundUser, nil
+		}
 	}
+	return nil, ErrUserNotFound
 }
