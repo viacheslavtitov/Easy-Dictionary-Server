@@ -2,13 +2,13 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
+	middleware "easy-dictionary-server/api/middleware"
 	route "easy-dictionary-server/api/router"
 	database "easy-dictionary-server/db"
 	internalenv "easy-dictionary-server/internalenv"
@@ -56,20 +56,7 @@ func main() {
 			zap.Error(err)
 		}
 	}()
-	routeGin.Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
-		// your custom format
-		return fmt.Sprintf("%s - [%s] \"%s %s %s %d %s \"%s\" %s\"\n",
-			param.ClientIP,
-			param.TimeStamp.Format(time.RFC1123),
-			param.Method,
-			param.Path,
-			param.Request.Proto,
-			param.StatusCode,
-			param.Latency,
-			param.Request.UserAgent(),
-			param.ErrorMessage,
-		)
-	}))
+	routeGin.Use(middleware.RequestLogger())
 	routeGin.Use(gin.Recovery())
 	route.Setup(env.TimeOut, &routeGin.RouterGroup)
 	zap.S().Info("Server started")

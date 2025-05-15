@@ -5,9 +5,9 @@ import (
 )
 
 type AuthRequest struct {
-	Email      string
-	ProviderId string
-	UID        string
+	Email      string `json:"email" binding:"required,email"`
+	ProviderID string `json:"provider_id" binding:"required"`
+	UID        string `json:"uid" binding:"required"`
 }
 
 type AuthResponse struct {

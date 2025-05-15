@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"easy-dictionary-server/domain"
+	validatorutil "easy-dictionary-server/internalenv/validator"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -16,10 +17,9 @@ type AuthController struct {
 func (authController *AuthController) Login(c *gin.Context) {
 	zap.S().Info("POST Login")
 	var request domain.AuthRequest
-
-	err := c.ShouldBind(&request)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: err.Error()})
+	if err := c.ShouldBindJSON(&request); err != nil {
+		validationErrors := validatorutil.FormatValidationError(err)
+		c.JSON(http.StatusBadRequest, gin.H{"validation_errors": validationErrors})
 		return
 	}
 
