@@ -1,12 +1,12 @@
 package utils
 
 import (
-	"easy-dictionary-server/domain"
+	domainUser "easy-dictionary-server/domain/user"
 
 	jwt "github.com/golang-jwt/jwt/v5"
 )
 
-func CreateAccessToken(user *domain.User, secret string) (accessToken string, err error) {
+func CreateAccessToken(user *domainUser.User, secret string) (accessToken string, err error) {
 	claims := &jwt.RegisteredClaims{
 		Issuer: "user",
 	}

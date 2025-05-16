@@ -2,6 +2,7 @@ package domain
 
 import (
 	"context"
+	domainUser "easy-dictionary-server/domain/user"
 )
 
 type AuthRequest struct {
@@ -15,6 +16,6 @@ type AuthResponse struct {
 }
 
 type AuthUseCase interface {
-	GetUserByEmail(context context.Context, email string) (*User, error)
-	CreateAccessToken(user *User, secret string) (accessToken string, err error)
+	GetUserByEmail(context context.Context, email string) (*domainUser.User, error)
+	CreateAccessToken(user *domainUser.User, secret string) (accessToken string, err error)
 }

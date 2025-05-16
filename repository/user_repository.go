@@ -3,7 +3,10 @@ package repository
 import (
 	"context"
 
-	"easy-dictionary-server/domain"
+	database "easy-dictionary-server/db"
+	dbUser "easy-dictionary-server/db/user"
+	domain "easy-dictionary-server/domain/user"
+	userMapper "easy-dictionary-server/internalenv/mappers"
 
 	"go.uber.org/zap"
 )
@@ -13,69 +16,48 @@ const (
 )
 
 type userRepository struct {
-	// database   mongo.Database
-	// collection string
+	db *database.Database
 }
 
-func NewUserRepository() domain.UserRepository {
-	return &userRepository{}
+func NewUserRepository(db *database.Database) domain.UserRepository {
+	return &userRepository{db: db}
 }
 
 func (ur *userRepository) Create(c context.Context, user *domain.User) error {
 	return nil
 }
 
-func (ur *userRepository) Fetch(c context.Context) ([]domain.User, error) {
-	//TODO: mock for now
-	users := []domain.User{
-		{ID: 1, Email: "example1@gmail.com", ProviderId: "Google", UID: "example1@gmail.com"},
-		{ID: 2, Email: "example2@gmail.com", ProviderId: "Google", UID: "example2@gmail.com"},
+func (ur *userRepository) GetAllUsers(c context.Context) ([]*domain.User, error) {
+	zap.S().Debugf("GetAllUsers")
+	usersEntity, err := dbUser.GetAllUsers(ur.db, database.OrderByASC)
+	users := []*domain.User{}
+	for _, item := range usersEntity {
+		users = append(users, userMapper.ToDomain(&item))
 	}
-
-	return users, nil
+	return users, err
 }
 
 func (ur *userRepository) GetByEmail(c context.Context, email string) (*domain.User, error) {
 	zap.S().Debugf("GetByEmail %s", email)
-	//TODO: will be fetch from database
-	users, error := ur.Fetch(c)
-	zap.S().Debugf("found users %d", len(users))
-	if error != nil {
-		zap.S().Debugf("fetch error %s", error.Error())
-	} else {
-		var foundUser *domain.User
-		for i := range users {
-			if users[i].Email == email {
-				foundUser = &users[i]
-				break
-			}
-
-		}
-		if foundUser != nil {
-			return foundUser, nil
-		}
-	}
-	return nil, ErrUserNotFound
+	userEntity, err := dbUser.GetUserByEmail(ur.db, email)
+	return userMapper.ToDomain(&userEntity), err
 }
 
 func (ur *userRepository) GetByID(c context.Context, id int) (*domain.User, error) {
 	zap.S().Debugf("GetByID %d", id)
-	users, error := ur.Fetch(c)
-	//TODO: will be fetch from database
-	if error != nil {
-		zap.S().Debugf("fetch error %s", error.Error())
-	} else {
-		var foundUser *domain.User
-		for i := range users {
-			if users[i].ID == id {
-				foundUser = &users[i]
-				break
-			}
+	userEntity, err := dbUser.GetUserById(ur.db, id)
+	return userMapper.ToDomain(&userEntity), err
+}
 
-		}
-		if foundUser != nil {
-			return foundUser, nil
-		}
-	}
-	return nil, ErrUserNotFound
+func (ur *userRepository) UpdateUser(c context.Context, user *domain.User) (*domain.User, error) {
+	zap.S().Debugf("UpdateUser %s", user.Email)
+	userEntity := userMapper.FromDomain(user)
+	err := dbUser.UpdateUser(ur.db, *userEntity)
+	return user, err
+}
+
+func (ur *userRepository) DeleteUser(c context.Context, id int) error {
+	zap.S().Debugf("DeleteUser %d", id)
+	err := dbUser.DeleteUserById(ur.db, id)
+	return err
 }

@@ -13,7 +13,9 @@ type User struct {
 
 type UserRepository interface {
 	Create(context context.Context, user *User) error
-	Fetch(context context.Context) ([]User, error)
+	GetAllUsers(context context.Context) ([]*User, error)
 	GetByEmail(context context.Context, email string) (*User, error)
 	GetByID(context context.Context, id int) (*User, error)
+	UpdateUser(context context.Context, user *User) (*User, error)
+	DeleteUser(context context.Context, id int) error
 }

@@ -17,6 +17,6 @@ func ReadFile(filepath string) (string, error) {
 
 	// Convert []byte to string
 	text := string(fileContent)
-	zap.S().Debug(text)
+	// zap.S().Debug(text)
 	return text, nil
 }

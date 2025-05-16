@@ -39,8 +39,7 @@ func main() {
 	zap.S().Debug("Debug log")
 	zap.S().Info("Info log")
 	//init database
-	// database := database.Setup(env)
-	database.Setup(env)
+	database := database.Setup(env)
 	//init http routers
 	routeGin := gin.Default()
 	zap.S().Info("Trying to start http server by address " + env.CombineServerAddress())
@@ -58,7 +57,7 @@ func main() {
 	}()
 	routeGin.Use(middleware.RequestLogger())
 	routeGin.Use(gin.Recovery())
-	route.Setup(env.TimeOut, &routeGin.RouterGroup)
+	route.Setup(env.TimeOut, &routeGin.RouterGroup, database)
 	zap.S().Info("Server started")
 	<-done
 	zap.S().Info("Server is stopping")

@@ -26,10 +26,10 @@ func (authController *AuthController) Login(c *gin.Context) {
 	user, err := authController.AuthUseCase.GetUserByEmail(c, request.Email)
 	if err != nil || user == nil {
 		zap.S().Error("User with " + request.Email + " not found")
-		c.JSON(http.StatusNotFound, domain.ErrorResponse{Message: "User not found with the given email"})
+		c.JSON(http.StatusForbidden, domain.ErrorResponse{Message: "User not found with the " + request.Email + " email"})
 		return
 	} else {
-		zap.S().Debugf("User found %s %d", user.Email, user.ID)
+		zap.S().Debugf("User found %s", request.Email)
 	}
 
 	// if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password)) != nil {
