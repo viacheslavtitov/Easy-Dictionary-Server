@@ -57,7 +57,7 @@ func main() {
 	}()
 	routeGin.Use(middleware.RequestLogger())
 	routeGin.Use(gin.Recovery())
-	route.Setup(env.TimeOut, &routeGin.RouterGroup, database)
+	route.Setup(env.TimeOut, &routeGin.RouterGroup, database, env)
 	zap.S().Info("Server started")
 	<-done
 	zap.S().Info("Server is stopping")

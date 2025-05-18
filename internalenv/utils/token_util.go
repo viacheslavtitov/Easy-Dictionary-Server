@@ -2,18 +2,20 @@ package utils
 
 import (
 	domainUser "easy-dictionary-server/domain/user"
+	"fmt"
+	"time"
 
 	jwt "github.com/golang-jwt/jwt/v5"
 )
 
-func CreateAccessToken(user *domainUser.User, secret string) (accessToken string, err error) {
+func CreateAccessToken(user *domainUser.User, appName string, secret string, duration time.Duration) (string, error) {
 	claims := &jwt.RegisteredClaims{
-		Issuer: "user",
+		Issuer:    appName,
+		Subject:   fmt.Sprintf("%d", user.ID),
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(duration)),
+		IssuedAt:  jwt.NewNumericDate(time.Now()),
 	}
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	t, err := token.SignedString([]byte(secret))
-	if err != nil {
-		return "", err
-	}
-	return t, err
+	return token.SignedString([]byte(secret))
 }

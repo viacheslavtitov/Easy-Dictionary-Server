@@ -2,8 +2,10 @@ package controller
 
 import (
 	"net/http"
+	"time"
 
 	"easy-dictionary-server/domain"
+	internalenv "easy-dictionary-server/internalenv"
 	validatorutil "easy-dictionary-server/internalenv/validator"
 
 	"github.com/gin-gonic/gin"
@@ -12,6 +14,7 @@ import (
 
 type AuthController struct {
 	AuthUseCase domain.AuthUseCase
+	Env         *internalenv.Env
 }
 
 func (authController *AuthController) Login(c *gin.Context) {
@@ -37,7 +40,7 @@ func (authController *AuthController) Login(c *gin.Context) {
 	// 	return
 	// }
 
-	accessToken, err := authController.AuthUseCase.CreateAccessToken(user, user.UID)
+	accessToken, err := authController.AuthUseCase.CreateAccessToken(user, authController.Env.AppEnv, authController.Env.JwtSecret, time.Duration(authController.Env.JwtExpTimeMinutes)*time.Minute)
 	if err != nil {
 		zap.S().Error("Failed to create access token for user UID " + user.UID)
 		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})

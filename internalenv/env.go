@@ -14,21 +14,17 @@ import (
 )
 
 type Env struct {
-	AppEnv        string `json:"app_env"`
-	ServerAddress string `json:"address"`
-	ServerPort    string `json:"port"`
-	TimeOut       int    `json:"timeout"`
-	DBName        string `json:"db_name"`
-	DBHost        string `json:"db_host"`
-	DBPort        int    `json:"db_port"`
-	DBUser        string `json:"db_user"`
-	DBPassword    string `json:"db_password"`
-	// ContextTimeout int
-	// DBHost         string
-	// DBPort         string
-	// DBUser         string
-	// DBPass         string
-	// DBName         string
+	AppEnv            string `json:"app_env"`
+	JwtExpTimeMinutes int    `json:"JWT_EXP_TIME_MINUTES"`
+	JwtSecret         string `json:"JWT_SECRET"`
+	ServerAddress     string `json:"address"`
+	ServerPort        string `json:"port"`
+	TimeOut           int    `json:"timeout"`
+	DBName            string `json:"db_name"`
+	DBHost            string `json:"db_host"`
+	DBPort            int    `json:"db_port"`
+	DBUser            string `json:"db_user"`
+	DBPassword        string `json:"db_password"`
 }
 
 type EnvInteface interface {
@@ -40,15 +36,17 @@ func (env *Env) CombineServerAddress() string {
 }
 
 const (
-	envName       = "app_env"
-	serverAddress = "address"
-	serverPort    = "port"
-	timeOut       = "timeout"
-	dbname        = "db_name"
-	dbhost        = "db_host"
-	dbport        = "db_port"
-	dbuser        = "db_user"
-	dbpassword    = "db_password"
+	envName           = "app_env"
+	jwtExpTimeMinutes = "JWT_EXP_TIME_MINUTES"
+	jwtSecret         = "JWT_SECRET"
+	serverAddress     = "address"
+	serverPort        = "port"
+	timeOut           = "timeout"
+	dbname            = "db_name"
+	dbhost            = "db_host"
+	dbport            = "db_port"
+	dbuser            = "db_user"
+	dbpassword        = "db_password"
 )
 
 func LoadEnv(environment string, changeEnvChan chan Env) *Env {
@@ -165,14 +163,16 @@ func readNewConfig(streamChanges *firestore.DocumentSnapshotIterator, client *fi
 
 func parseEnv() Env {
 	return Env{AppEnv: viper.GetString(envName),
-		ServerAddress: viper.GetString(serverAddress),
-		ServerPort:    viper.GetString(serverPort),
-		TimeOut:       viper.GetInt(timeOut),
-		DBName:        viper.GetString(dbname),
-		DBHost:        viper.GetString(dbhost),
-		DBPort:        viper.GetInt(dbport),
-		DBUser:        viper.GetString(dbuser),
-		DBPassword:    viper.GetString(dbpassword)}
+		JwtExpTimeMinutes: viper.GetInt(jwtExpTimeMinutes),
+		JwtSecret:         viper.GetString(jwtSecret),
+		ServerAddress:     viper.GetString(serverAddress),
+		ServerPort:        viper.GetString(serverPort),
+		TimeOut:           viper.GetInt(timeOut),
+		DBName:            viper.GetString(dbname),
+		DBHost:            viper.GetString(dbhost),
+		DBPort:            viper.GetInt(dbport),
+		DBUser:            viper.GetString(dbuser),
+		DBPassword:        viper.GetString(dbpassword)}
 }
 
 // func loadToekn() *oauth2.Token {
