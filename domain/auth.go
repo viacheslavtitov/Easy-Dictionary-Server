@@ -7,9 +7,9 @@ import (
 )
 
 type AuthRequest struct {
-	Email      string `json:"email" binding:"required,email"`
-	ProviderID string `json:"provider_id" binding:"required"`
-	UID        string `json:"uid" binding:"required"`
+	Email    string `json:"email" binding:"required,email"`
+	Provider string `json:"provider" binding:"required"`
+	UID      string `json:"uid" binding:"required"`
 }
 
 type AuthResponse struct {

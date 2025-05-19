@@ -2,10 +2,12 @@ package usecase
 
 import (
 	"context"
+	"time"
 
 	domain "easy-dictionary-server/domain"
 	domainUser "easy-dictionary-server/domain/user"
 	"easy-dictionary-server/internalenv/utils"
+	commonUseCase "easy-dictionary-server/usecase"
 )
 
 type authUsecase struct {
@@ -21,11 +23,11 @@ func NewAuthUsecase(userRepository domainUser.UserRepository, timeout int) domai
 }
 
 func (lu *authUsecase) GetUserByEmail(c context.Context, email string) (*domainUser.User, error) {
-	ctx, cancel := context.WithTimeout(c, ReadWriteTimeOut(lu.contextTimeout))
+	ctx, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(lu.contextTimeout))
 	defer cancel()
 	return lu.userRepository.GetByEmail(ctx, email)
 }
 
-func (lu *authUsecase) CreateAccessToken(user *domainUser.User, secret string) (accessToken string, err error) {
-	return utils.CreateAccessToken(user, secret)
+func (lu *authUsecase) CreateAccessToken(user *domainUser.User, appName string, secret string, duration time.Duration) (accessToken string, err error) {
+	return utils.CreateAccessToken(user, appName, secret, duration)
 }

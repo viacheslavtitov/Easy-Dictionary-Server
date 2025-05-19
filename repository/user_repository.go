@@ -23,8 +23,8 @@ func NewUserRepository(db *database.Database) domain.UserRepository {
 	return &userRepository{db: db}
 }
 
-func (ur *userRepository) Create(c context.Context, user *domain.User) error {
-	return nil
+func (ur *userRepository) Create(c context.Context, user *domain.User) (*domain.User, error) {
+	return user, nil
 }
 
 func (ur *userRepository) GetAllUsers(c context.Context) ([]*domain.User, error) {
@@ -40,17 +40,17 @@ func (ur *userRepository) GetAllUsers(c context.Context) ([]*domain.User, error)
 func (ur *userRepository) GetByEmail(c context.Context, email string) (*domain.User, error) {
 	zap.S().Debugf("GetByEmail %s", email)
 	userEntity, err := dbUser.GetUserByEmail(ur.db, email)
-	return userMapper.ToDomain(&userEntity), err
+	return userMapper.ToDomain(userEntity), err
 }
 
 func (ur *userRepository) GetByID(c context.Context, id int) (*domain.User, error) {
 	zap.S().Debugf("GetByID %d", id)
 	userEntity, err := dbUser.GetUserById(ur.db, id)
-	return userMapper.ToDomain(&userEntity), err
+	return userMapper.ToDomain(userEntity), err
 }
 
 func (ur *userRepository) UpdateUser(c context.Context, user *domain.User) (*domain.User, error) {
-	zap.S().Debugf("UpdateUser %s", user.Email)
+	zap.S().Debugf("UpdateUser %s %s", user.FirstName, user.SecondName)
 	userEntity := userMapper.FromDomain(user)
 	err := dbUser.UpdateUser(ur.db, *userEntity)
 	return user, err
