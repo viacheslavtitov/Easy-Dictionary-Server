@@ -83,7 +83,7 @@ VALUES (
     (SELECT id FROM new_user),
     $3, $4, $5, now()
 )
-RETURNING *;
+RETURNING user_id;
 `
 }
 
@@ -121,5 +121,5 @@ LEFT JOIN user_providers p ON u.id = p.user_id;`
 // Params:
 // - $1: id
 func DeleteUserByIdQuery() string {
-	return `DELETE FROM user WHERE id = $1`
+	return `DELETE FROM users WHERE id = $1`
 }

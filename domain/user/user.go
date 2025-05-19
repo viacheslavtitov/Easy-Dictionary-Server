@@ -36,7 +36,7 @@ func (user *User) FindEmailProvider() (provider *UserProviders) {
 		return nil
 	}
 	for _, p := range *user.Providers {
-		if p.Email == "email" {
+		if p.ProviderName == "email" {
 			return &p
 		}
 	}

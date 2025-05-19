@@ -22,6 +22,7 @@ func (userController *UserController) Register(c *gin.Context) {
 	zap.S().Info("POST Register")
 	var request userDomain.RegisterUserRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
+		zap.S().Error(err)
 		validationErrors := validatorutil.FormatValidationError(err)
 		c.JSON(http.StatusBadRequest, gin.H{"validation_errors": validationErrors})
 		return
@@ -56,6 +57,7 @@ func (userController *UserController) Register(c *gin.Context) {
 	user, err := userController.UserUseCase.RegisterUser(c, request.FirstName, request.SecondName, request.Email, request.Provider, passwordHash, request.ProviderToken)
 	if err != nil || user == nil {
 		zap.S().Error("Failed to register user with" + request.Email + " by provider " + request.Provider)
+		zap.S().Error(err)
 		c.JSON(http.StatusForbidden, domain.ErrorResponse{Message: "User can't register with " + request.Email + " by provider " + request.Provider})
 	} else {
 		zap.S().Debugf("User created %s %s", request.FirstName, request.SecondName)

@@ -18,6 +18,6 @@ func NewUserRouter(timeout int, group *gin.RouterGroup, database *database.Datab
 	ac := &controller.UserController{
 		UserUseCase: usecase.NewUserUsecase(ur, timeout),
 	}
-	group.POST("/api/register", ac.Register)
+	group.POST("api/signup", ac.Register)
 	// group.POST("/edit", ac.Register, middleware.JWTMiddleware(env))
 }

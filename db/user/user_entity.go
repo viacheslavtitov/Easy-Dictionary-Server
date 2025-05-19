@@ -116,11 +116,14 @@ func mapUserWithProvidersToEntity(err error, rows []userWithProviderRow) (*UserE
 	return &user, err
 }
 
-func CreateUser(db *database.Database, user UserEntity) (int, error) {
+func CreateUser(db *database.Database, user *UserEntity) (int, error) {
 	createdId := -1
-	err := db.SQLDB.Select(&createdId, CreateUserQuery(), user.FirstName, user.SecondName,
+	err := db.SQLDB.Get(&createdId, CreateUserQuery(), user.FirstName, user.SecondName,
 		(*user.Providers)[0].ProviderName, (*user.Providers)[0].Email, (*user.Providers)[0].HashedPassword)
-	return createdId, err
+	if err != nil {
+		return -1, err
+	}
+	return createdId, nil
 }
 
 func UpdateUser(db *database.Database, user UserEntity) error {

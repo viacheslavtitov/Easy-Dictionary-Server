@@ -16,6 +16,7 @@ func NewAuthRouter(timeout int, group *gin.RouterGroup, database *database.Datab
 	ur := repository.NewUserRepository(database)
 	ac := &controllerAuth.AuthController{
 		AuthUseCase: usecase.NewAuthUsecase(ur, timeout),
+		Env:         env,
 	}
-	group.POST("/api/auth", ac.Login)
+	group.POST("api/signin", ac.Login)
 }

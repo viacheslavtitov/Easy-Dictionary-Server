@@ -10,7 +10,7 @@ import (
 
 	middleware "easy-dictionary-server/api/middleware"
 	route "easy-dictionary-server/api/router"
-	database "easy-dictionary-server/db"
+	db "easy-dictionary-server/db"
 	internalenv "easy-dictionary-server/internalenv"
 
 	"github.com/gin-gonic/gin"
@@ -39,7 +39,8 @@ func main() {
 	zap.S().Debug("Debug log")
 	zap.S().Info("Info log")
 	//init database
-	database := database.Setup(env)
+	database := db.Setup(env)
+	db.RunMigrations(database.SQLDB)
 	//init http routers
 	routeGin := gin.Default()
 	zap.S().Info("Trying to start http server by address " + env.CombineServerAddress())
@@ -66,6 +67,7 @@ func main() {
 	defer cancel()
 	if err := server.Shutdown(ctx); err != nil {
 		zap.S().Fatal("Server Shutdown:", err)
+		database.SQLDB.Close()
 	}
 	select {
 	case <-ctx.Done():

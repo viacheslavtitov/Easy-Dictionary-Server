@@ -22,6 +22,7 @@ func (authController *AuthController) Login(c *gin.Context) {
 	zap.S().Info("POST Login")
 	var request domain.AuthRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
+		zap.S().Error(err)
 		validationErrors := validatorutil.FormatValidationError(err)
 		c.JSON(http.StatusBadRequest, gin.H{"validation_errors": validationErrors})
 		return
@@ -47,6 +48,7 @@ func (authController *AuthController) Login(c *gin.Context) {
 	user, err := authController.AuthUseCase.GetUserByEmail(c, request.Email)
 	if err != nil || user == nil {
 		zap.S().Errorf("User with %s %s not found", request.Provider, request.Email)
+		zap.S().Error(err)
 		c.JSON(http.StatusForbidden, domain.ErrorResponse{Message: "User not found with the " + request.Email + " email"})
 		return
 	} else {
@@ -72,6 +74,7 @@ func (authController *AuthController) Login(c *gin.Context) {
 	accessToken, err := authController.AuthUseCase.CreateAccessToken(user, authController.Env.AppEnv, authController.Env.JwtSecret, time.Duration(authController.Env.JwtExpTimeMinutes)*time.Minute)
 	if err != nil {
 		zap.S().Errorf("Failed to create access token for user %d", user.ID)
+		zap.S().Error(err)
 		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})
 		return
 	}
