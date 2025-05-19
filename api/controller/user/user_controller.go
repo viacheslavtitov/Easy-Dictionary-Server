@@ -35,7 +35,7 @@ func (userController *UserController) Register(c *gin.Context) {
 		}
 		if request.Email == "" {
 			zap.S().Error("Email is empty")
-			c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: "Provider token is required"})
+			c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: "Email is required"})
 			return
 		}
 		if !middleware.ValidatePassword(request.Password) {
@@ -57,10 +57,8 @@ func (userController *UserController) Register(c *gin.Context) {
 	if err != nil || user == nil {
 		zap.S().Error("Failed to register user with" + request.Email + " by provider " + request.Provider)
 		c.JSON(http.StatusForbidden, domain.ErrorResponse{Message: "User can't register with " + request.Email + " by provider " + request.Provider})
-		return
 	} else {
 		zap.S().Debugf("User created %s %s", request.FirstName, request.SecondName)
 		c.JSON(http.StatusCreated, user)
-		return
 	}
 }

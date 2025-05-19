@@ -2,7 +2,7 @@ package db
 
 import (
 	database "easy-dictionary-server/db"
-	// pointers "easy-dictionary-server/internalenv/utils/pointers"
+	pointers "easy-dictionary-server/internalenv/utils"
 	"time"
 )
 
@@ -62,9 +62,9 @@ func GetAllUsers(db *database.Database, orderBy database.OrderByType) ([]UserEnt
 			*user.Providers = append(*user.Providers, UserProviderEntity{
 				ID:             *row.ProviderID,
 				UserId:         row.UserID,
-				ProviderName:   pointers.deref(row.ProviderName),
-				Email:          pointers.deref(row.Email),
-				HashedPassword: pointers.deref(row.HashedPassword),
+				ProviderName:   pointers.Deref(row.ProviderName),
+				Email:          pointers.Deref(row.Email),
+				HashedPassword: pointers.Deref(row.HashedPassword),
 				CreatedAt:      *row.ProviderCreated,
 			})
 		}
@@ -107,9 +107,9 @@ func mapUserWithProvidersToEntity(err error, rows []userWithProviderRow) (*UserE
 			*user.Providers = append(*user.Providers, UserProviderEntity{
 				ID:             *row.ProviderID,
 				UserId:         row.UserID,
-				ProviderName:   pointers.deref(row.ProviderName),
-				Email:          pointers.deref(row.Email),
-				HashedPassword: pointers.deref(row.HashedPassword),
+				ProviderName:   pointers.Deref(row.ProviderName),
+				Email:          pointers.Deref(row.Email),
+				HashedPassword: pointers.Deref(row.HashedPassword),
 			})
 		}
 	}

@@ -1,6 +1,6 @@
 package utils
 
-func deref(s *string) string {
+func Deref(s *string) string {
 	if s == nil {
 		return ""
 	}

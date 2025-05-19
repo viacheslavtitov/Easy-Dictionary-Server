@@ -23,12 +23,24 @@ type UserProviders struct {
 }
 
 type RegisterUserRequest struct {
-	Email         string `json:"email"`
+	Email         string `json:"email" binding:"email"`
 	Provider      string `json:"provider" binding:"required"`
 	Password      string `json:"password"`
 	ProviderToken string `json:"provider_token"`
 	FirstName     string `json:"first_name" binding:"required"`
 	SecondName    string `json:"second_name" binding:"required"`
+}
+
+func (user *User) FindEmailProvider() (provider *UserProviders) {
+	if user.Providers == nil {
+		return nil
+	}
+	for _, p := range *user.Providers {
+		if p.Email == "email" {
+			return &p
+		}
+	}
+	return nil
 }
 
 type UserUseCase interface {
