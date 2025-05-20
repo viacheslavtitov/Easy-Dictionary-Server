@@ -3,6 +3,7 @@ package db
 import (
 	database "easy-dictionary-server/db"
 	pointers "easy-dictionary-server/internalenv/utils"
+	"errors"
 	"time"
 )
 
@@ -93,7 +94,7 @@ func mapUserWithProvidersToEntity(err error, rows []userWithProviderRow) (*UserE
 		return nil, err
 	}
 	if len(rows) == 0 {
-		return nil, nil
+		return nil, errors.New("User not found")
 	}
 	user := UserEntity{
 		ID:         rows[0].UserID,
@@ -127,7 +128,7 @@ func CreateUser(db *database.Database, user *UserEntity) (int, error) {
 }
 
 func UpdateUser(db *database.Database, user UserEntity) error {
-	_, err := db.SQLDB.NamedExec(UpdateUserQuery(), user)
+	_, err := db.SQLDB.Exec(UpdateUserQuery(), user.FirstName, user.SecondName, user.ID)
 	return err
 }
 

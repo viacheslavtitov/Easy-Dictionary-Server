@@ -2,7 +2,7 @@ package route
 
 import (
 	controller "easy-dictionary-server/api/controller/user"
-	// middleware "easy-dictionary-server/api/middleware"
+	middleware "easy-dictionary-server/api/middleware"
 	database "easy-dictionary-server/db"
 	internalenv "easy-dictionary-server/internalenv"
 	"easy-dictionary-server/repository"
@@ -19,5 +19,6 @@ func NewUserRouter(timeout int, group *gin.RouterGroup, database *database.Datab
 		UserUseCase: usecase.NewUserUsecase(ur, timeout),
 	}
 	group.POST("api/signup", ac.Register)
-	// group.POST("/edit", ac.Register, middleware.JWTMiddleware(env))
+	group.POST("api/users/edit", ac.Edit, middleware.JWTMiddleware(env))
+	group.GET("api/users/:id", ac.GetUserByID, middleware.JWTMiddleware(env))
 }

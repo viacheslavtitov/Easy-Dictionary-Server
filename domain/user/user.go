@@ -31,6 +31,13 @@ type RegisterUserRequest struct {
 	SecondName    string `json:"second_name" binding:"required"`
 }
 
+type EditUserRequest struct {
+	ID         int    `json:"id"`
+	Email      string `json:"email" binding:"email,required"`
+	FirstName  string `json:"first_name" binding:"required"`
+	SecondName string `json:"second_name" binding:"required"`
+}
+
 func (user *User) FindEmailProvider() (provider *UserProviders) {
 	if user.Providers == nil {
 		return nil
@@ -48,6 +55,7 @@ type UserUseCase interface {
 		email string, provider string, password string, providerToken string) (*User, error)
 	UpdateUser(context context.Context, id int, firstName string, secondName string) (*User, error)
 	DeleteUser(context context.Context, id int) error
+	GetByID(context context.Context, id int) (*User, error)
 }
 
 type UserRepository interface {

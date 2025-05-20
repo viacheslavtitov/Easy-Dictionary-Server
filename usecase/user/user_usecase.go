@@ -42,6 +42,7 @@ func (lu *userUsecase) UpdateUser(c context.Context, id int, firstName string, s
 	ctx, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(lu.contextTimeout))
 	defer cancel()
 	user := &domainUser.User{
+		ID:         id,
 		FirstName:  firstName,
 		SecondName: secondName,
 	}
@@ -52,4 +53,10 @@ func (lu *userUsecase) DeleteUser(c context.Context, id int) error {
 	ctx, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(lu.contextTimeout))
 	defer cancel()
 	return lu.userRepository.DeleteUser(ctx, id)
+}
+
+func (lu *userUsecase) GetByID(c context.Context, id int) (*domainUser.User, error) {
+	ctx, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(lu.contextTimeout))
+	defer cancel()
+	return lu.userRepository.GetByID(ctx, id)
 }
