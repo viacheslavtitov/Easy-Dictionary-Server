@@ -5,28 +5,28 @@ import (
 	domainUser "easy-dictionary-server/domain/user"
 )
 
-func ToDomain(u *dbUser.UserEntity) *domainUser.User {
+func ToUserDomain(u *dbUser.UserEntity) *domainUser.User {
 	return &domainUser.User{
 		ID:         u.ID,
 		FirstName:  u.FirstName,
 		SecondName: u.SecondName,
 		CreatedAt:  u.CreatedAt,
-		Providers:  ToDomainProviders(u.Providers),
+		Providers:  ToUserDomainProviders(u.Providers),
 	}
 }
 
-func ToDomainProviders(u *[]dbUser.UserProviderEntity) *[]domainUser.UserProviders {
+func ToUserDomainProviders(u *[]dbUser.UserProviderEntity) *[]domainUser.UserProviders {
 	if u == nil {
 		return &[]domainUser.UserProviders{}
 	}
 	providers := make([]domainUser.UserProviders, len(*u))
 	for i, item := range *u {
-		providers[i] = *ToDomainProvider(&item)
+		providers[i] = *ToUserDomainProvider(&item)
 	}
 	return &providers
 }
 
-func ToDomainProvider(u *dbUser.UserProviderEntity) *domainUser.UserProviders {
+func ToUserDomainProvider(u *dbUser.UserProviderEntity) *domainUser.UserProviders {
 	return &domainUser.UserProviders{
 		ID:             u.ID,
 		Email:          u.Email,
@@ -36,28 +36,28 @@ func ToDomainProvider(u *dbUser.UserProviderEntity) *domainUser.UserProviders {
 	}
 }
 
-func FromDomain(u *domainUser.User) *dbUser.UserEntity {
+func FromUserDomain(u *domainUser.User) *dbUser.UserEntity {
 	return &dbUser.UserEntity{
 		ID:         u.ID,
 		FirstName:  u.FirstName,
 		SecondName: u.SecondName,
 		CreatedAt:  u.CreatedAt,
-		Providers:  FromDomainProviders(u.Providers, u.ID),
+		Providers:  FromUserDomainProviders(u.Providers, u.ID),
 	}
 }
 
-func FromDomainProviders(u *[]domainUser.UserProviders, userId int) *[]dbUser.UserProviderEntity {
+func FromUserDomainProviders(u *[]domainUser.UserProviders, userId int) *[]dbUser.UserProviderEntity {
 	if u == nil {
 		return &[]dbUser.UserProviderEntity{}
 	}
 	providers := make([]dbUser.UserProviderEntity, len(*u))
 	for i, item := range *u {
-		providers[i] = *FromDomainProvider(&item, userId)
+		providers[i] = *FromUserDomainProvider(&item, userId)
 	}
 	return &providers
 }
 
-func FromDomainProvider(u *domainUser.UserProviders, userId int) *dbUser.UserProviderEntity {
+func FromUserDomainProvider(u *domainUser.UserProviders, userId int) *dbUser.UserProviderEntity {
 	return &dbUser.UserProviderEntity{
 		ID:             u.ID,
 		UserId:         userId,

@@ -38,7 +38,7 @@ type userWithProviderRow struct {
 
 func GetAllUsers(db *database.Database, orderBy database.OrderByType) ([]UserEntity, error) {
 	var rows []userWithProviderRow
-	err := db.SQLDB.Select(&rows, GetAllUsersQuery(orderBy))
+	err := db.SQLDB.Select(&rows, getAllUsersQuery(orderBy))
 	if err != nil {
 		return nil, err
 	}
@@ -79,13 +79,13 @@ func GetAllUsers(db *database.Database, orderBy database.OrderByType) ([]UserEnt
 
 func GetUserById(db *database.Database, id int) (*UserEntity, error) {
 	var rows []userWithProviderRow
-	err := db.SQLDB.Select(&rows, GetUserByIdQuery(), id)
+	err := db.SQLDB.Select(&rows, getUserByIdQuery(), id)
 	return mapUserWithProvidersToEntity(err, rows)
 }
 
 func GetUserByEmail(db *database.Database, email string) (*UserEntity, error) {
 	var rows []userWithProviderRow
-	err := db.SQLDB.Select(&rows, GetUserByEmailQuery(), email)
+	err := db.SQLDB.Select(&rows, getUserByEmailQuery(), email)
 	return mapUserWithProvidersToEntity(err, rows)
 }
 
@@ -119,7 +119,7 @@ func mapUserWithProvidersToEntity(err error, rows []userWithProviderRow) (*UserE
 
 func CreateUser(db *database.Database, user *UserEntity) (int, error) {
 	createdId := -1
-	err := db.SQLDB.Get(&createdId, CreateUserQuery(), user.FirstName, user.SecondName,
+	err := db.SQLDB.Get(&createdId, createUserQuery(), user.FirstName, user.SecondName,
 		(*user.Providers)[0].ProviderName, (*user.Providers)[0].Email, (*user.Providers)[0].HashedPassword)
 	if err != nil {
 		return -1, err
@@ -128,11 +128,11 @@ func CreateUser(db *database.Database, user *UserEntity) (int, error) {
 }
 
 func UpdateUser(db *database.Database, user UserEntity) error {
-	_, err := db.SQLDB.Exec(UpdateUserQuery(), user.FirstName, user.SecondName, user.ID)
+	_, err := db.SQLDB.Exec(updateUserQuery(), user.FirstName, user.SecondName, user.ID)
 	return err
 }
 
 func DeleteUserById(db *database.Database, id int) error {
-	_, err := db.SQLDB.Exec(DeleteUserByIdQuery(), id)
+	_, err := db.SQLDB.Exec(deleteUserByIdQuery(), id)
 	return err
 }

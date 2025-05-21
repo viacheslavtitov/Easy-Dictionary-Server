@@ -5,7 +5,7 @@ import (
 	middleware "easy-dictionary-server/api/middleware"
 	database "easy-dictionary-server/db"
 	internalenv "easy-dictionary-server/internalenv"
-	"easy-dictionary-server/repository"
+	repositoryUser "easy-dictionary-server/repository/user"
 	usecase "easy-dictionary-server/usecase/user"
 
 	"github.com/gin-gonic/gin"
@@ -14,7 +14,7 @@ import (
 
 func NewUserRouter(timeout int, group *gin.RouterGroup, database *database.Database, env *internalenv.Env) {
 	zap.S().Info("Set up user route")
-	ur := repository.NewUserRepository(database)
+	ur := repositoryUser.NewUserRepository(database)
 	ac := &controller.UserController{
 		UserUseCase: usecase.NewUserUsecase(ur, timeout),
 	}

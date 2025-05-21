@@ -6,7 +6,7 @@ import (
 )
 
 // GetAllUsersQuery get query to get all users from user table
-func GetAllUsersQuery(orderBy database.OrderByType) string {
+func getAllUsersQuery(orderBy database.OrderByType) string {
 	return fmt.Sprintf(`
 SELECT 
     u.id AS user_id,
@@ -25,7 +25,7 @@ ORDER BY p.email %s;`, orderBy.VALUE)
 }
 
 // GetUserByIdQuery get query to get user by id from user table and join with user_providers table
-func GetUserByIdQuery() string {
+func getUserByIdQuery() string {
 	return `
 SELECT 
     u.id AS user_id,
@@ -44,7 +44,7 @@ WHERE u.id = $1;`
 }
 
 // GetUserByEmailQuery get query to get user by email from user table
-func GetUserByEmailQuery() string {
+func getUserByEmailQuery() string {
 	return `
 SELECT 
     u.id AS user_id,
@@ -71,7 +71,7 @@ WHERE p.email = $1;`
 // - $5: hashed password
 // Return:
 // - id: created user id
-func CreateUserQuery() string {
+func createUserQuery() string {
 	return `
 WITH new_user AS (
     INSERT INTO users (first_name, second_name, created_at)
@@ -92,7 +92,7 @@ RETURNING user_id;
 // - $1: first_name
 // - $2: second_name
 // - $3: id of user in database which you want to update
-func UpdateUserQuery() string {
+func updateUserQuery() string {
 	return `
 WITH updated_user AS (
     UPDATE users
@@ -120,6 +120,6 @@ LEFT JOIN user_providers p ON u.id = p.user_id;`
 // DeleteUserByIdQuery get query to delete user by id from user table
 // Params:
 // - $1: id
-func DeleteUserByIdQuery() string {
+func deleteUserByIdQuery() string {
 	return `DELETE FROM users WHERE id = $1`
 }

@@ -4,7 +4,7 @@ import (
 	controllerAuth "easy-dictionary-server/api/controller/auth"
 	database "easy-dictionary-server/db"
 	internalenv "easy-dictionary-server/internalenv"
-	"easy-dictionary-server/repository"
+	repositoryUser "easy-dictionary-server/repository/user"
 	usecase "easy-dictionary-server/usecase/auth"
 
 	"github.com/gin-gonic/gin"
@@ -13,7 +13,7 @@ import (
 
 func NewAuthRouter(timeout int, group *gin.RouterGroup, database *database.Database, env *internalenv.Env) {
 	zap.S().Info("Set up auth route")
-	ur := repository.NewUserRepository(database)
+	ur := repositoryUser.NewUserRepository(database)
 	ac := &controllerAuth.AuthController{
 		AuthUseCase: usecase.NewAuthUsecase(ur, timeout),
 		Env:         env,

@@ -80,7 +80,7 @@ func (userController *UserController) Edit(c *gin.Context) {
 	if err != nil || user == nil {
 		zap.S().Error("Failed to update user with" + request.Email)
 		zap.S().Error(err)
-		c.JSON(http.StatusForbidden, domain.ErrorResponse{Message: "User can't update with " + request.Email})
+		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: "User can't update with " + request.Email})
 	} else {
 		zap.S().Debugf("User updated %s %s", request.FirstName, request.SecondName)
 		c.JSON(http.StatusOK, user)
@@ -98,7 +98,7 @@ func (userController *UserController) GetUserByID(c *gin.Context) {
 		if err != nil || user == nil {
 			zap.S().Errorf("Failed to get user id %d", userIdInt)
 			zap.S().Error(err)
-			c.JSON(http.StatusForbidden, domain.ErrorResponse{Message: "Failed to find user"})
+			c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: "Failed to find user"})
 			return
 		} else {
 			zap.S().Debugf("User found %s %s", user.FirstName, user.SecondName)
