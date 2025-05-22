@@ -8,12 +8,12 @@ import (
 )
 
 type UserEntity struct {
-	ID         int                   `db:"id"`
-	FirstName  string                `db:"first_name"`
-	SecondName string                `db:"second_name"`
-	Role       string                `db:"user_role"`
-	Providers  *[]UserProviderEntity `db:"-"`
-	CreatedAt  time.Time             `db:"created_at"`
+	ID        int                   `db:"id"`
+	FirstName string                `db:"first_name"`
+	LastName  string                `db:"last_name"`
+	Role      string                `db:"user_role"`
+	Providers *[]UserProviderEntity `db:"-"`
+	CreatedAt time.Time             `db:"created_at"`
 }
 
 type UserProviderEntity struct {
@@ -28,7 +28,7 @@ type UserProviderEntity struct {
 type userWithProviderRow struct {
 	UserID          int        `db:"user_id"`
 	FirstName       string     `db:"first_name"`
-	SecondName      string     `db:"second_name"`
+	LastName        string     `db:"last_name"`
 	UserCreatedAt   time.Time  `db:"user_created_at"`
 	Role            string     `db:"user_role"`
 	ProviderID      *int       `db:"provider_id"`
@@ -52,11 +52,11 @@ func GetAllUsers(db *database.Database, orderBy database.OrderByType) ([]UserEnt
 		user, exists := userMap[row.UserID]
 		if !exists {
 			user = &UserEntity{
-				ID:         row.UserID,
-				FirstName:  row.FirstName,
-				SecondName: row.SecondName,
-				CreatedAt:  row.UserCreatedAt,
-				Providers:  &[]UserProviderEntity{},
+				ID:        row.UserID,
+				FirstName: row.FirstName,
+				LastName:  row.LastName,
+				CreatedAt: row.UserCreatedAt,
+				Providers: &[]UserProviderEntity{},
 			}
 			userMap[row.UserID] = user
 		}
@@ -99,11 +99,11 @@ func mapUserWithProvidersToEntity(err error, rows []userWithProviderRow) (*UserE
 		return nil, errors.New("User not found")
 	}
 	user := UserEntity{
-		ID:         rows[0].UserID,
-		FirstName:  rows[0].FirstName,
-		SecondName: rows[0].SecondName,
-		CreatedAt:  rows[0].UserCreatedAt,
-		Providers:  &[]UserProviderEntity{},
+		ID:        rows[0].UserID,
+		FirstName: rows[0].FirstName,
+		LastName:  rows[0].LastName,
+		CreatedAt: rows[0].UserCreatedAt,
+		Providers: &[]UserProviderEntity{},
 	}
 	for _, row := range rows {
 		if row.ProviderID != nil {
@@ -121,7 +121,7 @@ func mapUserWithProvidersToEntity(err error, rows []userWithProviderRow) (*UserE
 
 func CreateUser(db *database.Database, user *UserEntity) (int, error) {
 	createdId := -1
-	err := db.SQLDB.Get(&createdId, createUserQuery(), user.FirstName, user.SecondName, user.Role,
+	err := db.SQLDB.Get(&createdId, createUserQuery(), user.FirstName, user.LastName, user.Role,
 		(*user.Providers)[0].ProviderName, (*user.Providers)[0].Email, (*user.Providers)[0].HashedPassword)
 	if err != nil {
 		return -1, err
@@ -130,7 +130,7 @@ func CreateUser(db *database.Database, user *UserEntity) (int, error) {
 }
 
 func UpdateUser(db *database.Database, user UserEntity) error {
-	_, err := db.SQLDB.Exec(updateUserQuery(), user.FirstName, user.SecondName, user.ID)
+	_, err := db.SQLDB.Exec(updateUserQuery(), user.FirstName, user.LastName, user.ID)
 	return err
 }
 

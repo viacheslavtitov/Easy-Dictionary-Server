@@ -59,7 +59,7 @@ func (ur *userRepository) GetByID(c context.Context, id int) (*domain.User, erro
 }
 
 func (ur *userRepository) UpdateUser(c context.Context, user *domain.User) (*domain.User, error) {
-	zap.S().Debugf("UpdateUser %s %s", user.FirstName, user.SecondName)
+	zap.S().Debugf("UpdateUser %s %s", user.FirstName, user.LastName)
 	userEntity := userMapper.FromUserDomain(user)
 	err := dbUser.UpdateUser(ur.db, *userEntity)
 	if err != nil {

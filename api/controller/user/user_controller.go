@@ -55,13 +55,13 @@ func (userController *UserController) Register(c *gin.Context, role string) {
 		}
 	}
 
-	user, err := userController.UserUseCase.RegisterUser(c, request.FirstName, request.SecondName, role, request.Email, request.Provider, passwordHash, request.ProviderToken)
+	user, err := userController.UserUseCase.RegisterUser(c, request.FirstName, request.LastName, role, request.Email, request.Provider, passwordHash, request.ProviderToken)
 	if err != nil || user == nil {
 		zap.S().Error("Failed to register user with" + request.Email + " by provider " + request.Provider)
 		zap.S().Error(err)
 		c.JSON(http.StatusForbidden, domain.ErrorResponse{Message: "User can't register with " + request.Email + " by provider " + request.Provider})
 	} else {
-		zap.S().Debugf("User created %s %s", request.FirstName, request.SecondName)
+		zap.S().Debugf("User created %s %s", request.FirstName, request.LastName)
 		c.JSON(http.StatusCreated, user)
 	}
 }
@@ -76,13 +76,13 @@ func (userController *UserController) Edit(c *gin.Context) {
 		return
 	}
 
-	user, err := userController.UserUseCase.UpdateUser(c, request.ID, request.FirstName, request.SecondName)
+	user, err := userController.UserUseCase.UpdateUser(c, request.ID, request.FirstName, request.LastName)
 	if err != nil || user == nil {
 		zap.S().Error("Failed to update user with" + request.Email)
 		zap.S().Error(err)
 		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: "User can't update with " + request.Email})
 	} else {
-		zap.S().Debugf("User updated %s %s", request.FirstName, request.SecondName)
+		zap.S().Debugf("User updated %s %s", request.FirstName, request.LastName)
 		c.JSON(http.StatusOK, user)
 	}
 }
@@ -101,7 +101,7 @@ func (userController *UserController) GetUserByID(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: "Failed to find user"})
 			return
 		} else {
-			zap.S().Debugf("User found %s %s", user.FirstName, user.SecondName)
+			zap.S().Debugf("User found %s %s", user.FirstName, user.LastName)
 			c.JSON(http.StatusOK, user)
 			return
 		}

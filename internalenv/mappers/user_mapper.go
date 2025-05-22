@@ -7,12 +7,12 @@ import (
 
 func ToUserDomain(u *dbUser.UserEntity) *domainUser.User {
 	return &domainUser.User{
-		ID:         u.ID,
-		FirstName:  u.FirstName,
-		SecondName: u.SecondName,
-		CreatedAt:  u.CreatedAt,
-		Role:       u.Role,
-		Providers:  ToUserDomainProviders(u.Providers),
+		ID:        u.ID,
+		FirstName: u.FirstName,
+		LastName:  u.LastName,
+		CreatedAt: u.CreatedAt,
+		Role:      u.Role,
+		Providers: ToUserDomainProviders(u.Providers),
 	}
 }
 
@@ -39,12 +39,12 @@ func ToUserDomainProvider(u *dbUser.UserProviderEntity) *domainUser.UserProvider
 
 func FromUserDomain(u *domainUser.User) *dbUser.UserEntity {
 	return &dbUser.UserEntity{
-		ID:         u.ID,
-		FirstName:  u.FirstName,
-		SecondName: u.SecondName,
-		CreatedAt:  u.CreatedAt,
-		Providers:  FromUserDomainProviders(u.Providers, u.ID),
-		Role:       u.Role,
+		ID:        u.ID,
+		FirstName: u.FirstName,
+		LastName:  u.LastName,
+		CreatedAt: u.CreatedAt,
+		Providers: FromUserDomainProviders(u.Providers, u.ID),
+		Role:      u.Role,
 	}
 }
 

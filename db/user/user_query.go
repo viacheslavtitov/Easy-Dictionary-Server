@@ -11,7 +11,7 @@ func getAllUsersQuery(orderBy database.OrderByType) string {
 SELECT 
     u.id AS user_id,
     u.first_name,
-	u.second_name,
+	u.last_name,
     u.created_at AS user_created_at,
     u.user_role,
     p.id AS provider_id,
@@ -31,7 +31,7 @@ func getUserByIdQuery() string {
 SELECT 
     u.id AS user_id,
     u.first_name,
-	u.second_name,
+	u.last_name,
     u.created_at AS user_created_at,
     u.user_role,
     p.id AS provider_id,
@@ -51,7 +51,7 @@ func getUserByEmailQuery() string {
 SELECT 
     u.id AS user_id,
     u.first_name,
-	u.second_name,
+	u.last_name,
     u.created_at AS user_created_at,
     u.user_role,
     p.id AS provider_id,
@@ -78,7 +78,7 @@ WHERE p.email = $1;`
 func createUserQuery() string {
 	return `
 WITH new_user AS (
-    INSERT INTO users (first_name, second_name, user_role, created_at)
+    INSERT INTO users (first_name, last_name, user_role, created_at)
     VALUES ($1, $2, $3, now())
     RETURNING id
 )
@@ -94,7 +94,7 @@ RETURNING user_id;
 // UpdateUserQuery get query to update user
 // Params:
 // - $1: first_name
-// - $2: second_name
+// - $2: last_name
 // - $3: id of user in database which you want to update
 func updateUserQuery() string {
 	return `
@@ -102,14 +102,14 @@ WITH updated_user AS (
     UPDATE users
     SET 
         first_name = $1,
-        second_name = $2
+        last_name = $2
     WHERE id = $3
-    RETURNING id, first_name, second_name, created_at
+    RETURNING id, first_name, last_name, created_at
 )
 SELECT 
     u.id AS user_id,
     u.first_name,
-    u.second_name,
+    u.last_name,
     u.created_at AS user_created_at,
 
     p.id AS provider_id,

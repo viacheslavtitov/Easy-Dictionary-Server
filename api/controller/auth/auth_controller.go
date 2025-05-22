@@ -52,7 +52,7 @@ func (authController *AuthController) Login(c *gin.Context) {
 		c.JSON(http.StatusForbidden, domain.ErrorResponse{Message: "User not found with the " + request.Email + " email"})
 		return
 	} else {
-		zap.S().Debugf("User found %s %s %d", user.FirstName, user.SecondName, user.ID)
+		zap.S().Debugf("User found %s %s %d", user.FirstName, user.LastName, user.ID)
 		if request.Provider == "email" {
 			emailProvider := user.FindEmailProvider()
 			if emailProvider == nil {
