@@ -18,8 +18,8 @@ func NewDictionaryRouter(timeout int, group *gin.RouterGroup, database *database
 	dc := &controller.DictionaryController{
 		DictionaryUseCase: usecase.NewDictionaryUsecase(rd, timeout),
 	}
-	group.POST("api/dictionary/create", dc.Create, middleware.JWTMiddleware(env))
-	group.POST("api/dictionary/edit", dc.Edit, middleware.JWTMiddleware(env))
-	group.GET("api/dictionary/all", dc.GetAllForUser, middleware.JWTMiddleware(env))
-	group.DELETE("api/dictionary/:id", dc.Delete, middleware.JWTMiddleware(env))
+	group.POST("api/dictionary/create", dc.Create, middleware.JWTMiddleware(env, middleware.Client.VALUE))
+	group.POST("api/dictionary/edit", dc.Edit, middleware.JWTMiddleware(env, middleware.Client.VALUE))
+	group.GET("api/dictionary/all", middleware.JWTMiddleware(env, middleware.Client.VALUE), dc.GetAllForUser)
+	group.DELETE("api/dictionary/:id", dc.Delete, middleware.JWTMiddleware(env, middleware.Client.VALUE))
 }

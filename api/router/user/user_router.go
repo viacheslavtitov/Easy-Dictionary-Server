@@ -12,13 +12,21 @@ import (
 	"go.uber.org/zap"
 )
 
-func NewUserRouter(timeout int, group *gin.RouterGroup, database *database.Database, env *internalenv.Env) {
+func NewUserRouter(timeout int, group *gin.RouterGroup, database *database.Database, env *internalenv.Env, role string) {
 	zap.S().Info("Set up user route")
 	ur := repositoryUser.NewUserRepository(database)
 	ac := &controller.UserController{
 		UserUseCase: usecase.NewUserUsecase(ur, timeout),
 	}
-	group.POST("api/signup", ac.Register)
-	group.POST("api/users/edit", ac.Edit, middleware.JWTMiddleware(env))
-	group.GET("api/users/:id", ac.GetUserByID, middleware.JWTMiddleware(env))
+	roleMiddleware := middleware.JWTMiddleware(env, role)
+	group.Use(roleMiddleware)
+	{
+		group.GET("api/users/all", ac.GetAllUsers)
+		group.POST("api/signup", func(c *gin.Context) {
+			ac.Register(c, role)
+		})
+
+		group.POST("api/users/edit", ac.Edit)
+		group.GET("api/users/:id", ac.GetUserByID)
+	}
 }

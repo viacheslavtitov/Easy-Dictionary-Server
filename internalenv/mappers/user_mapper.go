@@ -11,6 +11,7 @@ func ToUserDomain(u *dbUser.UserEntity) *domainUser.User {
 		FirstName:  u.FirstName,
 		SecondName: u.SecondName,
 		CreatedAt:  u.CreatedAt,
+		Role:       u.Role,
 		Providers:  ToUserDomainProviders(u.Providers),
 	}
 }
@@ -43,6 +44,7 @@ func FromUserDomain(u *domainUser.User) *dbUser.UserEntity {
 		SecondName: u.SecondName,
 		CreatedAt:  u.CreatedAt,
 		Providers:  FromUserDomainProviders(u.Providers, u.ID),
+		Role:       u.Role,
 	}
 }
 

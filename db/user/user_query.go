@@ -13,6 +13,7 @@ SELECT
     u.first_name,
 	u.second_name,
     u.created_at AS user_created_at,
+    u.role,
     p.id AS provider_id,
     p.provider_name,
 	p.email,
@@ -32,6 +33,7 @@ SELECT
     u.first_name,
 	u.second_name,
     u.created_at AS user_created_at,
+    u.role,
     p.id AS provider_id,
     p.provider_name,
 	p.email,
@@ -51,6 +53,7 @@ SELECT
     u.first_name,
 	u.second_name,
     u.created_at AS user_created_at,
+    u.role,
     p.id AS provider_id,
     p.provider_name,
 	p.email,
@@ -66,22 +69,23 @@ WHERE p.email = $1;`
 // Params:
 // - $1: first name
 // - $2: second name
-// - $3: provider name
-// - $4: email
-// - $5: hashed password
+// - $3: role
+// - $4: provider name
+// - $5: email
+// - $6: hashed password
 // Return:
 // - id: created user id
 func createUserQuery() string {
 	return `
 WITH new_user AS (
-    INSERT INTO users (first_name, second_name, created_at)
-    VALUES ($1, $2, now())
+    INSERT INTO users (first_name, second_name, role, created_at)
+    VALUES ($1, $2, $3, now())
     RETURNING id
 )
 INSERT INTO user_providers (user_id, provider_name, email, hashed_password, created_at)
 VALUES (
     (SELECT id FROM new_user),
-    $3, $4, $5, now()
+    $4, $5, $6, now()
 )
 RETURNING user_id;
 `

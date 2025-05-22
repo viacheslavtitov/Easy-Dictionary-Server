@@ -11,6 +11,7 @@ type UserEntity struct {
 	ID         int                   `db:"id"`
 	FirstName  string                `db:"first_name"`
 	SecondName string                `db:"second_name"`
+	Role       string                `db:"role"`
 	Providers  *[]UserProviderEntity `db:"-"`
 	CreatedAt  time.Time             `db:"created_at"`
 }
@@ -29,6 +30,7 @@ type userWithProviderRow struct {
 	FirstName       string     `db:"first_name"`
 	SecondName      string     `db:"second_name"`
 	UserCreatedAt   time.Time  `db:"user_created_at"`
+	Role            string     `db:"role"`
 	ProviderID      *int       `db:"provider_id"`
 	ProviderName    *string    `db:"provider_name"`
 	Email           *string    `db:"email"`
@@ -119,7 +121,7 @@ func mapUserWithProvidersToEntity(err error, rows []userWithProviderRow) (*UserE
 
 func CreateUser(db *database.Database, user *UserEntity) (int, error) {
 	createdId := -1
-	err := db.SQLDB.Get(&createdId, createUserQuery(), user.FirstName, user.SecondName,
+	err := db.SQLDB.Get(&createdId, createUserQuery(), user.FirstName, user.SecondName, user.Role,
 		(*user.Providers)[0].ProviderName, (*user.Providers)[0].Email, (*user.Providers)[0].HashedPassword)
 	if err != nil {
 		return -1, err

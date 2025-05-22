@@ -9,7 +9,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func JWTMiddleware(env *internalenv.Env) gin.HandlerFunc {
+func JWTMiddleware(env *internalenv.Env, requiredRole string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
@@ -19,8 +19,7 @@ func JWTMiddleware(env *internalenv.Env) gin.HandlerFunc {
 
 		tokenString := strings.Replace(authHeader, "Bearer ", "", 1)
 
-		claims := &jwt.RegisteredClaims{}
-		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 			return []byte(env.JwtSecret), nil
 		})
 
@@ -28,8 +27,13 @@ func JWTMiddleware(env *internalenv.Env) gin.HandlerFunc {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
 			return
 		}
-
+		claims := token.Claims.(*Claims)
+		if claims.Role != requiredRole {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "Insufficient role"})
+			return
+		}
 		c.Set("userID", claims.Subject)
+		c.Set("user_role", claims.Role)
 
 		c.Next()
 	}

@@ -11,6 +11,7 @@ type User struct {
 	SecondName string           `json:"second_name"`
 	CreatedAt  time.Time        `json:"created_at"`
 	Providers  *[]UserProviders `json:"providers"`
+	Role       string
 }
 
 type UserProviders struct {
@@ -51,11 +52,12 @@ func (user *User) FindEmailProvider() (provider *UserProviders) {
 }
 
 type UserUseCase interface {
-	RegisterUser(context context.Context, firstName string, secondName string,
+	RegisterUser(context context.Context, firstName string, secondName string, role string,
 		email string, provider string, password string, providerToken string) (*User, error)
 	UpdateUser(context context.Context, id int, firstName string, secondName string) (*User, error)
 	DeleteUser(context context.Context, id int) error
 	GetByID(context context.Context, id int) (*User, error)
+	GetAllUsers(context context.Context) ([]*User, error)
 }
 
 type UserRepository interface {

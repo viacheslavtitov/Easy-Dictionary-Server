@@ -19,7 +19,7 @@ type UserController struct {
 	Env         *internalenv.Env
 }
 
-func (userController *UserController) Register(c *gin.Context) {
+func (userController *UserController) Register(c *gin.Context, role string) {
 	zap.S().Info("POST Register")
 	var request userDomain.RegisterUserRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
@@ -55,7 +55,7 @@ func (userController *UserController) Register(c *gin.Context) {
 		}
 	}
 
-	user, err := userController.UserUseCase.RegisterUser(c, request.FirstName, request.SecondName, request.Email, request.Provider, passwordHash, request.ProviderToken)
+	user, err := userController.UserUseCase.RegisterUser(c, request.FirstName, request.SecondName, role, request.Email, request.Provider, passwordHash, request.ProviderToken)
 	if err != nil || user == nil {
 		zap.S().Error("Failed to register user with" + request.Email + " by provider " + request.Provider)
 		zap.S().Error(err)
@@ -106,5 +106,19 @@ func (userController *UserController) GetUserByID(c *gin.Context) {
 			return
 		}
 	}
+}
 
+func (userController *UserController) GetAllUsers(c *gin.Context) {
+	zap.S().Infof("GET GetAllUsers")
+	users, err := userController.UserUseCase.GetAllUsers(c)
+	if err != nil || users == nil {
+		zap.S().Errorf("Failed to get users")
+		zap.S().Error(err)
+		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: "Failed to find user"})
+		return
+	} else {
+		zap.S().Debugf("User found %d", len(users))
+		c.JSON(http.StatusOK, users)
+		return
+	}
 }
