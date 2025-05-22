@@ -81,7 +81,7 @@ func (languageController *LanguageController) Create(c *gin.Context) {
 		zap.S().Error(err)
 		c.JSON(http.StatusInternalServerError, err.Error())
 	} else {
-		zap.S().Debugf("Language updated %s %s", request.Name, request.Code)
+		zap.S().Debugf("Language created %s %s", request.Name, request.Code)
 		c.JSON(http.StatusCreated, domain.SuccessResponse{Message: "Language created"})
 	}
 }

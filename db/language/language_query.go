@@ -1,14 +1,15 @@
 package db
 
-// GetAllLanguagesForUserQuery get query to get all user languages from user_languages table
+// GetAllLanguagesForUserQuery get query to get all user languages from language table
 func getAllLanguagesForUserQuery() string {
 	return `
 SELECT 
     id AS id,
 	name AS name,
 	code AS code,
-FROM user_languages
-WHERE id = $1;`
+	user_id AS user_id
+FROM language
+WHERE user_id = $1;`
 }
 
 // CreateUserLanguageQuery get query to create language
@@ -18,7 +19,7 @@ WHERE id = $1;`
 // - $3: user id
 func createUserLanguageQuery() string {
 	return `
-INSERT INTO user_languages (name, code, user_id)
+INSERT INTO language (name, code, user_id)
 VALUES ($1, $2, $3);
 `
 }
@@ -30,7 +31,7 @@ VALUES ($1, $2, $3);
 // - $3: language id
 func updateUserLanguageQuery() string {
 	return `
-UPDATE user_languages
+UPDATE language
 SET 
     name = $1,
     code = $2
@@ -38,9 +39,9 @@ WHERE id = $3
 RETURNING id, code, name;`
 }
 
-// DeleteUserLanguageByIdQuery get query to delete language by id from user_languages table
+// DeleteUserLanguageByIdQuery get query to delete language by id from language table
 // Params:
 // - $1: id
 func deleteUserLanguageByIdQuery() string {
-	return `DELETE FROM user_languages WHERE id = $1`
+	return `DELETE FROM language WHERE id = $1`
 }

@@ -2,6 +2,7 @@ package route
 
 import (
 	routeAuth "easy-dictionary-server/api/router/auth"
+	routeDictionary "easy-dictionary-server/api/router/dictionary"
 	routeLanguage "easy-dictionary-server/api/router/language"
 	routeUser "easy-dictionary-server/api/router/user"
 	database "easy-dictionary-server/db"
@@ -16,4 +17,5 @@ func Setup(timeout int, group *gin.RouterGroup, database *database.Database, env
 	routeAuth.NewAuthRouter(timeout, group, database, env)
 	routeUser.NewUserRouter(timeout, group, database, env)
 	routeLanguage.NewLanguageRouter(timeout, group, database, env)
+	routeDictionary.NewDictionaryRouter(timeout, group, database, env)
 }
