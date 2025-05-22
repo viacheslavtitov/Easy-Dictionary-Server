@@ -13,7 +13,7 @@ SELECT
     u.first_name,
 	u.second_name,
     u.created_at AS user_created_at,
-    u.role,
+    u.user_role,
     p.id AS provider_id,
     p.provider_name,
 	p.email,
@@ -33,7 +33,7 @@ SELECT
     u.first_name,
 	u.second_name,
     u.created_at AS user_created_at,
-    u.role,
+    u.user_role,
     p.id AS provider_id,
     p.provider_name,
 	p.email,
@@ -53,7 +53,7 @@ SELECT
     u.first_name,
 	u.second_name,
     u.created_at AS user_created_at,
-    u.role,
+    u.user_role,
     p.id AS provider_id,
     p.provider_name,
 	p.email,
@@ -78,7 +78,7 @@ WHERE p.email = $1;`
 func createUserQuery() string {
 	return `
 WITH new_user AS (
-    INSERT INTO users (first_name, second_name, role, created_at)
+    INSERT INTO users (first_name, second_name, user_role, created_at)
     VALUES ($1, $2, $3, now())
     RETURNING id
 )

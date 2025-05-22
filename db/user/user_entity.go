@@ -11,7 +11,7 @@ type UserEntity struct {
 	ID         int                   `db:"id"`
 	FirstName  string                `db:"first_name"`
 	SecondName string                `db:"second_name"`
-	Role       string                `db:"role"`
+	Role       string                `db:"user_role"`
 	Providers  *[]UserProviderEntity `db:"-"`
 	CreatedAt  time.Time             `db:"created_at"`
 }
@@ -30,7 +30,7 @@ type userWithProviderRow struct {
 	FirstName       string     `db:"first_name"`
 	SecondName      string     `db:"second_name"`
 	UserCreatedAt   time.Time  `db:"user_created_at"`
-	Role            string     `db:"role"`
+	Role            string     `db:"user_role"`
 	ProviderID      *int       `db:"provider_id"`
 	ProviderName    *string    `db:"provider_name"`
 	Email           *string    `db:"email"`
