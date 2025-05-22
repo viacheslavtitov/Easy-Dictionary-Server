@@ -18,8 +18,11 @@ func NewLanguageRouter(timeout int, group *gin.RouterGroup, database *database.D
 	lc := &controller.LanguageController{
 		LanguageUseCase: usecase.NewLanguageUsecase(rl, timeout),
 	}
-	group.POST("api/languages/create", lc.Create, middleware.JWTMiddleware(env, middleware.Client.VALUE))
-	group.POST("api/languages/edit", lc.Edit, middleware.JWTMiddleware(env, middleware.Client.VALUE))
-	group.GET("api/languages/all", middleware.JWTMiddleware(env, middleware.Client.VALUE), lc.GetAllForUser)
-	group.DELETE("api/languages/:id", lc.Delete, middleware.JWTMiddleware(env, middleware.Client.VALUE))
+	langGroup := group.Group("", middleware.JWTMiddleware(env, middleware.Client.VALUE))
+	{
+		langGroup.POST("api/languages/create", lc.Create)
+		langGroup.POST("api/languages/edit", lc.Edit)
+		langGroup.GET("api/languages/all", lc.GetAllForUser)
+		langGroup.DELETE("api/languages/:id", lc.Delete)
+	}
 }

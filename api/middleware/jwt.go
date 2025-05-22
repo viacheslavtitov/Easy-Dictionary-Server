@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"go.uber.org/zap"
 )
 
 func JWTMiddleware(env *internalenv.Env, requiredRole string) gin.HandlerFunc {
@@ -24,11 +25,13 @@ func JWTMiddleware(env *internalenv.Env, requiredRole string) gin.HandlerFunc {
 		})
 
 		if err != nil || !token.Valid {
+			zap.S().Error(err)
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
 			return
 		}
 		claims := token.Claims.(*Claims)
 		if claims.Role != requiredRole {
+			zap.S().Debugf("User role is not match. Now is %s , but required is %s", claims.Role, requiredRole)
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "Insufficient role"})
 			return
 		}

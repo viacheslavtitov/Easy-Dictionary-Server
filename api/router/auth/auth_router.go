@@ -18,5 +18,6 @@ func NewAuthRouter(timeout int, group *gin.RouterGroup, database *database.Datab
 		AuthUseCase: usecase.NewAuthUsecase(ur, timeout),
 		Env:         env,
 	}
-	group.POST("api/signin", ac.Login)
+	clientGroup := group.Group("")
+	clientGroup.POST("api/signin", ac.Login)
 }

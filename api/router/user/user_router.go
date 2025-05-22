@@ -18,16 +18,14 @@ func NewUserClientRouter(timeout int, group *gin.RouterGroup, database *database
 	ac := &controller.UserController{
 		UserUseCase: usecase.NewUserUsecase(ur, timeout),
 	}
-	roleMiddleware := middleware.JWTMiddleware(env, middleware.Client.VALUE)
-	group.Use(roleMiddleware)
+	clientGroup := group.Group("", middleware.JWTMiddleware(env, middleware.Client.VALUE))
 	{
-		group.POST("api/signup", func(c *gin.Context) {
-			ac.Register(c, middleware.Client.VALUE)
-		})
-
-		group.POST("api/users/edit", ac.Edit)
-		group.GET("api/users/:id", ac.GetUserByID)
+		clientGroup.POST("api/users/edit", ac.Edit)
+		clientGroup.GET("api/users/:id", ac.GetUserByID)
 	}
+	group.POST("api/signup", func(c *gin.Context) {
+		ac.Register(c, middleware.Client.VALUE)
+	})
 }
 
 func NewUserAdminRouter(timeout int, group *gin.RouterGroup, database *database.Database, env *internalenv.Env) {
@@ -36,9 +34,8 @@ func NewUserAdminRouter(timeout int, group *gin.RouterGroup, database *database.
 	ac := &controller.UserController{
 		UserUseCase: usecase.NewUserUsecase(ur, timeout),
 	}
-	roleMiddleware := middleware.JWTMiddleware(env, middleware.Admin.VALUE)
-	group.Use(roleMiddleware)
+	adminGroup := group.Group("", middleware.JWTMiddleware(env, middleware.Admin.VALUE))
 	{
-		group.GET("api/users/all", roleMiddleware, ac.GetAllUsers)
+		adminGroup.GET("api/users/all", ac.GetAllUsers)
 	}
 }

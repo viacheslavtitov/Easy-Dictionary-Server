@@ -19,5 +19,5 @@ type AuthResponse struct {
 
 type AuthUseCase interface {
 	GetUserByEmail(context context.Context, email string) (*domainUser.User, error)
-	CreateAccessToken(user *domainUser.User, appName string, secret string, duration time.Duration) (accessToken string, err error)
+	CreateAccessToken(user *domainUser.User, appName string, secret string, role string, duration time.Duration) (accessToken string, err error)
 }

@@ -14,9 +14,11 @@ import (
 
 func Setup(timeout int, group *gin.RouterGroup, database *database.Database, env *internalenv.Env) {
 	zap.S().Info("Set up routes with timeout sec ", timeout)
+	//for admin
+	routeUser.NewUserAdminRouter(timeout, group, database, env)
+	//for clients
 	routeAuth.NewAuthRouter(timeout, group, database, env)
 	routeUser.NewUserClientRouter(timeout, group, database, env)
-	routeUser.NewUserAdminRouter(timeout, group, database, env)
 	routeLanguage.NewLanguageRouter(timeout, group, database, env)
 	routeDictionary.NewDictionaryRouter(timeout, group, database, env)
 }

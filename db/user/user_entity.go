@@ -103,6 +103,7 @@ func mapUserWithProvidersToEntity(err error, rows []userWithProviderRow) (*UserE
 		FirstName: rows[0].FirstName,
 		LastName:  rows[0].LastName,
 		CreatedAt: rows[0].UserCreatedAt,
+		Role:      rows[0].Role,
 		Providers: &[]UserProviderEntity{},
 	}
 	for _, row := range rows {

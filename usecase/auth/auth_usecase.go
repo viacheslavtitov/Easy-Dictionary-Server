@@ -28,6 +28,6 @@ func (lu *authUsecase) GetUserByEmail(c context.Context, email string) (*domainU
 	return lu.userRepository.GetByEmail(ctx, email)
 }
 
-func (lu *authUsecase) CreateAccessToken(user *domainUser.User, appName string, secret string, duration time.Duration) (accessToken string, err error) {
-	return utils.CreateAccessToken(user, appName, secret, duration)
+func (lu *authUsecase) CreateAccessToken(user *domainUser.User, appName string, secret string, role string, duration time.Duration) (accessToken string, err error) {
+	return utils.CreateAccessToken(user, appName, secret, role, duration)
 }

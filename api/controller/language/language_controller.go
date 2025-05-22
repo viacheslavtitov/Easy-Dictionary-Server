@@ -23,16 +23,26 @@ func (languageController *LanguageController) GetAllForUser(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
-
-	languages, err := languageController.LanguageUseCase.GetAllForUser(c, userID.(int))
-	if err != nil {
-		zap.S().Error("Failed to get languages")
-		zap.S().Error(err)
-		c.JSON(http.StatusInternalServerError, err.Error())
-	} else {
-		zap.S().Debugf("Got languages %d", len(*languages))
-		c.JSON(http.StatusOK, &languages)
+	idStr, ok := userID.(string)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user ID"})
+		return
 	}
+	if userIDInt, err := strconv.Atoi(idStr); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	} else {
+		languages, err := languageController.LanguageUseCase.GetAllForUser(c, userIDInt)
+		if err != nil {
+			zap.S().Error("Failed to get languages")
+			zap.S().Error(err)
+			c.JSON(http.StatusInternalServerError, err.Error())
+		} else {
+			zap.S().Debugf("Got languages %d", len(*languages))
+			c.JSON(http.StatusOK, &languages)
+		}
+	}
+
 }
 
 func (languageController *LanguageController) Edit(c *gin.Context) {
@@ -49,16 +59,26 @@ func (languageController *LanguageController) Edit(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"validation_errors": validationErrors})
 		return
 	}
-
-	err := languageController.LanguageUseCase.Update(c, userID.(int), request.ID, request.Name, request.Code)
-	if err != nil {
-		zap.S().Error("Failed to update language with " + request.Name)
-		zap.S().Error(err)
-		c.JSON(http.StatusInternalServerError, err.Error())
-	} else {
-		zap.S().Debugf("Language updated %s %s", request.Name, request.Code)
-		c.JSON(http.StatusOK, domain.SuccessResponse{Message: "Language updated"})
+	idStr, ok := userID.(string)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user ID"})
+		return
 	}
+	if userIDInt, err := strconv.Atoi(idStr); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	} else {
+		err := languageController.LanguageUseCase.Update(c, userIDInt, request.ID, request.Name, request.Code)
+		if err != nil {
+			zap.S().Error("Failed to update language with " + request.Name)
+			zap.S().Error(err)
+			c.JSON(http.StatusInternalServerError, err.Error())
+		} else {
+			zap.S().Debugf("Language updated %s %s", request.Name, request.Code)
+			c.JSON(http.StatusOK, domain.SuccessResponse{Message: "Language updated"})
+		}
+	}
+
 }
 
 func (languageController *LanguageController) Create(c *gin.Context) {
@@ -75,14 +95,24 @@ func (languageController *LanguageController) Create(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"validation_errors": validationErrors})
 		return
 	}
-	err := languageController.LanguageUseCase.Create(c, userID.(int), request.Name, request.Code)
-	if err != nil {
-		zap.S().Error("Failed to create language with " + request.Name)
-		zap.S().Error(err)
-		c.JSON(http.StatusInternalServerError, err.Error())
+	idStr, ok := userID.(string)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user ID"})
+		return
+	}
+	if userIDInt, err := strconv.Atoi(idStr); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
 	} else {
-		zap.S().Debugf("Language created %s %s", request.Name, request.Code)
-		c.JSON(http.StatusCreated, domain.SuccessResponse{Message: "Language created"})
+		err := languageController.LanguageUseCase.Create(c, userIDInt, request.Name, request.Code)
+		if err != nil {
+			zap.S().Error("Failed to create language with " + request.Name)
+			zap.S().Error(err)
+			c.JSON(http.StatusInternalServerError, err.Error())
+		} else {
+			zap.S().Debugf("Language created %s %s", request.Name, request.Code)
+			c.JSON(http.StatusCreated, domain.SuccessResponse{Message: "Language created"})
+		}
 	}
 }
 

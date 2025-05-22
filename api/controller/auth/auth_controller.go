@@ -70,8 +70,7 @@ func (authController *AuthController) Login(c *gin.Context) {
 			zap.S().Debug("User validated by provider")
 		}
 	}
-
-	accessToken, err := authController.AuthUseCase.CreateAccessToken(user, authController.Env.AppEnv, authController.Env.JwtSecret, time.Duration(authController.Env.JwtExpTimeMinutes)*time.Minute)
+	accessToken, err := authController.AuthUseCase.CreateAccessToken(user, authController.Env.AppEnv, authController.Env.JwtSecret, user.Role, time.Duration(authController.Env.JwtExpTimeMinutes)*time.Minute)
 	if err != nil {
 		zap.S().Errorf("Failed to create access token for user %d", user.ID)
 		zap.S().Error(err)

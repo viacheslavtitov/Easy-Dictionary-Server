@@ -23,16 +23,26 @@ func (dictionaryController *DictionaryController) GetAllForUser(c *gin.Context) 
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
-
-	dictionaries, err := dictionaryController.DictionaryUseCase.GetAllForUser(c, userID.(int))
-	if err != nil {
-		zap.S().Error("Failed to get languages")
-		zap.S().Error(err)
-		c.JSON(http.StatusInternalServerError, err.Error())
-	} else {
-		zap.S().Debugf("Got languages %d", len(*dictionaries))
-		c.JSON(http.StatusOK, &dictionaries)
+	idStr, ok := userID.(string)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user ID"})
+		return
 	}
+	if userIDInt, err := strconv.Atoi(idStr); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	} else {
+		dictionaries, err := dictionaryController.DictionaryUseCase.GetAllForUser(c, userIDInt)
+		if err != nil {
+			zap.S().Error("Failed to get languages")
+			zap.S().Error(err)
+			c.JSON(http.StatusInternalServerError, err.Error())
+		} else {
+			zap.S().Debugf("Got languages %d", len(*dictionaries))
+			c.JSON(http.StatusOK, &dictionaries)
+		}
+	}
+
 }
 
 func (dictionaryController *DictionaryController) Edit(c *gin.Context) {
@@ -49,16 +59,26 @@ func (dictionaryController *DictionaryController) Edit(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"validation_errors": validationErrors})
 		return
 	}
-
-	err := dictionaryController.DictionaryUseCase.Update(c, userID.(int), request.ID, request.Dialect, request.LangFromId, request.LangToId)
-	if err != nil {
-		zap.S().Errorf("Failed to update dictionary by id %d", request.ID)
-		zap.S().Error(err)
-		c.JSON(http.StatusInternalServerError, err.Error())
-	} else {
-		zap.S().Debugf("Dictionary updated %d", request.ID)
-		c.JSON(http.StatusOK, domain.SuccessResponse{Message: "Dictionary updated"})
+	idStr, ok := userID.(string)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user ID"})
+		return
 	}
+	if userIDInt, err := strconv.Atoi(idStr); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	} else {
+		err := dictionaryController.DictionaryUseCase.Update(c, userIDInt, request.ID, request.Dialect, request.LangFromId, request.LangToId)
+		if err != nil {
+			zap.S().Errorf("Failed to update dictionary by id %d", request.ID)
+			zap.S().Error(err)
+			c.JSON(http.StatusInternalServerError, err.Error())
+		} else {
+			zap.S().Debugf("Dictionary updated %d", request.ID)
+			c.JSON(http.StatusOK, domain.SuccessResponse{Message: "Dictionary updated"})
+		}
+	}
+
 }
 
 func (dictionaryController *DictionaryController) Create(c *gin.Context) {
@@ -75,14 +95,24 @@ func (dictionaryController *DictionaryController) Create(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"validation_errors": validationErrors})
 		return
 	}
-	err := dictionaryController.DictionaryUseCase.Create(c, userID.(int), request.Dialect, request.LangFromId, request.LangToId)
-	if err != nil {
-		zap.S().Error("Failed to create dictionary ")
-		zap.S().Error(err)
-		c.JSON(http.StatusInternalServerError, err.Error())
+	idStr, ok := userID.(string)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user ID"})
+		return
+	}
+	if userIDInt, err := strconv.Atoi(idStr); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
 	} else {
-		zap.S().Debugf("Dictionary created")
-		c.JSON(http.StatusCreated, domain.SuccessResponse{Message: "Dictionary created"})
+		err := dictionaryController.DictionaryUseCase.Create(c, userIDInt, request.Dialect, request.LangFromId, request.LangToId)
+		if err != nil {
+			zap.S().Error("Failed to create dictionary ")
+			zap.S().Error(err)
+			c.JSON(http.StatusInternalServerError, err.Error())
+		} else {
+			zap.S().Debugf("Dictionary created")
+			c.JSON(http.StatusCreated, domain.SuccessResponse{Message: "Dictionary created"})
+		}
 	}
 }
 
