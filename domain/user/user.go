@@ -52,9 +52,9 @@ func (user *User) FindEmailProvider() (provider *UserProviders) {
 }
 
 type UserUseCase interface {
-	RegisterUser(context context.Context, firstName string, LastName string, role string,
+	RegisterUser(context context.Context, firstName string, lastName string, role string,
 		email string, provider string, password string, providerToken string) (*User, error)
-	UpdateUser(context context.Context, id int, firstName string, LastName string) (*User, error)
+	UpdateUser(context context.Context, id int, firstName string, lastName string) (*User, error)
 	DeleteUser(context context.Context, id int) error
 	GetByID(context context.Context, id int) (*User, error)
 	GetAllUsers(context context.Context) ([]*User, error)

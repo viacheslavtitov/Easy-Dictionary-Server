@@ -16,7 +16,7 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/lib/pq v1.10.9
 	github.com/spf13/viper v1.18.2
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	github.com/tillberg/autorestart v0.0.0-20220524165049-22c3f5bc7fce
 	go.uber.org/zap v1.27.0
 	golang.org/x/crypto v0.36.0
@@ -69,6 +69,7 @@ require (
 	github.com/spf13/afero v1.11.0 // indirect
 	github.com/spf13/cast v1.6.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/tillberg/stringset v0.0.0-20220429204947-12df33ab1cd6 // indirect
 	github.com/tillberg/watcher v0.0.0-20200309151633-e9412552417a // indirect

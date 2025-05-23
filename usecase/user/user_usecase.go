@@ -19,13 +19,13 @@ func NewUserUsecase(userRepository domainUser.UserRepository, timeout int) domai
 	}
 }
 
-func (usecase *userUsecase) RegisterUser(c context.Context, firstName string, LastName string, role string, email string,
+func (usecase *userUsecase) RegisterUser(c context.Context, firstName string, lastName string, role string, email string,
 	provider string, password string, providerToken string) (*domainUser.User, error) {
 	ctx, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(usecase.contextTimeout))
 	defer cancel()
 	user := &domainUser.User{
 		FirstName: firstName,
-		LastName:  LastName,
+		LastName:  lastName,
 		Role:      role,
 		Providers: &[]domainUser.UserProviders{
 			{
