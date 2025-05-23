@@ -56,6 +56,7 @@ func GetAllUsers(db *database.Database, orderBy database.OrderByType) ([]UserEnt
 				FirstName: row.FirstName,
 				LastName:  row.LastName,
 				CreatedAt: row.UserCreatedAt,
+				Role:      row.Role,
 				Providers: &[]UserProviderEntity{},
 			}
 			userMap[row.UserID] = user

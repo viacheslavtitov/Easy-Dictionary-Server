@@ -37,7 +37,7 @@ func updateUserDictionaryQuery() string {
 UPDATE dictionary
 SET 
     dialect = $1,
-    lang_from_id = $2
+    lang_from_id = $2,
 	lang_to_id = $3
 WHERE id = $4
 RETURNING id, dialect, lang_from_id, lang_to_id;`

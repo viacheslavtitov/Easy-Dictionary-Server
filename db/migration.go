@@ -1,7 +1,7 @@
 package db
 
 import (
-	"go.uber.org/zap"
+	"fmt"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
@@ -9,22 +9,26 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func RunMigrations(db *sqlx.DB) {
+func RunMigrations(db *sqlx.DB, migrationPath string) {
+	fmt.Println("Start migration...")
 	driver, err := postgres.WithInstance(db.DB, &postgres.Config{})
 	if err != nil {
-		zap.S().Fatalf("could not create migration driver: %v", err)
+		// zap.S().Fatalf("could not create migration driver: %v", err)
+		fmt.Printf("could not create migration driver: %v", err)
 	}
 
 	m, err := migrate.NewWithDatabaseInstance(
-		"file://../db/migrations",
+		migrationPath,
 		"postgres", driver,
 	)
 	if err != nil {
-		zap.S().Fatalf("could not init migrate: %v", err)
+		// zap.S().Fatalf("could not init migrate: %v", err)
+		fmt.Printf("could not init migrate: %v", err)
 	}
-
 	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
-		zap.S().Fatalf("migration failed: %v", err)
+		// zap.S().Fatalf("migration failed: %v", err)
+		fmt.Printf("migration failed: %v", err)
 	}
-	zap.S().Info("Migrations applied successfully")
+	// zap.S().Info("Migrations applied successfully")
+	fmt.Println("Migrations applied successfully")
 }

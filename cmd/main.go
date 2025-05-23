@@ -12,6 +12,7 @@ import (
 	route "easy-dictionary-server/api/router"
 	db "easy-dictionary-server/db"
 	internalenv "easy-dictionary-server/internalenv"
+	utils "easy-dictionary-server/internalenv/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/tillberg/autorestart"
@@ -40,7 +41,7 @@ func main() {
 	zap.S().Info("Info log")
 	//init database
 	database := db.Setup(env)
-	db.RunMigrations(database.SQLDB)
+	db.RunMigrations(database.SQLDB, utils.GetMigrationsDir())
 	//init http routers
 	routeGin := gin.Default()
 	zap.S().Info("Trying to start http server by address " + env.CombineServerAddress())

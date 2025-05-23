@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"flag"
 	"os"
 
 	"go.uber.org/zap"
@@ -19,4 +20,16 @@ func ReadFile(filepath string) (string, error) {
 	text := string(fileContent)
 	// zap.S().Debug(text)
 	return text, nil
+}
+
+func GetMigrationsDir() string {
+	if IsRunningTest() {
+		return "file://../../migrations"
+	} else {
+		return "file://../db/migrations"
+	}
+}
+
+func IsRunningTest() bool {
+	return flag.Lookup("test.v") != nil
 }
