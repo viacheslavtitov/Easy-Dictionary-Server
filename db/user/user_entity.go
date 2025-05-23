@@ -130,7 +130,7 @@ func CreateUser(db *database.Database, user *UserEntity) (int, error) {
 	return createdId, nil
 }
 
-func UpdateUser(db *database.Database, user UserEntity) error {
+func UpdateUser(db *database.Database, user *UserEntity) error {
 	_, err := db.SQLDB.Exec(updateUserQuery(), user.FirstName, user.LastName, user.ID)
 	return err
 }
