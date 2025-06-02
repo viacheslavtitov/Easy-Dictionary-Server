@@ -74,7 +74,7 @@ func (controller *TranslationCategoryController) Edit(c *gin.Context) {
 			zap.S().Error(err)
 			c.JSON(http.StatusInternalServerError, err.Error())
 		} else {
-			zap.S().Debugf("Translation category updated %s %s", request.Name)
+			zap.S().Debugf("Translation category updated %s", request.Name)
 			c.JSON(http.StatusOK, domain.SuccessResponse{Message: "Translation category updated"})
 		}
 	}
@@ -111,7 +111,7 @@ func (controller *TranslationCategoryController) Create(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, err.Error())
 		} else {
 			zap.S().Debugf("Translation category created %s", request.Name)
-			c.JSON(http.StatusCreated, domain.SuccessResponse{Message: "Translation category"})
+			c.JSON(http.StatusCreated, domain.SuccessResponse{Message: "Translation category created"})
 		}
 	}
 }
