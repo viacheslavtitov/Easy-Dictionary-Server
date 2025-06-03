@@ -22,7 +22,7 @@ type WordRequest struct {
 }
 
 type EditWordRequest struct {
-	ID           int    `json:"id"`
+	ID           int    `json:"id" binding:"required"`
 	DictionaryId int    `json:"dictionary_id" binding:"required"`
 	Original     string `json:"original" binding:"required"`
 	Phonetic     string `json:"phonetic"`

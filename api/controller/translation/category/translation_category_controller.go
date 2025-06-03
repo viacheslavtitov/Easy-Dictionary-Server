@@ -125,7 +125,7 @@ func (controller *TranslationCategoryController) Delete(c *gin.Context) {
 		return
 	}
 	if translationCategoryIdInt, err := strconv.Atoi(translationCategoryId); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid language ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid translation category ID"})
 		return
 	} else {
 		err := controller.TranslationCategoryUseCase.DeleteById(c, translationCategoryIdInt)
