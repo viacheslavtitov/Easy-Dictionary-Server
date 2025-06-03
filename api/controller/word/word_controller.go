@@ -74,7 +74,6 @@ func (controller *WordController) Create(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"validation_errors": validationErrors})
 		return
 	}
-	zap.S().Infof("POST Create word: %d, %s, %s, %s, %s")
 	err := controller.WordUseCase.Create(c, request.DictionaryId, request.Original, request.Phonetic, request.Type, request.CategoryId)
 	if err != nil {
 		zap.S().Error("Failed to create word with " + request.Original)
