@@ -28,12 +28,12 @@ type DictionaryUseCase interface {
 	GetAllForUser(c context.Context, userId int) (*[]Dictionary, error)
 	Create(c context.Context, userId int, dialect string, langFromId int, langToId int) error
 	Update(c context.Context, userId int, id int, dialect string, langFromId int, langToId int) error
-	DeleteById(c context.Context, id int) error
+	DeleteById(c context.Context, id int) (int64, error)
 }
 
 type DictionaryRepository interface {
 	GetAllForUser(c context.Context, userId int) (*[]Dictionary, error)
 	Create(c context.Context, userId int, dictionary Dictionary) error
 	Update(c context.Context, userId int, dictionary Dictionary) error
-	DeleteById(c context.Context, id int) error
+	DeleteById(c context.Context, id int) (int64, error)
 }

@@ -1,6 +1,7 @@
 package db
 
 import (
+	"database/sql"
 	database "easy-dictionary-server/db"
 )
 
@@ -35,7 +36,7 @@ func UpdateDictionary(db *database.Database, entity *DictionaryEntity) (*Diction
 	return &dictionary, nil
 }
 
-func DeleteDictionaryById(db *database.Database, id int) error {
-	_, err := db.SQLDB.Exec(deleteUserDictionaryByIdQuery(), id)
-	return err
+func DeleteDictionaryById(db *database.Database, id int) (sql.Result, error) {
+	rowsDeleted, err := db.SQLDB.Exec(deleteUserDictionaryByIdQuery(), id)
+	return rowsDeleted, err
 }

@@ -25,7 +25,7 @@ func (wu *wordUsecase) GetAllForDictionary(c context.Context, dictionaryId int) 
 	return wu.wordRepository.GetAllForDictionary(ctx, dictionaryId)
 }
 
-func (wu *wordUsecase) Create(c context.Context, dictionaryId int, original string, phonetic *string, wordType string, categoryId *string) error {
+func (wu *wordUsecase) Create(c context.Context, dictionaryId int, original string, phonetic *string, wordType *string, categoryId *int) error {
 	ctx, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(wu.contextTimeout))
 	defer cancel()
 	return wu.wordRepository.Create(ctx, dictionaryId, &domainWord.Word{
@@ -36,7 +36,7 @@ func (wu *wordUsecase) Create(c context.Context, dictionaryId int, original stri
 		CategoryId:   categoryId})
 }
 
-func (wu *wordUsecase) Update(c context.Context, id int, dictionaryId int, original string, phonetic *string, wordType string, categoryId *string) error {
+func (wu *wordUsecase) Update(c context.Context, id int, dictionaryId int, original string, phonetic *string, wordType *string, categoryId *int) error {
 	ctx, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(wu.contextTimeout))
 	defer cancel()
 	return wu.wordRepository.Update(ctx, &domainWord.Word{
@@ -48,7 +48,7 @@ func (wu *wordUsecase) Update(c context.Context, id int, dictionaryId int, origi
 		CategoryId:   categoryId})
 }
 
-func (wu *wordUsecase) DeleteById(c context.Context, id int) error {
+func (wu *wordUsecase) DeleteById(c context.Context, id int) (int64, error) {
 	ctx, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(wu.contextTimeout))
 	defer cancel()
 	return wu.wordRepository.DeleteById(ctx, id)

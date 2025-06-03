@@ -1,6 +1,7 @@
 package db
 
 import (
+	"database/sql"
 	database "easy-dictionary-server/db"
 )
 
@@ -34,7 +35,7 @@ func UpdateLanguage(db *database.Database, entity *LanguageEntity) (*LanguageEnt
 	return &language, nil
 }
 
-func DeleteLanguageById(db *database.Database, id int) error {
-	_, err := db.SQLDB.Exec(deleteUserLanguageByIdQuery(), id)
-	return err
+func DeleteLanguageById(db *database.Database, id int) (sql.Result, error) {
+	rowsDeleted, err := db.SQLDB.Exec(deleteUserLanguageByIdQuery(), id)
+	return rowsDeleted, err
 }

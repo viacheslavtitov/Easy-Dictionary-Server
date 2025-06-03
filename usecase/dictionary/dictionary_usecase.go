@@ -44,7 +44,7 @@ func (du *dictionaryUsecase) Update(c context.Context, userId int, id int, diale
 		LangToId:   langToId})
 }
 
-func (du *dictionaryUsecase) DeleteById(c context.Context, id int) error {
+func (du *dictionaryUsecase) DeleteById(c context.Context, id int) (int64, error) {
 	ctx, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(du.contextTimeout))
 	defer cancel()
 	return du.dictionaryRepository.DeleteById(ctx, id)

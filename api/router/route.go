@@ -1,4 +1,4 @@
-package route
+package router
 
 import (
 	routeAuth "easy-dictionary-server/api/router/auth"

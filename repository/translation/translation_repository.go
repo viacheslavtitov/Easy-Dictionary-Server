@@ -44,8 +44,12 @@ func (lr *translationRepository) Update(c context.Context, translation *domain.T
 	return err
 }
 
-func (lr *translationRepository) DeleteById(c context.Context, id int) error {
+func (lr *translationRepository) DeleteById(c context.Context, id int) (int64, error) {
 	zap.S().Debugf("DeleteById %d", id)
-	err := dbtranslation.DeleteTranslationById(lr.db, id)
-	return err
+	rowsDeleted, errQuery := dbtranslation.DeleteTranslationById(lr.db, id)
+	if errQuery != nil {
+		return 0, errQuery
+	}
+	deletedRows, err := rowsDeleted.RowsAffected()
+	return deletedRows, err
 }

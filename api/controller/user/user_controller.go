@@ -1,6 +1,7 @@
 package controller
 
 import (
+	controllerCommon "easy-dictionary-server/api/controller"
 	middleware "easy-dictionary-server/api/middleware"
 	"easy-dictionary-server/domain"
 	userDomain "easy-dictionary-server/domain/user"
@@ -68,6 +69,9 @@ func (userController *UserController) Register(c *gin.Context, role string) {
 
 func (userController *UserController) Edit(c *gin.Context) {
 	zap.S().Info("POST Edit")
+	if _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
+		return
+	}
 	var request userDomain.EditUserRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
 		zap.S().Error(err)
@@ -90,6 +94,9 @@ func (userController *UserController) Edit(c *gin.Context) {
 func (userController *UserController) GetUserByID(c *gin.Context) {
 	userID := c.Param("id")
 	zap.S().Infof("GET GetUserByID: %s", userID)
+	if _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
+		return
+	}
 	if userIdInt, err := strconv.Atoi(userID); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
 		return
@@ -110,6 +117,9 @@ func (userController *UserController) GetUserByID(c *gin.Context) {
 
 func (userController *UserController) GetAllUsers(c *gin.Context) {
 	zap.S().Infof("GET GetAllUsers")
+	if _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
+		return
+	}
 	users, err := userController.UserUseCase.GetAllUsers(c)
 	if err != nil || users == nil {
 		zap.S().Errorf("Failed to get users")

@@ -44,8 +44,12 @@ func (dr *dictionaryRepository) Update(c context.Context, userId int, dictionary
 	return err
 }
 
-func (dr *dictionaryRepository) DeleteById(c context.Context, id int) error {
+func (dr *dictionaryRepository) DeleteById(c context.Context, id int) (int64, error) {
 	zap.S().Debugf("DeleteById %d", id)
-	err := dbDictionary.DeleteDictionaryById(dr.db, id)
-	return err
+	rowsDeleted, errQuery := dbDictionary.DeleteDictionaryById(dr.db, id)
+	if errQuery != nil {
+		return 0, errQuery
+	}
+	deletedRows, err := rowsDeleted.RowsAffected()
+	return deletedRows, err
 }

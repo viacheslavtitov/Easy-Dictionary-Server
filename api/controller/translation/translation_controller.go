@@ -1,6 +1,7 @@
 package controller
 
 import (
+	controllerCommon "easy-dictionary-server/api/controller"
 	"easy-dictionary-server/domain"
 	domainTranslation "easy-dictionary-server/domain/translation"
 	validatorutil "easy-dictionary-server/internalenv/validator"
@@ -17,11 +18,9 @@ type TranslationController struct {
 }
 
 func (controller *TranslationController) GetAllForWord(c *gin.Context) {
-	_, exists := c.Get("userID")
 	wordId := c.Param("id")
-	zap.S().Info("GET GetAllForWord")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+	zap.S().Infof("GET GetAllForWord %s", wordId)
+	if _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
 	}
 	if wordIDInt, err := strconv.Atoi(wordId); err != nil {
@@ -42,10 +41,8 @@ func (controller *TranslationController) GetAllForWord(c *gin.Context) {
 }
 
 func (controller *TranslationController) Edit(c *gin.Context) {
-	userID, exists := c.Get("userID")
 	zap.S().Info("POST Edit")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+	if _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
 	}
 	var request domainTranslation.EditTranslationRequest
@@ -55,33 +52,21 @@ func (controller *TranslationController) Edit(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"validation_errors": validationErrors})
 		return
 	}
-	idStr, ok := userID.(string)
-	if !ok {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user ID"})
-		return
-	}
-	if _, err := strconv.Atoi(idStr); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
-		return
+	err := controller.TranslationUseCase.Update(c, request.ID, request.CategoryId, request.Translate, request.Description)
+	if err != nil {
+		zap.S().Error("Failed to update translation with " + request.Translate)
+		zap.S().Error(err)
+		c.JSON(http.StatusInternalServerError, err.Error())
 	} else {
-		err := controller.TranslationUseCase.Update(c, request.ID, request.CategoryId, request.Translate, request.Description)
-		if err != nil {
-			zap.S().Error("Failed to update translation with " + request.Translate)
-			zap.S().Error(err)
-			c.JSON(http.StatusInternalServerError, err.Error())
-		} else {
-			zap.S().Debugf("Translation updated %s", request.Translate)
-			c.JSON(http.StatusOK, domain.SuccessResponse{Message: "Translation updated"})
-		}
+		zap.S().Debugf("Translation updated %s", request.Translate)
+		c.JSON(http.StatusOK, domain.SuccessResponse{Message: "Translation updated"})
 	}
 
 }
 
 func (controller *TranslationController) Create(c *gin.Context) {
-	userID, exists := c.Get("userID")
-	zap.S().Infof("POST Create translation category for: %s", userID)
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+	zap.S().Infof("POST Create translation category")
+	if _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
 	}
 	var request domainTranslation.TranslationRequest
@@ -91,45 +76,28 @@ func (controller *TranslationController) Create(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"validation_errors": validationErrors})
 		return
 	}
-	idStr, ok := userID.(string)
-	if !ok {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user ID"})
-		return
-	}
-	if _, err := strconv.Atoi(idStr); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
-		return
+	err := controller.TranslationUseCase.Create(c, request.WordId, request.CategoryId, request.Translate, request.Description)
+	if err != nil {
+		zap.S().Error("Failed to create translation with " + request.Translate)
+		zap.S().Error(err)
+		c.JSON(http.StatusInternalServerError, err.Error())
 	} else {
-		err := controller.TranslationUseCase.Create(c, request.WordId, request.CategoryId, request.Translate, request.Description)
-		if err != nil {
-			zap.S().Error("Failed to create translation with " + request.Translate)
-			zap.S().Error(err)
-			c.JSON(http.StatusInternalServerError, err.Error())
-		} else {
-			zap.S().Debugf("Translation created %s", request.Translate)
-			c.JSON(http.StatusCreated, domain.SuccessResponse{Message: "Translation created"})
-		}
+		zap.S().Debugf("Translation created %s", request.Translate)
+		c.JSON(http.StatusCreated, domain.SuccessResponse{Message: "Translation created"})
 	}
 }
 
 func (controller *TranslationController) Delete(c *gin.Context) {
-	_, exists := c.Get("userID")
-	translationId := c.Param("id")
-	zap.S().Infof("DELETE Delete translation %d", translationId)
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+	if _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
 	}
+	translationId := c.Param("id")
 	if translationIdInt, err := strconv.Atoi(translationId); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid translation ID"})
 		return
 	} else {
-		err := controller.TranslationUseCase.DeleteById(c, translationIdInt)
-		if err != nil {
-			zap.S().Error("Failed to delete translation by " + translationId)
-			zap.S().Error(err)
-			c.JSON(http.StatusInternalServerError, err.Error())
-		} else {
+		rows, err := controller.TranslationUseCase.DeleteById(c, translationIdInt)
+		if controllerCommon.ValidateDeleteByIdResult(c, translationId, "Failed to delete translation by", rows, err) {
 			zap.S().Debugf("Translation deleted %s", translationId)
 			c.JSON(http.StatusOK, domain.SuccessResponse{Message: "Translation deleted"})
 		}

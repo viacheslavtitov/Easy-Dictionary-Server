@@ -44,8 +44,12 @@ func (lr *translationCategoryRepository) Update(c context.Context, userId int, t
 	return err
 }
 
-func (lr *translationCategoryRepository) DeleteById(c context.Context, id int) error {
+func (lr *translationCategoryRepository) DeleteById(c context.Context, id int) (int64, error) {
 	zap.S().Debugf("DeleteById %d", id)
-	err := dbTranslationCategory.DeleteTranslationCategoryById(lr.db, id)
-	return err
+	rowsDeleted, errQuery := dbTranslationCategory.DeleteTranslationCategoryById(lr.db, id)
+	if errQuery != nil {
+		return 0, errQuery
+	}
+	deletedRows, err := rowsDeleted.RowsAffected()
+	return deletedRows, err
 }

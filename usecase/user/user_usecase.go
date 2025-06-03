@@ -50,7 +50,7 @@ func (lu *userUsecase) UpdateUser(c context.Context, id int, firstName string, L
 	return lu.userRepository.UpdateUser(ctx, user)
 }
 
-func (lu *userUsecase) DeleteUser(c context.Context, id int) error {
+func (lu *userUsecase) DeleteUser(c context.Context, id int) (int64, error) {
 	ctx, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(lu.contextTimeout))
 	defer cancel()
 	return lu.userRepository.DeleteUser(ctx, id)

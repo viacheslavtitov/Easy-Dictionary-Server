@@ -42,7 +42,7 @@ func (lu *languageUsecase) Update(c context.Context, userId int, id int, name st
 		Code: code})
 }
 
-func (lu *languageUsecase) DeleteById(c context.Context, id int) error {
+func (lu *languageUsecase) DeleteById(c context.Context, id int) (int64, error) {
 	ctx, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(lu.contextTimeout))
 	defer cancel()
 	return lu.languageRepository.DeleteById(ctx, id)

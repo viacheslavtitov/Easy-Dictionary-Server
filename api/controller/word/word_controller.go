@@ -1,6 +1,7 @@
 package controller
 
 import (
+	controllerCommon "easy-dictionary-server/api/controller"
 	"easy-dictionary-server/domain"
 	domainWord "easy-dictionary-server/domain/word"
 	validatorutil "easy-dictionary-server/internalenv/validator"
@@ -17,19 +18,11 @@ type WordController struct {
 }
 
 func (controller *WordController) GetAllForDictionary(c *gin.Context) {
-	userID, exists := c.Get("userID")
-	dictionaryId := c.Param("id")
-	zap.S().Info("GET GetAllForDictionary")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+	dictionaryId := c.Query("dictionaryId")
+	zap.S().Infof("GET all words for dictionary %s", dictionaryId)
+	if _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
 	}
-	_, ok := userID.(string)
-	if !ok {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user ID"})
-		return
-	}
-
 	if dictionaryIdInt, err := strconv.Atoi(dictionaryId); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid dictionary ID"})
 		return
@@ -47,10 +40,8 @@ func (controller *WordController) GetAllForDictionary(c *gin.Context) {
 }
 
 func (controller *WordController) Edit(c *gin.Context) {
-	userID, exists := c.Get("userID")
 	zap.S().Info("POST Edit")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+	if _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
 	}
 	var request domainWord.EditWordRequest
@@ -60,33 +51,20 @@ func (controller *WordController) Edit(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"validation_errors": validationErrors})
 		return
 	}
-	idStr, ok := userID.(string)
-	if !ok {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user ID"})
-		return
-	}
-	if _, err := strconv.Atoi(idStr); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
-		return
+	err := controller.WordUseCase.Update(c, request.ID, request.DictionaryId, request.Original, request.Phonetic, request.Type, request.CategoryId)
+	if err != nil {
+		zap.S().Error("Failed to update word with " + request.Original)
+		zap.S().Error(err)
+		c.JSON(http.StatusInternalServerError, err.Error())
 	} else {
-		err := controller.WordUseCase.Update(c, request.ID, request.DictionaryId, request.Original, &request.Phonetic, request.Type, &request.CategoryId)
-		if err != nil {
-			zap.S().Error("Failed to update word with " + request.Original)
-			zap.S().Error(err)
-			c.JSON(http.StatusInternalServerError, err.Error())
-		} else {
-			zap.S().Debugf("Word updated %s", request.Original)
-			c.JSON(http.StatusOK, domain.SuccessResponse{Message: "Word updated"})
-		}
+		zap.S().Debugf("Word updated %s", request.Original)
+		c.JSON(http.StatusOK, domain.SuccessResponse{Message: "Word updated"})
 	}
-
 }
 
 func (controller *WordController) Create(c *gin.Context) {
-	userID, exists := c.Get("userID")
-	zap.S().Infof("POST word for: %s", userID)
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+	zap.S().Info("POST Create word")
+	if _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
 	}
 	var request domainWord.WordRequest
@@ -96,45 +74,30 @@ func (controller *WordController) Create(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"validation_errors": validationErrors})
 		return
 	}
-	idStr, ok := userID.(string)
-	if !ok {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user ID"})
-		return
-	}
-	if _, err := strconv.Atoi(idStr); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
-		return
+	zap.S().Infof("POST Create word: %d, %s, %s, %s, %s")
+	err := controller.WordUseCase.Create(c, request.DictionaryId, request.Original, request.Phonetic, request.Type, request.CategoryId)
+	if err != nil {
+		zap.S().Error("Failed to create word with " + request.Original)
+		zap.S().Error(err)
+		c.JSON(http.StatusInternalServerError, err.Error())
 	} else {
-		err := controller.WordUseCase.Create(c, request.DictionaryId, request.Original, &request.Phonetic, request.Type, &request.CategoryId)
-		if err != nil {
-			zap.S().Error("Failed to create word with " + request.Original)
-			zap.S().Error(err)
-			c.JSON(http.StatusInternalServerError, err.Error())
-		} else {
-			zap.S().Debugf("Word created %s", request.Original)
-			c.JSON(http.StatusCreated, domain.SuccessResponse{Message: "Word created"})
-		}
+		zap.S().Debugf("Word created %s", request.Original)
+		c.JSON(http.StatusCreated, domain.SuccessResponse{Message: "Word created"})
 	}
 }
 
 func (controller *WordController) Delete(c *gin.Context) {
-	userID, exists := c.Get("userID")
 	wordId := c.Param("id")
-	zap.S().Infof("DELETE Delete word %d for user: %s", wordId, userID)
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+	zap.S().Infof("DELETE Delete word %d", wordId)
+	if _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
 	}
 	if wordIdInt, err := strconv.Atoi(wordId); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid language ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid word ID"})
 		return
 	} else {
-		err := controller.WordUseCase.DeleteById(c, wordIdInt)
-		if err != nil {
-			zap.S().Error("Failed to delete word by " + wordId)
-			zap.S().Error(err)
-			c.JSON(http.StatusInternalServerError, err.Error())
-		} else {
+		rows, err := controller.WordUseCase.DeleteById(c, wordIdInt)
+		if controllerCommon.ValidateDeleteByIdResult(c, wordId, "Failed to delete word by", rows, err) {
 			zap.S().Debugf("Word deleted %s", wordId)
 			c.JSON(http.StatusOK, domain.SuccessResponse{Message: "Word deleted"})
 		}

@@ -1,6 +1,7 @@
 package db
 
 import (
+	"database/sql"
 	database "easy-dictionary-server/db"
 )
 
@@ -9,8 +10,8 @@ type WordEntity struct {
 	DictionaryId int     `db:"dictionary_id"`
 	Original     string  `db:"original"`
 	Phonetic     *string `db:"phonetic"`
-	Type         string  `db:"type"`
-	CategoryId   *string `db:"category_id"`
+	Type         *string `db:"type"`
+	CategoryId   *int    `db:"category_id"`
 }
 
 func GetAllWordsForDictionary(db *database.Database, dictionaryId int) (*[]WordEntity, error) {
@@ -36,7 +37,7 @@ func UpdateWord(db *database.Database, entity *WordEntity) (*WordEntity, error) 
 	return &word, nil
 }
 
-func DeleteWordById(db *database.Database, id int) error {
-	_, err := db.SQLDB.Exec(deleteWordByIdQuery(), id)
-	return err
+func DeleteWordById(db *database.Database, id int) (sql.Result, error) {
+	rowsDeleted, err := db.SQLDB.Exec(deleteWordByIdQuery(), id)
+	return rowsDeleted, err
 }

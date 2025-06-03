@@ -1,6 +1,7 @@
 package db
 
 import (
+	"database/sql"
 	database "easy-dictionary-server/db"
 )
 
@@ -35,7 +36,7 @@ func UpdateTranslation(db *database.Database, entity *TranslationEntity) (*Trans
 	return &tc, nil
 }
 
-func DeleteTranslationById(db *database.Database, id int) error {
-	_, err := db.SQLDB.Exec(deleteTranslationByIdQuery(), id)
-	return err
+func DeleteTranslationById(db *database.Database, id int) (sql.Result, error) {
+	rowsDeleted, err := db.SQLDB.Exec(deleteTranslationByIdQuery(), id)
+	return rowsDeleted, err
 }

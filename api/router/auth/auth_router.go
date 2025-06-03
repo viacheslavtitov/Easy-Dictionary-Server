@@ -1,4 +1,4 @@
-package route
+package router
 
 import (
 	controllerAuth "easy-dictionary-server/api/controller/auth"

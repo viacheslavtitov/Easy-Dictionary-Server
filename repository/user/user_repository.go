@@ -68,11 +68,12 @@ func (ur *userRepository) UpdateUser(c context.Context, user *domain.User) (*dom
 	return user, nil
 }
 
-func (ur *userRepository) DeleteUser(c context.Context, id int) error {
+func (ur *userRepository) DeleteUser(c context.Context, id int) (int64, error) {
 	zap.S().Debugf("DeleteUser %d", id)
-	err := dbUser.DeleteUserById(ur.db, id)
-	if err != nil {
-		return err
+	rowsDeleted, errQuery := dbUser.DeleteUserById(ur.db, id)
+	if errQuery != nil {
+		return 0, errQuery
 	}
-	return nil
+	deletedRows, err := rowsDeleted.RowsAffected()
+	return deletedRows, err
 }

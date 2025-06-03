@@ -1,6 +1,7 @@
 package db
 
 import (
+	"database/sql"
 	database "easy-dictionary-server/db"
 	pointers "easy-dictionary-server/internalenv/utils"
 	"errors"
@@ -136,7 +137,7 @@ func UpdateUser(db *database.Database, user *UserEntity) error {
 	return err
 }
 
-func DeleteUserById(db *database.Database, id int) error {
-	_, err := db.SQLDB.Exec(deleteUserByIdQuery(), id)
-	return err
+func DeleteUserById(db *database.Database, id int) (sql.Result, error) {
+	rowsDeleted, err := db.SQLDB.Exec(deleteUserByIdQuery(), id)
+	return rowsDeleted, err
 }

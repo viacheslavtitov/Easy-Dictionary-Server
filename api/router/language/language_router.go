@@ -1,4 +1,4 @@
-package route
+package router
 
 import (
 	controller "easy-dictionary-server/api/controller/language"

@@ -44,8 +44,12 @@ func (lr *languageRepository) Update(c context.Context, userId int, language dom
 	return err
 }
 
-func (lr *languageRepository) DeleteById(c context.Context, id int) error {
+func (lr *languageRepository) DeleteById(c context.Context, id int) (int64, error) {
 	zap.S().Debugf("DeleteById %d", id)
-	err := dbLanguage.DeleteLanguageById(lr.db, id)
-	return err
+	rowsDeleted, errQuery := dbLanguage.DeleteLanguageById(lr.db, id)
+	if errQuery != nil {
+		return 0, errQuery
+	}
+	deletedRows, err := rowsDeleted.RowsAffected()
+	return deletedRows, err
 }

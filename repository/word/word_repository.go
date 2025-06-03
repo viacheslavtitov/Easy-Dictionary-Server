@@ -21,7 +21,7 @@ func NewWordRepository(db *database.Database) domain.WordRepository {
 
 func (wr *wordRepository) Create(c context.Context, dictionaryId int, word *domain.Word) error {
 	zap.S().Debugf("Create word %s for user %d", word.Original, dictionaryId)
-	err := dbWord.CreateWord(wr.db, wordMapper.FromWordDomain(word))
+	err := dbWord.CreateWord(wr.db, dictionaryId, wordMapper.FromWordDomain(word))
 	return err
 }
 
@@ -44,8 +44,12 @@ func (wr *wordRepository) Update(c context.Context, word *domain.Word) error {
 	return err
 }
 
-func (wr *wordRepository) DeleteById(c context.Context, id int) error {
+func (wr *wordRepository) DeleteById(c context.Context, id int) (int64, error) {
 	zap.S().Debugf("DeleteById %d", id)
-	err := dbWord.DeleteWordById(wr.db, id)
-	return err
+	rowsDeleted, errQuery := dbWord.DeleteWordById(wr.db, id)
+	if errQuery != nil {
+		return 0, errQuery
+	}
+	deletedRows, err := rowsDeleted.RowsAffected()
+	return deletedRows, err
 }
