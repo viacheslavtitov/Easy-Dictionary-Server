@@ -43,13 +43,72 @@ func (controller *WordController) GetAllForDictionary(c *gin.Context) {
 		zap.S().Error(err)
 		c.JSON(http.StatusInternalServerError, err.Error())
 	} else {
-		zap.S().Debugf("Got words %d", len(*words))
-		last := (*words)[len(*words)-1].ID
-		c.JSON(http.StatusOK, domainWord.WordsWithPaginationResponse{
-			Words:    *words,
-			LatestId: last,
-			PageSize: pageSizeInt,
-		})
+		count := len(*words)
+		zap.S().Debugf("Got words %d", count)
+		if count > 0 {
+			last := (*words)[count-1].ID
+			c.JSON(http.StatusOK, domainWord.WordsWithPaginationResponse{
+				Words:    *words,
+				LatestId: last,
+				PageSize: pageSizeInt,
+			})
+		} else {
+			c.JSON(http.StatusOK, domainWord.WordsWithPaginationResponse{
+				Words:    []domainWord.Word{},
+				LatestId: 0,
+				PageSize: 0,
+			})
+		}
+	}
+}
+
+func (controller *WordController) SearchForDictionary(c *gin.Context) {
+	if _, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
+		return
+	}
+	dictionaryIdInt, err := controllerCommon.ParseQueryInt(c, "dictionaryId")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid dictionary Id"})
+		return
+	}
+	lastIdInt, err := controllerCommon.ParseQueryInt(c, "lastId")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid last read Id"})
+		return
+	}
+	pageSizeInt, err := controllerCommon.ParseQueryInt(c, "pageSize")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page size"})
+		return
+	}
+	query := c.Query("query")
+	if len(query) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Query is empty"})
+		return
+	}
+	zap.S().Infof("GET search words in dictionary %d with lastId %d and pageSize %d and query %s", dictionaryIdInt, lastIdInt, pageSizeInt, query)
+	words, err := controller.WordUseCase.SearchWordsForDictionary(c, query, dictionaryIdInt, lastIdInt, pageSizeInt)
+	if err != nil {
+		zap.S().Error("Failed to get words")
+		zap.S().Error(err)
+		c.JSON(http.StatusInternalServerError, err.Error())
+	} else {
+		count := len(*words)
+		zap.S().Debugf("Got words %d", count)
+		if count > 0 {
+			last := (*words)[count-1].ID
+			c.JSON(http.StatusOK, domainWord.WordsWithPaginationResponse{
+				Words:    *words,
+				LatestId: last,
+				PageSize: pageSizeInt,
+			})
+		} else {
+			c.JSON(http.StatusOK, domainWord.WordsWithPaginationResponse{
+				Words:    []domainWord.Word{},
+				LatestId: 0,
+				PageSize: 0,
+			})
+		}
 	}
 }
 

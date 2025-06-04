@@ -23,6 +23,15 @@ func GetAllWordsForDictionary(db *database.Database, dictionaryId int, lastId in
 	return &words, err
 }
 
+func SearchWordsForDictionary(db *database.Database, query string, dictionaryId int, lastId int, pageSize int) (*[]WordEntity, error) {
+	var words []WordEntity
+	err := db.SQLDB.Select(&words, getSearchWordsByDictionaryQuery(), dictionaryId, query, lastId, pageSize)
+	if err != nil {
+		return nil, err
+	}
+	return &words, err
+}
+
 func CreateWord(db *database.Database, dictionaryId int, entity *WordEntity) error {
 	_, err := db.SQLDB.Exec(createWordQuery(), entity.Original, entity.Phonetic, entity.Type, entity.CategoryId, dictionaryId)
 	return err

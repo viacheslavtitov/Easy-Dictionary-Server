@@ -25,6 +25,12 @@ func (wu *wordUsecase) GetAllForDictionary(c context.Context, dictionaryId int, 
 	return wu.wordRepository.GetAllForDictionary(ctx, dictionaryId, lastId, pageSize)
 }
 
+func (wu *wordUsecase) SearchWordsForDictionary(c context.Context, query string, dictionaryId int, lastId int, pageSize int) (*[]domainWord.Word, error) {
+	ctx, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(wu.contextTimeout))
+	defer cancel()
+	return wu.wordRepository.SearchWordsForDictionary(ctx, query, dictionaryId, lastId, pageSize)
+}
+
 func (wu *wordUsecase) Create(c context.Context, dictionaryId int, original string, phonetic *string, wordType *string, categoryId *int) error {
 	ctx, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(wu.contextTimeout))
 	defer cancel()

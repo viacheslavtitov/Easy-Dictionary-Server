@@ -38,6 +38,7 @@ type WordsWithPaginationResponse struct {
 
 type WordUseCase interface {
 	GetAllForDictionary(c context.Context, dictionaryId int, lastId int, pageSize int) (*[]Word, error)
+	SearchWordsForDictionary(c context.Context, query string, dictionaryId int, lastId int, pageSize int) (*[]Word, error)
 	Create(c context.Context, dictionaryId int, original string, phonetic *string, wordType *string, categoryId *int) error
 	Update(c context.Context, id int, dictionaryId int, original string, phonetic *string, wordType *string, categoryId *int) error
 	DeleteById(c context.Context, id int) (int64, error)
@@ -45,6 +46,7 @@ type WordUseCase interface {
 
 type WordRepository interface {
 	GetAllForDictionary(c context.Context, dictionaryId int, lastId int, pageSize int) (*[]Word, error)
+	SearchWordsForDictionary(c context.Context, query string, dictionaryId int, lastId int, pageSize int) (*[]Word, error)
 	Create(c context.Context, dictionaryId int, word *Word) error
 	Update(c context.Context, word *Word) error
 	DeleteById(c context.Context, id int) (int64, error)

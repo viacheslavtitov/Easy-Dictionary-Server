@@ -38,6 +38,19 @@ func (wr *wordRepository) GetAllForDictionary(c context.Context, dictionaryId in
 	return &words, nil
 }
 
+func (wr *wordRepository) SearchWordsForDictionary(c context.Context, query string, dictionaryId int, lastId int, pageSize int) (*[]domain.Word, error) {
+	zap.S().Debugf("SearchWordsForDictionary %d %s", dictionaryId, query)
+	wordEntities, err := dbWord.SearchWordsForDictionary(wr.db, query, dictionaryId, lastId, pageSize)
+	if err != nil {
+		return nil, err
+	}
+	var words []domain.Word
+	for _, wEntity := range *wordEntities {
+		words = append(words, *wordMapper.ToWordDomain(&wEntity))
+	}
+	return &words, nil
+}
+
 func (wr *wordRepository) Update(c context.Context, word *domain.Word) error {
 	zap.S().Debugf("Update word %s for dictionary %d", word.Original, word.DictionaryId)
 	_, err := dbWord.UpdateWord(wr.db, wordMapper.FromWordDomain(word))
