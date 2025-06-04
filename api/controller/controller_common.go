@@ -2,28 +2,30 @@ package controller
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
 
-func ValidateUserIdInContext(context *gin.Context) (*int, bool) {
-	userID, exists := context.Get("userID")
-	if !exists {
+func ValidateUserIdInContext(context *gin.Context) (*int, *string, bool) {
+	userUUID, existsUUID := context.Get("userUUID")
+	userID, existsID := context.Get("userID")
+	zap.S().Debugf("Get data from context user id %d, user uuid %s", userID, userUUID)
+	if !existsUUID || !existsID {
 		context.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-		return nil, false
+		return nil, nil, false
 	}
-	idStr, ok := userID.(string)
-	if !ok {
+	uuidStr, okUUID := userUUID.(string)
+	if !okUUID {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user UUID"})
+		return nil, nil, false
+	}
+	idInt, okID := userID.(int)
+	if !okID {
 		context.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user ID"})
-		return nil, false
-	}
-	if idInt, err := strconv.Atoi(idStr); err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
-		return nil, false
+		return nil, nil, false
 	} else {
-		return &idInt, true
+		return &idInt, &uuidStr, true
 	}
 }
 

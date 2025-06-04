@@ -21,7 +21,7 @@ func NewUserClientRouter(timeout int, group *gin.RouterGroup, database *database
 	clientGroup := group.Group("", middleware.JWTMiddleware(env, middleware.Client.VALUE))
 	{
 		clientGroup.POST("api/users/edit", ac.Edit)
-		clientGroup.GET("api/users/:id", ac.GetUserByID)
+		clientGroup.GET("api/users/:id", ac.GetUserByUUID)
 	}
 	group.POST("api/signup", func(c *gin.Context) {
 		ac.Register(c, middleware.Client.VALUE)

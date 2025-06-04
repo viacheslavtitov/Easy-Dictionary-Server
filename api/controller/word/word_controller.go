@@ -20,7 +20,7 @@ type WordController struct {
 func (controller *WordController) GetAllForDictionary(c *gin.Context) {
 	dictionaryId := c.Query("dictionaryId")
 	zap.S().Infof("GET all words for dictionary %s", dictionaryId)
-	if _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
+	if _, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
 	}
 	if dictionaryIdInt, err := strconv.Atoi(dictionaryId); err != nil {
@@ -41,7 +41,7 @@ func (controller *WordController) GetAllForDictionary(c *gin.Context) {
 
 func (controller *WordController) Edit(c *gin.Context) {
 	zap.S().Info("POST Edit")
-	if _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
+	if _, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
 	}
 	var request domainWord.EditWordRequest
@@ -64,7 +64,7 @@ func (controller *WordController) Edit(c *gin.Context) {
 
 func (controller *WordController) Create(c *gin.Context) {
 	zap.S().Info("POST Create word")
-	if _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
+	if _, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
 	}
 	var request domainWord.WordRequest
@@ -88,7 +88,7 @@ func (controller *WordController) Create(c *gin.Context) {
 func (controller *WordController) Delete(c *gin.Context) {
 	wordId := c.Param("id")
 	zap.S().Infof("DELETE Delete word %d", wordId)
-	if _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
+	if _, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
 	}
 	if wordIdInt, err := strconv.Atoi(wordId); err != nil {

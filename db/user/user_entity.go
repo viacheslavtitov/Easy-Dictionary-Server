@@ -10,6 +10,7 @@ import (
 
 type UserEntity struct {
 	ID        int                   `db:"id"`
+	UUID      string                `db:"uuid"`
 	FirstName string                `db:"first_name"`
 	LastName  string                `db:"last_name"`
 	Role      string                `db:"user_role"`
@@ -28,6 +29,7 @@ type UserProviderEntity struct {
 
 type userWithProviderRow struct {
 	UserID          int        `db:"user_id"`
+	UserUUID        string     `db:"uuid"`
 	FirstName       string     `db:"first_name"`
 	LastName        string     `db:"last_name"`
 	UserCreatedAt   time.Time  `db:"user_created_at"`
@@ -54,6 +56,7 @@ func GetAllUsers(db *database.Database, orderBy database.OrderByType) ([]UserEnt
 		if !exists {
 			user = &UserEntity{
 				ID:        row.UserID,
+				UUID:      row.UserUUID,
 				FirstName: row.FirstName,
 				LastName:  row.LastName,
 				CreatedAt: row.UserCreatedAt,
@@ -87,6 +90,12 @@ func GetUserById(db *database.Database, id int) (*UserEntity, error) {
 	return mapUserWithProvidersToEntity(err, rows)
 }
 
+func GetUserByUUID(db *database.Database, uuid string) (*UserEntity, error) {
+	var rows []userWithProviderRow
+	err := db.SQLDB.Select(&rows, getUserByUUIDQuery(), uuid)
+	return mapUserWithProvidersToEntity(err, rows)
+}
+
 func GetUserByEmail(db *database.Database, email string) (*UserEntity, error) {
 	var rows []userWithProviderRow
 	err := db.SQLDB.Select(&rows, getUserByEmailQuery(), email)
@@ -101,6 +110,7 @@ func mapUserWithProvidersToEntity(err error, rows []userWithProviderRow) (*UserE
 		return nil, errors.New("User not found")
 	}
 	user := UserEntity{
+		UUID:      rows[0].UserUUID,
 		ID:        rows[0].UserID,
 		FirstName: rows[0].FirstName,
 		LastName:  rows[0].LastName,
@@ -122,14 +132,14 @@ func mapUserWithProvidersToEntity(err error, rows []userWithProviderRow) (*UserE
 	return &user, err
 }
 
-func CreateUser(db *database.Database, user *UserEntity) (int, error) {
-	createdId := -1
-	err := db.SQLDB.Get(&createdId, createUserQuery(), user.FirstName, user.LastName, user.Role,
+func CreateUser(db *database.Database, user *UserEntity) (*string, error) {
+	var createdUUID *string
+	err := db.SQLDB.Get(&createdUUID, createUserQuery(), user.FirstName, user.LastName, user.Role,
 		(*user.Providers)[0].ProviderName, (*user.Providers)[0].Email, (*user.Providers)[0].HashedPassword)
 	if err != nil {
-		return -1, err
+		return nil, err
 	}
-	return createdId, nil
+	return createdUUID, nil
 }
 
 func UpdateUser(db *database.Database, user *UserEntity) error {

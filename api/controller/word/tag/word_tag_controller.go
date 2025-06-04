@@ -20,7 +20,7 @@ type WordTagController struct {
 func (controller *WordTagController) GetAllForDictionary(c *gin.Context) {
 	dictionaryId := c.Query("dictionaryId")
 	zap.S().Infof("GET all word tags for dictionary %s", dictionaryId)
-	if _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
+	if _, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
 	}
 	if dictionaryIdInt, err := strconv.Atoi(dictionaryId); err != nil {
@@ -41,7 +41,7 @@ func (controller *WordTagController) GetAllForDictionary(c *gin.Context) {
 
 func (controller *WordTagController) Edit(c *gin.Context) {
 	zap.S().Info("POST Edit")
-	if _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
+	if _, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
 	}
 	var request domainWordTag.EditWordTagRequest
@@ -64,7 +64,7 @@ func (controller *WordTagController) Edit(c *gin.Context) {
 
 func (controller *WordTagController) Create(c *gin.Context) {
 	zap.S().Info("POST Create word tag")
-	if _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
+	if _, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
 	}
 	var request domainWordTag.WordTagRequest
@@ -88,7 +88,7 @@ func (controller *WordTagController) Create(c *gin.Context) {
 func (controller *WordTagController) Delete(c *gin.Context) {
 	wordTagId := c.Param("id")
 	zap.S().Infof("DELETE Delete word tag %d", wordTagId)
-	if _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
+	if _, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
 	}
 	if wordTagIdInt, err := strconv.Atoi(wordTagId); err != nil {

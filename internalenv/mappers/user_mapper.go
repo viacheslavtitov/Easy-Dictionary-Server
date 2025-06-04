@@ -7,7 +7,7 @@ import (
 
 func ToUserDomain(u *dbUser.UserEntity) *domainUser.User {
 	return &domainUser.User{
-		ID:        u.ID,
+		UUID:      u.UUID,
 		FirstName: u.FirstName,
 		LastName:  u.LastName,
 		CreatedAt: u.CreatedAt,
@@ -37,19 +37,19 @@ func ToUserDomainProvider(u *dbUser.UserProviderEntity) *domainUser.UserProvider
 	}
 }
 
-func FromUserDomain(u *domainUser.User) *dbUser.UserEntity {
+func FromUserDomain(u *domainUser.User, userId *int) *dbUser.UserEntity {
 	return &dbUser.UserEntity{
-		ID:        u.ID,
+		UUID:      u.UUID,
 		FirstName: u.FirstName,
 		LastName:  u.LastName,
 		CreatedAt: u.CreatedAt,
-		Providers: FromUserDomainProviders(u.Providers, u.ID),
+		Providers: FromUserDomainProviders(u.Providers, userId),
 		Role:      u.Role,
 	}
 }
 
-func FromUserDomainProviders(u *[]domainUser.UserProviders, userId int) *[]dbUser.UserProviderEntity {
-	if u == nil {
+func FromUserDomainProviders(u *[]domainUser.UserProviders, userId *int) *[]dbUser.UserProviderEntity {
+	if u == nil || userId == nil {
 		return &[]dbUser.UserProviderEntity{}
 	}
 	providers := make([]dbUser.UserProviderEntity, len(*u))
@@ -59,10 +59,10 @@ func FromUserDomainProviders(u *[]domainUser.UserProviders, userId int) *[]dbUse
 	return &providers
 }
 
-func FromUserDomainProvider(u *domainUser.UserProviders, userId int) *dbUser.UserProviderEntity {
+func FromUserDomainProvider(u *domainUser.UserProviders, userId *int) *dbUser.UserProviderEntity {
 	return &dbUser.UserProviderEntity{
 		ID:             u.ID,
-		UserId:         userId,
+		UserId:         *userId,
 		Email:          u.Email,
 		HashedPassword: u.HashedPassword,
 		ProviderName:   u.ProviderName,

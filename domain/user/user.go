@@ -6,7 +6,7 @@ import (
 )
 
 type User struct {
-	ID        int              `json:"id"`
+	UUID      string           `json:"uuid"`
 	FirstName string           `json:"first_name"`
 	LastName  string           `json:"last_name"`
 	CreatedAt time.Time        `json:"created_at"`
@@ -33,7 +33,7 @@ type RegisterUserRequest struct {
 }
 
 type EditUserRequest struct {
-	ID        int    `json:"id"`
+	UUID      string `json:"uuid" binding:"required"`
 	Email     string `json:"email" binding:"email,required"`
 	FirstName string `json:"first_name" binding:"required"`
 	LastName  string `json:"last_name" binding:"required"`
@@ -54,17 +54,19 @@ func (user *User) FindEmailProvider() (provider *UserProviders) {
 type UserUseCase interface {
 	RegisterUser(context context.Context, firstName string, lastName string, role string,
 		email string, provider string, password string, providerToken string) (*User, error)
-	UpdateUser(context context.Context, id int, firstName string, lastName string) (*User, error)
+	UpdateUser(context context.Context, id int, uuid string, firstName string, lastName string) (*User, error)
 	DeleteUser(context context.Context, id int) (int64, error)
 	GetByID(context context.Context, id int) (*User, error)
+	GetByUUID(context context.Context, uuid string) (*User, error)
 	GetAllUsers(context context.Context) ([]*User, error)
 }
 
 type UserRepository interface {
 	Create(context context.Context, user *User) (*User, error)
 	GetAllUsers(context context.Context) ([]*User, error)
-	GetByEmail(context context.Context, email string) (*User, error)
+	GetByEmail(context context.Context, email string) (*User, *int, error)
 	GetByID(context context.Context, id int) (*User, error)
-	UpdateUser(context context.Context, user *User) (*User, error)
+	GetByUUID(context context.Context, uuid string) (*User, error)
+	UpdateUser(context context.Context, user *User, userId int) (*User, error)
 	DeleteUser(context context.Context, id int) (int64, error)
 }

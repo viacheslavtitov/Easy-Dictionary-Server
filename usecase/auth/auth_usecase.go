@@ -22,12 +22,12 @@ func NewAuthUsecase(userRepository domainUser.UserRepository, timeout int) domai
 	}
 }
 
-func (lu *authUsecase) GetUserByEmail(c context.Context, email string) (*domainUser.User, error) {
+func (lu *authUsecase) GetUserByEmail(c context.Context, email string) (*domainUser.User, *int, error) {
 	ctx, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(lu.contextTimeout))
 	defer cancel()
 	return lu.userRepository.GetByEmail(ctx, email)
 }
 
-func (lu *authUsecase) CreateAccessToken(user *domainUser.User, appName string, secret string, role string, duration time.Duration) (accessToken string, err error) {
-	return utils.CreateAccessToken(user, appName, secret, role, duration)
+func (lu *authUsecase) CreateAccessToken(user *domainUser.User, appName string, secret string, role string, duration time.Duration, userId int) (accessToken string, err error) {
+	return utils.CreateAccessToken(user, appName, secret, role, duration, userId)
 }

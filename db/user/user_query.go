@@ -10,6 +10,7 @@ func getAllUsersQuery(orderBy database.OrderByType) string {
 	return fmt.Sprintf(`
 SELECT 
     u.id AS user_id,
+    u.uuid AS uuid,
     u.first_name,
 	u.last_name,
     u.created_at AS user_created_at,
@@ -30,6 +31,7 @@ func getUserByIdQuery() string {
 	return `
 SELECT 
     u.id AS user_id,
+    u.uuid AS uuid,
     u.first_name,
 	u.last_name,
     u.created_at AS user_created_at,
@@ -45,11 +47,33 @@ LEFT JOIN user_providers p
 WHERE u.id = $1;`
 }
 
+// GetUserByUUIDQuery get query to get user by uuid from user table and join with user_providers table
+func getUserByUUIDQuery() string {
+	return `
+SELECT 
+    u.id AS user_id,
+    u.uuid AS uuid,
+    u.first_name,
+	u.last_name,
+    u.created_at AS user_created_at,
+    u.user_role,
+    p.id AS provider_id,
+    p.provider_name,
+	p.email,
+    p.hashed_password,
+    p.created_at AS provider_created_at
+FROM users u
+LEFT JOIN user_providers p
+    ON u.id = p.user_id
+WHERE u.uuid = $1;`
+}
+
 // GetUserByEmailQuery get query to get user by email from user table
 func getUserByEmailQuery() string {
 	return `
 SELECT 
     u.id AS user_id,
+    u.uuid AS uuid,
     u.first_name,
 	u.last_name,
     u.created_at AS user_created_at,
@@ -74,20 +98,23 @@ WHERE p.email = $1;`
 // - $5: email
 // - $6: hashed password
 // Return:
-// - id: created user id
+// - uuid: created user uuid
 func createUserQuery() string {
 	return `
 WITH new_user AS (
     INSERT INTO users (first_name, last_name, user_role, created_at)
     VALUES ($1, $2, $3, now())
-    RETURNING id
+    RETURNING id, uuid
 )
-INSERT INTO user_providers (user_id, provider_name, email, hashed_password, created_at)
-VALUES (
-    (SELECT id FROM new_user),
-    $4, $5, $6, now()
+inserted_provider AS (
+    INSERT INTO user_providers (user_id, provider_name, email, hashed_password, created_at)
+    VALUES (
+        (SELECT id FROM new_user),
+        $4, $5, $6, now()
+    )
+    RETURNING user_id
 )
-RETURNING user_id;
+SELECT uuid FROM new_user;
 `
 }
 

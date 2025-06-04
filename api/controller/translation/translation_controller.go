@@ -20,7 +20,7 @@ type TranslationController struct {
 func (controller *TranslationController) GetAllForWord(c *gin.Context) {
 	wordId := c.Param("id")
 	zap.S().Infof("GET GetAllForWord %s", wordId)
-	if _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
+	if _, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
 	}
 	if wordIDInt, err := strconv.Atoi(wordId); err != nil {
@@ -42,7 +42,7 @@ func (controller *TranslationController) GetAllForWord(c *gin.Context) {
 
 func (controller *TranslationController) Edit(c *gin.Context) {
 	zap.S().Info("POST Edit")
-	if _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
+	if _, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
 	}
 	var request domainTranslation.EditTranslationRequest
@@ -66,7 +66,7 @@ func (controller *TranslationController) Edit(c *gin.Context) {
 
 func (controller *TranslationController) Create(c *gin.Context) {
 	zap.S().Infof("POST Create translation category")
-	if _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
+	if _, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
 	}
 	var request domainTranslation.TranslationRequest
@@ -88,7 +88,7 @@ func (controller *TranslationController) Create(c *gin.Context) {
 }
 
 func (controller *TranslationController) Delete(c *gin.Context) {
-	if _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
+	if _, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
 	}
 	translationId := c.Param("id")

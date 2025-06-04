@@ -39,15 +39,15 @@ func (usecase *userUsecase) RegisterUser(c context.Context, firstName string, la
 	return usecase.userRepository.Create(ctx, user)
 }
 
-func (lu *userUsecase) UpdateUser(c context.Context, id int, firstName string, LastName string) (*domainUser.User, error) {
+func (lu *userUsecase) UpdateUser(c context.Context, id int, uuid string, firstName string, LastName string) (*domainUser.User, error) {
 	ctx, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(lu.contextTimeout))
 	defer cancel()
 	user := &domainUser.User{
-		ID:        id,
+		UUID:      uuid,
 		FirstName: firstName,
 		LastName:  LastName,
 	}
-	return lu.userRepository.UpdateUser(ctx, user)
+	return lu.userRepository.UpdateUser(ctx, user, id)
 }
 
 func (lu *userUsecase) DeleteUser(c context.Context, id int) (int64, error) {
@@ -60,6 +60,12 @@ func (lu *userUsecase) GetByID(c context.Context, id int) (*domainUser.User, err
 	ctx, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(lu.contextTimeout))
 	defer cancel()
 	return lu.userRepository.GetByID(ctx, id)
+}
+
+func (lu *userUsecase) GetByUUID(c context.Context, uuid string) (*domainUser.User, error) {
+	ctx, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(lu.contextTimeout))
+	defer cancel()
+	return lu.userRepository.GetByUUID(ctx, uuid)
 }
 
 func (lu *userUsecase) GetAllUsers(c context.Context) ([]*domainUser.User, error) {

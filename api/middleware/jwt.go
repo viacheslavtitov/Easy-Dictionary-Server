@@ -35,9 +35,10 @@ func JWTMiddleware(env *internalenv.Env, requiredRole string) gin.HandlerFunc {
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "Insufficient role"})
 			return
 		}
-		c.Set("userID", claims.Subject)
+		c.Set("userUUID", claims.Subject)
 		c.Set("user_role", claims.Role)
-
+		c.Set("userID", claims.UserID)
+		zap.S().Debugf("Set data into context %s, user id %d, user uuid %s", claims.Role, claims.UserID, claims.Subject)
 		c.Next()
 	}
 }

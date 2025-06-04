@@ -21,12 +21,12 @@ func NewUserRepository(db *database.Database) domain.UserRepository {
 
 func (ur *userRepository) Create(c context.Context, user *domain.User) (*domain.User, error) {
 	zap.S().Debugf("Create user")
-	userId, err := dbUser.CreateUser(ur.db, userMapper.FromUserDomain(user))
+	uuid, err := dbUser.CreateUser(ur.db, userMapper.FromUserDomain(user, nil))
 	if err != nil {
 		return nil, err
 	}
-	user.ID = userId
-	zap.S().Debugf("User created with %d id", userId)
+	user.UUID = *uuid
+	zap.S().Debugf("User created with %d uuid", uuid)
 	return user, nil
 }
 
@@ -40,13 +40,14 @@ func (ur *userRepository) GetAllUsers(c context.Context) ([]*domain.User, error)
 	return users, err
 }
 
-func (ur *userRepository) GetByEmail(c context.Context, email string) (*domain.User, error) {
+func (ur *userRepository) GetByEmail(c context.Context, email string) (*domain.User, *int, error) {
 	zap.S().Debugf("GetByEmail %s", email)
 	userEntity, err := dbUser.GetUserByEmail(ur.db, email)
+	// zap.S().Debugf("User UUID %s", userEntity.UUID)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return userMapper.ToUserDomain(userEntity), nil
+	return userMapper.ToUserDomain(userEntity), &userEntity.ID, nil
 }
 
 func (ur *userRepository) GetByID(c context.Context, id int) (*domain.User, error) {
@@ -58,9 +59,18 @@ func (ur *userRepository) GetByID(c context.Context, id int) (*domain.User, erro
 	return userMapper.ToUserDomain(userEntity), nil
 }
 
-func (ur *userRepository) UpdateUser(c context.Context, user *domain.User) (*domain.User, error) {
+func (ur *userRepository) GetByUUID(c context.Context, uuid string) (*domain.User, error) {
+	zap.S().Debugf("GetByUUID %s", uuid)
+	userEntity, err := dbUser.GetUserByUUID(ur.db, uuid)
+	if err != nil {
+		return nil, err
+	}
+	return userMapper.ToUserDomain(userEntity), nil
+}
+
+func (ur *userRepository) UpdateUser(c context.Context, user *domain.User, userId int) (*domain.User, error) {
 	zap.S().Debugf("UpdateUser %s %s", user.FirstName, user.LastName)
-	userEntity := userMapper.FromUserDomain(user)
+	userEntity := userMapper.FromUserDomain(user, &userId)
 	err := dbUser.UpdateUser(ur.db, userEntity)
 	if err != nil {
 		return nil, err

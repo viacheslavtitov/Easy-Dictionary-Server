@@ -19,7 +19,7 @@ type LanguageController struct {
 
 func (languageController *LanguageController) GetAllForUser(c *gin.Context) {
 	zap.S().Info("GET GetAllForUser")
-	if userID, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
+	if userID, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
 	} else {
 		languages, err := languageController.LanguageUseCase.GetAllForUser(c, *userID)
@@ -36,7 +36,7 @@ func (languageController *LanguageController) GetAllForUser(c *gin.Context) {
 
 func (languageController *LanguageController) Edit(c *gin.Context) {
 	zap.S().Info("POST Edit")
-	if userID, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
+	if userID, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
 	} else {
 		var request languageDomain.EditLanguageRequest
@@ -59,7 +59,7 @@ func (languageController *LanguageController) Edit(c *gin.Context) {
 }
 
 func (languageController *LanguageController) Create(c *gin.Context) {
-	if userID, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
+	if userID, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
 	} else {
 		zap.S().Infof("POST Create language for: %d", &userID)
@@ -85,7 +85,7 @@ func (languageController *LanguageController) Create(c *gin.Context) {
 func (languageController *LanguageController) Delete(c *gin.Context) {
 	languageId := c.Param("id")
 	zap.S().Infof("DELETE Delete language %d", languageId)
-	if _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
+	if _, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
 	}
 	if languageIdInt, err := strconv.Atoi(languageId); err != nil {

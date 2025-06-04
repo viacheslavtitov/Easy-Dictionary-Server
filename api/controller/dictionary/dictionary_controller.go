@@ -19,7 +19,7 @@ type DictionaryController struct {
 
 func (dictionaryController *DictionaryController) GetAllForUser(c *gin.Context) {
 	zap.S().Info("GET GetAllForUser")
-	if userID, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
+	if userID, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
 	} else {
 		dictionaries, err := dictionaryController.DictionaryUseCase.GetAllForUser(c, *userID)
@@ -36,7 +36,7 @@ func (dictionaryController *DictionaryController) GetAllForUser(c *gin.Context) 
 
 func (dictionaryController *DictionaryController) Edit(c *gin.Context) {
 	zap.S().Info("POST Edit")
-	if userID, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
+	if userID, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
 	} else {
 		var request dictionaryDomain.EditDictionaryRequest
@@ -59,7 +59,7 @@ func (dictionaryController *DictionaryController) Edit(c *gin.Context) {
 }
 
 func (dictionaryController *DictionaryController) Create(c *gin.Context) {
-	if userID, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
+	if userID, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
 	} else {
 		zap.S().Infof("POST Create dictionary for: %d", &userID)
@@ -85,7 +85,7 @@ func (dictionaryController *DictionaryController) Create(c *gin.Context) {
 func (dictionaryController *DictionaryController) Delete(c *gin.Context) {
 	dictionaryId := c.Param("id")
 	zap.S().Infof("DELETE Delete dictionary %d", dictionaryId)
-	if _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
+	if _, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
 	}
 	if dictionaryIdInt, err := strconv.Atoi(dictionaryId); err != nil {

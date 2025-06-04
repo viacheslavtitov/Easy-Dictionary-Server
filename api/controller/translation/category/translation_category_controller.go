@@ -19,7 +19,7 @@ type TranslationCategoryController struct {
 
 func (controller *TranslationCategoryController) GetAllForUser(c *gin.Context) {
 	zap.S().Info("GET GetAllForUser")
-	if userID, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
+	if userID, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
 	} else {
 		tcategories, err := controller.TranslationCategoryUseCase.GetAllForUser(c, *userID)
@@ -35,7 +35,7 @@ func (controller *TranslationCategoryController) GetAllForUser(c *gin.Context) {
 }
 
 func (controller *TranslationCategoryController) Edit(c *gin.Context) {
-	if userID, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
+	if userID, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
 	} else {
 		var request domainTranslationCategory.EditTranslationCategoryRequest
@@ -58,7 +58,7 @@ func (controller *TranslationCategoryController) Edit(c *gin.Context) {
 }
 
 func (controller *TranslationCategoryController) Create(c *gin.Context) {
-	if userID, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
+	if userID, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
 	} else {
 		zap.S().Infof("POST Create translation category for: %d", &userID)
@@ -82,7 +82,7 @@ func (controller *TranslationCategoryController) Create(c *gin.Context) {
 }
 
 func (controller *TranslationCategoryController) Delete(c *gin.Context) {
-	if _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
+	if _, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
 	}
 	translationCategoryId := c.Param("id")
