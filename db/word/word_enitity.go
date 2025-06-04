@@ -14,9 +14,9 @@ type WordEntity struct {
 	CategoryId   *int    `db:"category_id"`
 }
 
-func GetAllWordsForDictionary(db *database.Database, dictionaryId int) (*[]WordEntity, error) {
+func GetAllWordsForDictionary(db *database.Database, dictionaryId int, lastId int, pageSize int) (*[]WordEntity, error) {
 	var words []WordEntity
-	err := db.SQLDB.Select(&words, getAllWordsByDictionaryQuery(), dictionaryId)
+	err := db.SQLDB.Select(&words, getAllWordsByDictionaryQuery(), dictionaryId, lastId, pageSize)
 	if err != nil {
 		return nil, err
 	}

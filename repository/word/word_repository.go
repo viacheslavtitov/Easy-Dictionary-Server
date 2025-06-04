@@ -25,9 +25,9 @@ func (wr *wordRepository) Create(c context.Context, dictionaryId int, word *doma
 	return err
 }
 
-func (wr *wordRepository) GetAllForDictionary(c context.Context, dictionaryId int) (*[]domain.Word, error) {
+func (wr *wordRepository) GetAllForDictionary(c context.Context, dictionaryId int, lastId int, pageSize int) (*[]domain.Word, error) {
 	zap.S().Debugf("GetAllForDictionary %d", dictionaryId)
-	wordEntities, err := dbWord.GetAllWordsForDictionary(wr.db, dictionaryId)
+	wordEntities, err := dbWord.GetAllWordsForDictionary(wr.db, dictionaryId, lastId, pageSize)
 	if err != nil {
 		return nil, err
 	}

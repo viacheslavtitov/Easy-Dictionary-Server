@@ -18,24 +18,38 @@ type WordController struct {
 }
 
 func (controller *WordController) GetAllForDictionary(c *gin.Context) {
-	dictionaryId := c.Query("dictionaryId")
-	zap.S().Infof("GET all words for dictionary %s", dictionaryId)
 	if _, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
 	}
-	if dictionaryIdInt, err := strconv.Atoi(dictionaryId); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid dictionary ID"})
+	dictionaryIdInt, err := controllerCommon.ParseQueryInt(c, "dictionaryId")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid dictionary Id"})
 		return
+	}
+	lastIdInt, err := controllerCommon.ParseQueryInt(c, "lastId")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid last read Id"})
+		return
+	}
+	pageSizeInt, err := controllerCommon.ParseQueryInt(c, "pageSize")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page size"})
+		return
+	}
+	zap.S().Infof("GET all words for dictionary %d with lastId %d and pageSize %d", dictionaryIdInt, lastIdInt, pageSizeInt)
+	words, err := controller.WordUseCase.GetAllForDictionary(c, dictionaryIdInt, lastIdInt, pageSizeInt)
+	if err != nil {
+		zap.S().Error("Failed to get words")
+		zap.S().Error(err)
+		c.JSON(http.StatusInternalServerError, err.Error())
 	} else {
-		words, err := controller.WordUseCase.GetAllForDictionary(c, dictionaryIdInt)
-		if err != nil {
-			zap.S().Error("Failed to get words")
-			zap.S().Error(err)
-			c.JSON(http.StatusInternalServerError, err.Error())
-		} else {
-			zap.S().Debugf("Got words %d", len(*words))
-			c.JSON(http.StatusOK, &words)
-		}
+		zap.S().Debugf("Got words %d", len(*words))
+		last := (*words)[len(*words)-1].ID
+		c.JSON(http.StatusOK, domainWord.WordsWithPaginationResponse{
+			Words:    *words,
+			LatestId: last,
+			PageSize: pageSizeInt,
+		})
 	}
 }
 

@@ -30,15 +30,21 @@ type EditWordRequest struct {
 	CategoryId   *int    `json:"category_id"`
 }
 
+type WordsWithPaginationResponse struct {
+	Words    []Word `json:"words"`
+	PageSize int    `json:"page_size"`
+	LatestId int    `json:"latest_id"`
+}
+
 type WordUseCase interface {
-	GetAllForDictionary(c context.Context, dictionaryId int) (*[]Word, error)
+	GetAllForDictionary(c context.Context, dictionaryId int, lastId int, pageSize int) (*[]Word, error)
 	Create(c context.Context, dictionaryId int, original string, phonetic *string, wordType *string, categoryId *int) error
 	Update(c context.Context, id int, dictionaryId int, original string, phonetic *string, wordType *string, categoryId *int) error
 	DeleteById(c context.Context, id int) (int64, error)
 }
 
 type WordRepository interface {
-	GetAllForDictionary(c context.Context, dictionaryId int) (*[]Word, error)
+	GetAllForDictionary(c context.Context, dictionaryId int, lastId int, pageSize int) (*[]Word, error)
 	Create(c context.Context, dictionaryId int, word *Word) error
 	Update(c context.Context, word *Word) error
 	DeleteById(c context.Context, id int) (int64, error)

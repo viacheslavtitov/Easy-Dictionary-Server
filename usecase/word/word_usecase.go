@@ -19,10 +19,10 @@ func NewWordUsecase(wordRepository domainWord.WordRepository, timeout int) domai
 	}
 }
 
-func (wu *wordUsecase) GetAllForDictionary(c context.Context, dictionaryId int) (*[]domainWord.Word, error) {
+func (wu *wordUsecase) GetAllForDictionary(c context.Context, dictionaryId int, lastId int, pageSize int) (*[]domainWord.Word, error) {
 	ctx, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(wu.contextTimeout))
 	defer cancel()
-	return wu.wordRepository.GetAllForDictionary(ctx, dictionaryId)
+	return wu.wordRepository.GetAllForDictionary(ctx, dictionaryId, lastId, pageSize)
 }
 
 func (wu *wordUsecase) Create(c context.Context, dictionaryId int, original string, phonetic *string, wordType *string, categoryId *int) error {

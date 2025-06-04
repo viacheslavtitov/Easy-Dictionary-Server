@@ -3,17 +3,14 @@ package db
 // getAllWordsByDictionaryQuery get query to get all words for dictionary table
 // Params:
 // - $1: dictionary id
+// - $2: last id from latest page
+// - $3: page size
 func getAllWordsByDictionaryQuery() string {
 	return `
-SELECT 
-    id AS id,
-	original AS original,
-	phonetic AS phonetic,
-	dictionary_id AS dictionary_id,
-	type AS type,
-	category_id AS category_id
-FROM word
-WHERE dictionary_id = $1;`
+SELECT * FROM word
+WHERE dictionary_id = $1 AND id > $2
+ORDER BY id
+LIMIT $3;`
 }
 
 // CreateWordQuery get query to create word

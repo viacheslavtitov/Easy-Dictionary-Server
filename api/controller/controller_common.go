@@ -2,6 +2,7 @@ package controller
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -42,4 +43,9 @@ func ValidateDeleteByIdResult(context *gin.Context, id string, errorMessage stri
 		}
 	}
 	return true
+}
+
+func ParseQueryInt(c *gin.Context, param string) (int, error) {
+	val := c.Query(param)
+	return strconv.Atoi(val)
 }
