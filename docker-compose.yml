@@ -1,0 +1,45 @@
+version: "3.8"
+
+services:
+  api:
+    image: easydictionary:latest
+    container_name: easydictionary-api
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - swagger
+    environment:
+      - DB_HOST=${POSTGRES_HOST}
+      - DB_PORT=${POSTGRES_PORT}
+      - DB_USER=${POSTGRES_USER_NAME}
+      - DB_PASSWORD=${POSTGRES_USER_PASSWORD}
+      - DB_NAME=${POSTGRES_DB_NAME}
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: easydictionary-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER_NAME}
+      POSTGRES_PASSWORD: ${POSTGRES_USER_NAME}
+      POSTGRES_DB: ${POSTGRES_DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  swagger:
+    image: swaggerapi/swagger-ui
+    container_name: easydictionary-swagger
+    restart: always
+    ports:
+      - "8081:8080"
+    environment:
+      SWAGGER_JSON: /openapi/swagger.json
+    volumes:
+      - ./swagger:/openapi
+
+volumes:
+  postgres_data:

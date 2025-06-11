@@ -1,0 +1,51 @@
+name: Deploy DEV to VPS
+
+on:
+  push:
+    branches:
+      - main #change to dev after production release
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22.0' #similar with local build
+
+      - name: Build Go Binary
+        run: |
+          GOOS=linux GOARCH=amd64 go build -o easydictionary ./cmd
+
+      - name: Copy files to server via SSH
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.DEPLOY_SERVER_IP }}
+          username: ${{ secrets.DEPLOY_SERVER_USERNAME }}
+          key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+          source: "easydictionary,docker-compose.yml"
+          target: "~/deploy"
+
+      - name: Execute remote commands
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEPLOY_SERVER_IP }}
+          username: ${{ secrets.DEPLOY_SERVER_USERNAME }}
+          key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+          script: |
+            cd ~/deploy
+            docker build -t easydictionary:latest - <<EOF
+            FROM alpine:latest
+            COPY easydictionary /app/easydictionary
+            WORKDIR /app
+            EXPOSE 8080
+            CMD ["./easydictionary"]
+            EOF
+
+            docker-compose down
+            docker-compose up -d --build
