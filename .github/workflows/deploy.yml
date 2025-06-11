@@ -18,12 +18,12 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.22.0' #similar with local build
+          go-version: "1.22.0" #similar with local build
 
       - name: Build Go Binary
         run: |
           GOOS=linux GOARCH=amd64 go build -o easydictionary ./cmd
-      
+
       - name: Install swag
         run: go install github.com/swaggo/swag/cmd/swag@latest
 
@@ -33,14 +33,13 @@ jobs:
       - name: Copy swagger.json to swagger folder
         run: |
           mkdir -p swagger
-          chmod -R 755 swagger
-          chmod -R 755 docs
           cp ./docs/swagger.json ./swagger/swagger.json
 
-      - name: Debug swagger file permissions
+      - name: Fix ownership and permissions for swagger.json
         run: |
+          chown runner:runner ./swagger/swagger.json
+          chmod 644 ./swagger/swagger.json
           ls -l ./swagger
-          ls -l ./docs
 
       - name: Copy files to server via SSH
         uses: appleboy/scp-action@master
