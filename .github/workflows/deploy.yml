@@ -35,8 +35,11 @@ jobs:
           mkdir -p swagger
           cp ./docs/swagger.json ./swagger/swagger.json
 
-      - name: Fix ownership and permissions for swagger.json
+      - name: Re-create swagger.json file for safe permissions
         run: |
+          rm -f ./swagger/swagger.json
+          touch ./swagger/swagger.json
+          cat ./docs/swagger.json > ./swagger/swagger.json
           chmod 644 ./swagger/swagger.json
           ls -l ./swagger
 
