@@ -36,7 +36,7 @@ jobs:
           cp ./docs/swagger.json ./swagger/swagger.json
 
       - name: Upload files via SCP (with alternative action)
-        uses: cross-the-world/scp-pipeline@v1.1.2
+        uses: cross-the-world/scp-pipeline@master
         with:
           host: ${{ secrets.DEPLOY_SERVER_IP }}
           user: ${{ secrets.DEPLOY_SERVER_USERNAME }}
