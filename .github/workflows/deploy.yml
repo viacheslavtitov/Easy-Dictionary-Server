@@ -1,6 +1,7 @@
 name: Deploy DEV to VPS
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main #change to dev after production release
