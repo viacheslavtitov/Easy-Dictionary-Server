@@ -28,7 +28,7 @@ jobs:
         run: go install github.com/swaggo/swag/cmd/swag@latest
 
       - name: Generate Swagger Docs
-        run: swag init --generalInfo ./cmd/main.go --dir ./api/controller --output ./docs --parseDependency
+        run: swag init --generalInfo cmd/main.go --output ./docs --parseDependency --parseInternal
 
       - name: Copy swagger.json to swagger folder
         run: |
