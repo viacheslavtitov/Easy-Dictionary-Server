@@ -23,6 +23,11 @@ jobs:
       - name: Build Go Binary
         run: |
           GOOS=linux GOARCH=amd64 go build -o easydictionary ./cmd
+      
+      - name: Copy swagger.json to swagger folder
+        run: |
+          mkdir -p swagger
+          cp ./docs/swagger.json ./swagger/swagger.json
 
       - name: Copy files to server via SSH
         uses: appleboy/scp-action@master
@@ -30,7 +35,7 @@ jobs:
           host: ${{ secrets.DEPLOY_SERVER_IP }}
           username: ${{ secrets.DEPLOY_SERVER_USERNAME }}
           key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
-          source: "easydictionary,docker-compose.yml,dockerfile"
+          source: "easydictionary,docker-compose.yml,dockerfile,swagger"
           target: "~/deploy"
 
       - name: Execute remote commands
