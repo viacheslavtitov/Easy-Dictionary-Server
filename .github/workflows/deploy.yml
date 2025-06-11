@@ -24,6 +24,12 @@ jobs:
         run: |
           GOOS=linux GOARCH=amd64 go build -o easydictionary ./cmd
       
+      - name: Install swag
+        run: go install github.com/swaggo/swag/cmd/swag@latest
+
+      - name: Generate Swagger Docs
+        run: swag init --generalInfo ./cmd/main.go --dir ./api/controller --output ./docs --parseDependency
+
       - name: Copy swagger.json to swagger folder
         run: |
           mkdir -p swagger
