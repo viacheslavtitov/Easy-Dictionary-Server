@@ -37,7 +37,6 @@ jobs:
 
       - name: Fix ownership and permissions for swagger.json
         run: |
-          chown runner:runner ./swagger/swagger.json
           chmod 644 ./swagger/swagger.json
           ls -l ./swagger
 
