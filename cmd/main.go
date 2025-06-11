@@ -19,6 +19,11 @@ import (
 	"go.uber.org/zap"
 )
 
+// @title EasyDictionary API
+// @version 1.0
+// @description This is the REST API for EasyDictionary app
+// @host localhost:8080
+// @BasePath /
 func main() {
 	//load environment configuration
 	changeEnvChan := make(chan internalenv.Env)

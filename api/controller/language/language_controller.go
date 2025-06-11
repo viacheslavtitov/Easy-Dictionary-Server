@@ -17,6 +17,17 @@ type LanguageController struct {
 	LanguageUseCase languageDomain.LanguageUseCase
 }
 
+// GetAllForUser godoc
+// @Summary      Get all languages for user
+// @Description  Get all languages for user
+// @Tags         language
+// @Accept       json
+// @Produce      json
+// @Success      200  {array}  languageDomain.Language
+// @Failure      400  {object}  domain.ErrorResponse
+// @Failure      404  {object}  domain.ErrorResponse
+// @Failure      500  {object}  domain.ErrorResponse
+// @Router       /api/languages/all [get]
 func (languageController *LanguageController) GetAllForUser(c *gin.Context) {
 	zap.S().Info("GET GetAllForUser")
 	if userID, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
@@ -34,6 +45,18 @@ func (languageController *LanguageController) GetAllForUser(c *gin.Context) {
 	}
 }
 
+// Edit godoc
+// @Summary      Edit language
+// @Description  Update language
+// @Tags         language
+// @Accept       json
+// @Produce      json
+// @Param input body languageDomain.EditLanguageRequest true "New data for language"
+// @Success      200  {object}  domain.SuccessResponse
+// @Failure      400  {object}  domain.ErrorResponse
+// @Failure      404  {object}  domain.ErrorResponse
+// @Failure      500  {object}  domain.ErrorResponse
+// @Router       /api/language/edit [post]
 func (languageController *LanguageController) Edit(c *gin.Context) {
 	zap.S().Info("POST Edit")
 	if userID, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
@@ -58,6 +81,16 @@ func (languageController *LanguageController) Edit(c *gin.Context) {
 	}
 }
 
+// Create godoc
+// @Summary Create language
+// @Description Create new language for user
+// @Tags language
+// @Accept  json
+// @Produce  json
+// @Param   input body languageDomain.LanguageRequest true "Language data"
+// @Success 201 {object} domain.SuccessResponse
+// @Failure 400 {object} domain.ErrorResponse
+// @Router /api/language/create [post]
 func (languageController *LanguageController) Create(c *gin.Context) {
 	if userID, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
@@ -82,6 +115,16 @@ func (languageController *LanguageController) Create(c *gin.Context) {
 	}
 }
 
+// Delete godoc
+// @Summary Delete language
+// @Description Delete language for user
+// @Tags language
+// @Accept  json
+// @Produce  json
+// @Param id path int true "ID language"
+// @Success 201 {object} domain.SuccessResponse
+// @Failure 400 {object} domain.ErrorResponse
+// @Router /api/language/:id [delete]
 func (languageController *LanguageController) Delete(c *gin.Context) {
 	languageId := c.Param("id")
 	zap.S().Infof("DELETE Delete language %d", languageId)

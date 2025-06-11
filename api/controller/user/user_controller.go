@@ -19,6 +19,16 @@ type UserController struct {
 	Env         *internalenv.Env
 }
 
+// Register godoc
+// @Summary Register user
+// @Description Create new user with email and password or choice provider
+// @Tags users
+// @Accept  json
+// @Produce  json
+// @Param   input body userDomain.RegisterUserRequest true "User data"
+// @Success 201 {object} userDomain.User
+// @Failure 400 {object} domain.ErrorResponse
+// @Router /api/signup [post]
 func (userController *UserController) Register(c *gin.Context, role string) {
 	zap.S().Info("POST Register")
 	var request userDomain.RegisterUserRequest
@@ -66,6 +76,18 @@ func (userController *UserController) Register(c *gin.Context, role string) {
 	}
 }
 
+// Edit godoc
+// @Summary      Edit user
+// @Description  Update user
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Param input body userDomain.EditUserRequest true "New data for user"
+// @Success      200  {object}  userDomain.User
+// @Failure      400  {object}  domain.ErrorResponse
+// @Failure      404  {object}  domain.ErrorResponse
+// @Failure      500  {object}  domain.ErrorResponse
+// @Router       /api/users/edit [post]
 func (userController *UserController) Edit(c *gin.Context) {
 	zap.S().Info("POST Edit")
 	if userId, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
@@ -91,6 +113,18 @@ func (userController *UserController) Edit(c *gin.Context) {
 	}
 }
 
+// GetUserByUUID godoc
+// @Summary      Get user by id (uuid)
+// @Description  Get user by id (uuid)
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Param id path string true "UUID user"
+// @Success      200  {object}  userDomain.User
+// @Failure      400  {object}  domain.ErrorResponse
+// @Failure      404  {object}  domain.ErrorResponse
+// @Failure      500  {object}  domain.ErrorResponse
+// @Router       /api/users/:id [get]
 func (userController *UserController) GetUserByUUID(c *gin.Context) {
 	userUUID := c.Param("id")
 	zap.S().Infof("GET GetUserByUUID: %s", userUUID)
@@ -110,6 +144,17 @@ func (userController *UserController) GetUserByUUID(c *gin.Context) {
 	}
 }
 
+// GetAllUsers godoc
+// @Summary      Get all users
+// @Description  Get all users
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Success      200  {array}  userDomain.User
+// @Failure      400  {object}  domain.ErrorResponse
+// @Failure      404  {object}  domain.ErrorResponse
+// @Failure      500  {object}  domain.ErrorResponse
+// @Router       /api/users/all [get]
 func (userController *UserController) GetAllUsers(c *gin.Context) {
 	zap.S().Infof("GET GetAllUsers")
 	if _, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {

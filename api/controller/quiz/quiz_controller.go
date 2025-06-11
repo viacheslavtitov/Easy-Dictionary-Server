@@ -17,6 +17,17 @@ type QuizController struct {
 	QuizUseCase quizDomain.QuizUseCase
 }
 
+// GetAllQuizes godoc
+// @Summary      Get all quizes for user
+// @Description  Get all quizes for user
+// @Tags         quiz
+// @Accept       json
+// @Produce      json
+// @Success      200  {array}  quizDomain.QuizDetail
+// @Failure      400  {object}  domain.ErrorResponse
+// @Failure      404  {object}  domain.ErrorResponse
+// @Failure      500  {object}  domain.ErrorResponse
+// @Router       /api/quiz/all [get]
 func (controller *QuizController) GetAllQuizes(c *gin.Context) {
 	zap.S().Info("GET GetAllQuizes")
 	if userID, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
@@ -34,6 +45,18 @@ func (controller *QuizController) GetAllQuizes(c *gin.Context) {
 	}
 }
 
+// GetQuizById godoc
+// @Summary      Get all data for quiz
+// @Description  Get all data for quiz
+// @Tags         quiz
+// @Accept       json
+// @Produce      json
+// @Param id path int true "ID quiz"
+// @Success      200  {object}  quizDomain.QuizItemDetail
+// @Failure      400  {object}  domain.ErrorResponse
+// @Failure      404  {object}  domain.ErrorResponse
+// @Failure      500  {object}  domain.ErrorResponse
+// @Router       /api/quiz/:id [get]
 func (controller *QuizController) GetQuizById(c *gin.Context) {
 	quizId := c.Param("id")
 	zap.S().Infof("GET GetQuizById %d", quizId)
@@ -56,6 +79,18 @@ func (controller *QuizController) GetQuizById(c *gin.Context) {
 	}
 }
 
+// Edit godoc
+// @Summary      Edit quiz
+// @Description  Update quiz
+// @Tags         quiz
+// @Accept       json
+// @Produce      json
+// @Param input body quizDomain.EditQuizRequest true "New data for quiz"
+// @Success      200  {object}  domain.SuccessResponse
+// @Failure      400  {object}  domain.ErrorResponse
+// @Failure      404  {object}  domain.ErrorResponse
+// @Failure      500  {object}  domain.ErrorResponse
+// @Router       /api/quiz/edit [post]
 func (controller *QuizController) Edit(c *gin.Context) {
 	zap.S().Info("POST Edit")
 	if _, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
@@ -80,6 +115,16 @@ func (controller *QuizController) Edit(c *gin.Context) {
 	}
 }
 
+// Create godoc
+// @Summary Create quiz
+// @Description Create new quiz for dictionary
+// @Tags quiz
+// @Accept  json
+// @Produce  json
+// @Param   input body quizDomain.QuizRequest true "Quiz data"
+// @Success 201 {object} domain.SuccessResponse
+// @Failure 400 {object} domain.ErrorResponse
+// @Router /api/quiz/create [post]
 func (controller *QuizController) Create(c *gin.Context) {
 	if userID, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
@@ -104,6 +149,18 @@ func (controller *QuizController) Create(c *gin.Context) {
 	}
 }
 
+// EdAddWordit godoc
+// @Summary      Add word to quiz
+// @Description  Add word to quiz
+// @Tags         quiz
+// @Accept       json
+// @Produce      json
+// @Param input body quizDomain.QuizWordRequest true "New word for quiz"
+// @Success      200  {object}  domain.SuccessResponse
+// @Failure      400  {object}  domain.ErrorResponse
+// @Failure      404  {object}  domain.ErrorResponse
+// @Failure      500  {object}  domain.ErrorResponse
+// @Router       /api/quiz/word/add [post]
 func (controller *QuizController) AddWord(c *gin.Context) {
 	if userID, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
@@ -128,6 +185,16 @@ func (controller *QuizController) AddWord(c *gin.Context) {
 	}
 }
 
+// Delete godoc
+// @Summary Delete quiz
+// @Description Delete quiz for dictionary
+// @Tags quiz
+// @Accept  json
+// @Produce  json
+// @Param id path int true "ID quiz"
+// @Success 201 {object} domain.SuccessResponse
+// @Failure 400 {object} domain.ErrorResponse
+// @Router /api/quiz/:id [delete]
 func (controller *QuizController) Delete(c *gin.Context) {
 	quizId := c.Param("id")
 	zap.S().Infof("DELETE Delete quiz %d", quizId)
@@ -146,6 +213,16 @@ func (controller *QuizController) Delete(c *gin.Context) {
 	}
 }
 
+// DeleteWord godoc
+// @Summary Delete word in quiz
+// @Description Delete word in quiz
+// @Tags quiz
+// @Accept  json
+// @Produce  json
+// @Param id path int true "ID word"
+// @Success 201 {object} domain.SuccessResponse
+// @Failure 400 {object} domain.ErrorResponse
+// @Router /api/quiz/word/:id [delete]
 func (controller *QuizController) DeleteWord(c *gin.Context) {
 	quizWordId := c.Param("id")
 	zap.S().Infof("DELETE Delete word from quiz %d", quizWordId)

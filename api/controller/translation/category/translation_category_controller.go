@@ -17,6 +17,17 @@ type TranslationCategoryController struct {
 	TranslationCategoryUseCase domainTranslationCategory.TranslationCategoryUseCase
 }
 
+// GetAllForUser godoc
+// @Summary      Get all translation categories for user
+// @Description  Get all translation categories for user
+// @Tags         translation_category
+// @Accept       json
+// @Produce      json
+// @Success      200  {array}  domainTranslationCategory.TranslationCategory
+// @Failure      400  {object}  domain.ErrorResponse
+// @Failure      404  {object}  domain.ErrorResponse
+// @Failure      500  {object}  domain.ErrorResponse
+// @Router       /api/translation/category/all [get]
 func (controller *TranslationCategoryController) GetAllForUser(c *gin.Context) {
 	zap.S().Info("GET GetAllForUser")
 	if userID, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
@@ -34,6 +45,18 @@ func (controller *TranslationCategoryController) GetAllForUser(c *gin.Context) {
 	}
 }
 
+// Edit godoc
+// @Summary      Edit translation category for user
+// @Description  Update translation category for user
+// @Tags         translation_category
+// @Accept       json
+// @Produce      json
+// @Param input body domainTranslationCategory.EditTranslationCategoryRequest true "New data for translation category"
+// @Success      200  {object}  domain.SuccessResponse
+// @Failure      400  {object}  domain.ErrorResponse
+// @Failure      404  {object}  domain.ErrorResponse
+// @Failure      500  {object}  domain.ErrorResponse
+// @Router       /api/translation/category/edit [post]
 func (controller *TranslationCategoryController) Edit(c *gin.Context) {
 	if userID, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
@@ -57,6 +80,16 @@ func (controller *TranslationCategoryController) Edit(c *gin.Context) {
 	}
 }
 
+// Create godoc
+// @Summary Create translation category
+// @Description Create new translation category for user
+// @Tags translation_category
+// @Accept  json
+// @Produce  json
+// @Param   input body domainTranslationCategory.TranslationCategoryRequest true "Translation category data"
+// @Success 201 {object} domain.SuccessResponse
+// @Failure 400 {object} domain.ErrorResponse
+// @Router /api/translation/category/create [post]
 func (controller *TranslationCategoryController) Create(c *gin.Context) {
 	if userID, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
@@ -81,6 +114,16 @@ func (controller *TranslationCategoryController) Create(c *gin.Context) {
 	}
 }
 
+// Delete godoc
+// @Summary Delete translation category
+// @Description Delete translation category for user
+// @Tags translation_category
+// @Accept  json
+// @Produce  json
+// @Param id path int true "ID translation category"
+// @Success 201 {object} domain.SuccessResponse
+// @Failure 400 {object} domain.ErrorResponse
+// @Router /api/translation/category/:id [delete]
 func (controller *TranslationCategoryController) Delete(c *gin.Context) {
 	if _, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return

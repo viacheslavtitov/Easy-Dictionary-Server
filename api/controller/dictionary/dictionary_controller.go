@@ -17,6 +17,17 @@ type DictionaryController struct {
 	DictionaryUseCase dictionaryDomain.DictionaryUseCase
 }
 
+// GetAllForUser godoc
+// @Summary      Get all dictionaries for user
+// @Description  Get all dictionaries for user
+// @Tags         dictionary
+// @Accept       json
+// @Produce      json
+// @Success      200  {array}  dictionaryDomain.Dictionary
+// @Failure      400  {object}  domain.ErrorResponse
+// @Failure      404  {object}  domain.ErrorResponse
+// @Failure      500  {object}  domain.ErrorResponse
+// @Router       /api/dictionary/all [get]
 func (dictionaryController *DictionaryController) GetAllForUser(c *gin.Context) {
 	zap.S().Info("GET GetAllForUser")
 	if userID, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
@@ -34,6 +45,18 @@ func (dictionaryController *DictionaryController) GetAllForUser(c *gin.Context) 
 	}
 }
 
+// Edit godoc
+// @Summary      Edit dictionary
+// @Description  Update dictionary
+// @Tags         dictionary
+// @Accept       json
+// @Produce      json
+// @Param input body dictionaryDomain.EditDictionaryRequest true "New data for dictionary"
+// @Success      200  {object}  domain.SuccessResponse
+// @Failure      400  {object}  domain.ErrorResponse
+// @Failure      404  {object}  domain.ErrorResponse
+// @Failure      500  {object}  domain.ErrorResponse
+// @Router       /api/dictionary/edit [post]
 func (dictionaryController *DictionaryController) Edit(c *gin.Context) {
 	zap.S().Info("POST Edit")
 	if userID, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
@@ -58,6 +81,16 @@ func (dictionaryController *DictionaryController) Edit(c *gin.Context) {
 	}
 }
 
+// Create godoc
+// @Summary Create dictionary
+// @Description Create new dictionary for user
+// @Tags dictionary
+// @Accept  json
+// @Produce  json
+// @Param   input body dictionaryDomain.DictionaryRequest true "Dictionary data"
+// @Success 201 {object} domain.SuccessResponse
+// @Failure 400 {object} domain.ErrorResponse
+// @Router /api/dictionary/create [post]
 func (dictionaryController *DictionaryController) Create(c *gin.Context) {
 	if userID, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
@@ -82,6 +115,16 @@ func (dictionaryController *DictionaryController) Create(c *gin.Context) {
 	}
 }
 
+// Delete godoc
+// @Summary Delete dictionary
+// @Description Delete dictionary for user
+// @Tags dictionary
+// @Accept  json
+// @Produce  json
+// @Param id path int true "ID dictionary"
+// @Success 201 {object} domain.SuccessResponse
+// @Failure 400 {object} domain.ErrorResponse
+// @Router /api/dictionary/:id [delete]
 func (dictionaryController *DictionaryController) Delete(c *gin.Context) {
 	dictionaryId := c.Param("id")
 	zap.S().Infof("DELETE Delete dictionary %d", dictionaryId)

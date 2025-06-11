@@ -17,6 +17,18 @@ type TranslationController struct {
 	TranslationUseCase domainTranslation.TranslationUseCase
 }
 
+// GetAllForWord godoc
+// @Summary      Get all translation for word
+// @Description  Get all translation for word
+// @Tags         translation
+// @Accept       json
+// @Produce      json
+// @Param   id    path     int     true     "Word id"
+// @Success      200  {array}  domainTranslation.Translation
+// @Failure      400  {object}  domain.ErrorResponse
+// @Failure      404  {object}  domain.ErrorResponse
+// @Failure      500  {object}  domain.ErrorResponse
+// @Router       /api/translation/all/:id [get]
 func (controller *TranslationController) GetAllForWord(c *gin.Context) {
 	wordId := c.Param("id")
 	zap.S().Infof("GET GetAllForWord %s", wordId)
@@ -40,6 +52,18 @@ func (controller *TranslationController) GetAllForWord(c *gin.Context) {
 
 }
 
+// Edit godoc
+// @Summary      Edit translation
+// @Description  Update translation
+// @Tags         translation
+// @Accept       json
+// @Produce      json
+// @Param input body domainTranslation.EditTranslationRequest true "New data for translation"
+// @Success      200  {object}  domain.SuccessResponse
+// @Failure      400  {object}  domain.ErrorResponse
+// @Failure      404  {object}  domain.ErrorResponse
+// @Failure      500  {object}  domain.ErrorResponse
+// @Router       /api/translation/edit [post]
 func (controller *TranslationController) Edit(c *gin.Context) {
 	zap.S().Info("POST Edit")
 	if _, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
@@ -64,6 +88,16 @@ func (controller *TranslationController) Edit(c *gin.Context) {
 
 }
 
+// Create godoc
+// @Summary Create translation
+// @Description Create new translation for word
+// @Tags translation
+// @Accept  json
+// @Produce  json
+// @Param   input body domainTranslation.TranslationRequest true "Translation data"
+// @Success 201 {object} domain.SuccessResponse
+// @Failure 400 {object} domain.ErrorResponse
+// @Router /api/translation/create [post]
 func (controller *TranslationController) Create(c *gin.Context) {
 	zap.S().Infof("POST Create translation category")
 	if _, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
@@ -87,6 +121,16 @@ func (controller *TranslationController) Create(c *gin.Context) {
 	}
 }
 
+// Delete godoc
+// @Summary Delete translation
+// @Description Delete translation for word
+// @Tags translation
+// @Accept  json
+// @Produce  json
+// @Param id path int true "ID translation"
+// @Success 201 {object} domain.SuccessResponse
+// @Failure 400 {object} domain.ErrorResponse
+// @Router /api/translation/:id [delete]
 func (controller *TranslationController) Delete(c *gin.Context) {
 	if _, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return

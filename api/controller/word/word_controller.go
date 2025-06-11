@@ -17,6 +17,20 @@ type WordController struct {
 	WordUseCase domainWord.WordUseCase
 }
 
+// GetAllForDictionary godoc
+// @Summary      Get all words for dictionary
+// @Description  Get all words for dictionary
+// @Tags         word
+// @Accept       json
+// @Produce      json
+// @Param   dictionaryId    query     int     true     "ID dictionary"
+// @Param   lastId    query     int     true     "Last id in the previous response"
+// @Param   pageSize    query     int     true     "Size of items in response"
+// @Success      200  {object}  domainWord.WordsWithPaginationResponse
+// @Failure      400  {object}  domain.ErrorResponse
+// @Failure      404  {object}  domain.ErrorResponse
+// @Failure      500  {object}  domain.ErrorResponse
+// @Router       /api/word/all [get]
 func (controller *WordController) GetAllForDictionary(c *gin.Context) {
 	if _, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
@@ -62,6 +76,21 @@ func (controller *WordController) GetAllForDictionary(c *gin.Context) {
 	}
 }
 
+// SearchForDictionary godoc
+// @Summary      Get all words for dictionary by search query
+// @Description  Get all words for dictionary by search query
+// @Tags         word
+// @Accept       json
+// @Produce      json
+// @Param   dictionaryId    query     int     true     "ID dictionary"
+// @Param   lastId    query     int     true     "Last id in the previous response"
+// @Param   pageSize    query     int     true     "Size of items in response"
+// @Param   query    query     int     true     "Search letters"
+// @Success      200  {object}  domainWord.WordsWithPaginationResponse
+// @Failure      400  {object}  domain.ErrorResponse
+// @Failure      404  {object}  domain.ErrorResponse
+// @Failure      500  {object}  domain.ErrorResponse
+// @Router       /api/word/search [get]
 func (controller *WordController) SearchForDictionary(c *gin.Context) {
 	if _, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
@@ -112,6 +141,18 @@ func (controller *WordController) SearchForDictionary(c *gin.Context) {
 	}
 }
 
+// Edit godoc
+// @Summary      Edit word in dictionary
+// @Description  Update word in dictionary
+// @Tags         word
+// @Accept       json
+// @Produce      json
+// @Param input body domainWord.EditWordRequest true "New data for word"
+// @Success      200  {object}  domain.SuccessResponse
+// @Failure      400  {object}  domain.ErrorResponse
+// @Failure      404  {object}  domain.ErrorResponse
+// @Failure      500  {object}  domain.ErrorResponse
+// @Router       /api/word/edit [post]
 func (controller *WordController) Edit(c *gin.Context) {
 	zap.S().Info("POST Edit")
 	if _, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
@@ -135,6 +176,16 @@ func (controller *WordController) Edit(c *gin.Context) {
 	}
 }
 
+// Create godoc
+// @Summary Create word
+// @Description Create new word for dictionary
+// @Tags word
+// @Accept  json
+// @Produce  json
+// @Param   input body domainWord.WordRequest true "Word data"
+// @Success 201 {object} domain.SuccessResponse
+// @Failure 400 {object} domain.ErrorResponse
+// @Router /api/word/create [post]
 func (controller *WordController) Create(c *gin.Context) {
 	zap.S().Info("POST Create word")
 	if _, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
@@ -158,6 +209,16 @@ func (controller *WordController) Create(c *gin.Context) {
 	}
 }
 
+// Delete godoc
+// @Summary Delete word
+// @Description Delete word for dictionary
+// @Tags word
+// @Accept  json
+// @Produce  json
+// @Param id path int true "ID word"
+// @Success 201 {object} domain.SuccessResponse
+// @Failure 400 {object} domain.ErrorResponse
+// @Router /api/word/:id [delete]
 func (controller *WordController) Delete(c *gin.Context) {
 	wordId := c.Param("id")
 	zap.S().Infof("DELETE Delete word %d", wordId)

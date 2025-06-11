@@ -18,6 +18,17 @@ type AuthController struct {
 	Env         *internalenv.Env
 }
 
+// SignIn godoc
+// @Summary      Sign in
+// @Description  Do sign in user
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Success      200  {string}  Barear Access Token
+// @Failure      400  {object}  domain.ErrorResponse
+// @Failure      404  {object}  domain.ErrorResponse
+// @Failure      500  {object}  domain.ErrorResponse
+// @Router       /api/signin [post]
 func (authController *AuthController) Login(c *gin.Context) {
 	zap.S().Info("POST Login")
 	var request domain.AuthRequest

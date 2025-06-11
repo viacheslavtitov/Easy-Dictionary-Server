@@ -22,3 +22,7 @@ go.work
 
 service-account.json
 *.sql
+swagger.json
+/docs/swagger.json
+/docs/swagger.yaml
+/docs/docs.go
