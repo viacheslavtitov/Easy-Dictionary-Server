@@ -46,7 +46,7 @@ jobs:
           host: ${{ secrets.DEPLOY_SERVER_IP }}
           username: ${{ secrets.DEPLOY_SERVER_USERNAME }}
           key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
-          source: "easydictionary,docker-compose.yml,dockerfile,swagger"
+          source: "easydictionary,docker-compose.yml,dockerfile,swagger/swagger.json"
           target: "~/deploy"
 
       - name: Execute remote commands
