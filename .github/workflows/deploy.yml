@@ -24,21 +24,13 @@ jobs:
         run: |
           GOOS=linux GOARCH=amd64 go build -o easydictionary ./cmd
 
-      - name: Debug Key Length
-        run: |
-          if [ -z "${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}" ]; then
-            echo "❌ KEY IS EMPTY"
-          else
-            echo "✅ KEY IS PRESENT"
-          fi
-
       - name: Copy files to server via SSH
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.DEPLOY_SERVER_IP }}
           username: ${{ secrets.DEPLOY_SERVER_USERNAME }}
           key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
-          source: "easydictionary,docker-compose.yml"
+          source: "easydictionary,docker-compose.yml,dockerfile"
           target: "~/deploy"
 
       - name: Execute remote commands
@@ -49,13 +41,7 @@ jobs:
           key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
           script: |
             cd ~/deploy
-            docker build -t easydictionary:latest - <<EOF
-            FROM alpine:latest
-            COPY easydictionary /app/easydictionary
-            WORKDIR /app
-            EXPOSE 8080
-            CMD ["./easydictionary"]
-            EOF
+            docker build -t easydictionary:latest .
 
             docker-compose down
             docker-compose up -d --build
