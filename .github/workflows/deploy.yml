@@ -30,13 +30,11 @@ jobs:
       - name: Generate Swagger Docs
         run: swag init --generalInfo cmd/main.go --output ./docs --parseDependency --parseInternal
 
-      - name: Fix permissions
-        run: |
-          chmod -R 755 swagger
-
       - name: Copy swagger.json to swagger folder
         run: |
           mkdir -p swagger
+          chmod -R 755 swagger
+          chmod -R 755 docs
           cp ./docs/swagger.json ./swagger/swagger.json
 
       - name: Copy files to server via SSH
