@@ -37,6 +37,11 @@ jobs:
           chmod -R 755 docs
           cp ./docs/swagger.json ./swagger/swagger.json
 
+      - name: Debug swagger file permissions
+        run: |
+          ls -l ./swagger
+          ls -l ./docs
+
       - name: Copy files to server via SSH
         uses: appleboy/scp-action@master
         with:
