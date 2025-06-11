@@ -8,6 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: Development
 
     steps:
       - name: Checkout Repository
@@ -23,7 +24,12 @@ jobs:
           GOOS=linux GOARCH=amd64 go build -o easydictionary ./cmd
 
       - name: Debug Key Length
-        run: echo "${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}" | wc -l
+        run: |
+          if [ -z "${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}" ]; then
+            echo "❌ KEY IS EMPTY"
+          else
+            echo "✅ KEY IS PRESENT"
+          fi
 
       - name: Copy files to server via SSH
         uses: appleboy/scp-action@master
