@@ -47,7 +47,7 @@ jobs:
             easydictionary
             docker-compose.yml
             dockerfile
-            swagger/swagger.json
+            ./swagger/swagger.json
           remote: ~/deploy
           port: 22
 
