@@ -39,7 +39,7 @@ services:
     environment:
       - SWAGGER_JSON=/swagger.json
     volumes:
-      - ./swagger/swagger.json:/usr/share/nginx/html/swagger.json:ro
+      - /home/deployuser/deploy/swagger/swagger.json:/usr/share/nginx/html/swagger.json:ro
 
 volumes:
   postgres_data:

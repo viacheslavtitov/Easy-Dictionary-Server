@@ -65,7 +65,8 @@ jobs:
           script: |
             cd ~/deploy
             ls -la
-            docker build -t easydictionary:latest .
             ls -la ./swagger
+            docker build -t easydictionary:latest .
             docker-compose down
+            ls -l /home/deployuser/deploy/swagger/swagger.json
             docker-compose up -d --build
