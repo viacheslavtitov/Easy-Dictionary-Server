@@ -50,6 +50,15 @@ jobs:
           remote: ~/deploy/
           port: 22
 
+      - name: Execute remote commands (remove swagger.json on remote machine)
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEPLOY_SERVER_IP }}
+          username: ${{ secrets.DEPLOY_SERVER_USERNAME }}
+          key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+          script: |
+            rm -rf ~/deploy/swagger.json
+
       - name: Upload swagger files
         uses: cross-the-world/scp-pipeline@master
         with:
@@ -63,7 +72,7 @@ jobs:
           remote: ~/deploy/swagger.json
           port: 22
 
-      - name: Execute remote commands
+      - name: Execute remote commands (build docker containers)
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.DEPLOY_SERVER_IP }}
