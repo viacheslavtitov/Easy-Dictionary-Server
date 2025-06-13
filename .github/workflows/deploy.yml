@@ -59,16 +59,14 @@ jobs:
           remote: ~/deploy/
           port: 22
 
-      - name: Upload swagger.json
-        uses: cross-the-world/scp-pipeline@master
+      - name: Upload swagger.json via rsync
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.DEPLOY_SERVER_IP }}
-          user: ${{ secrets.DEPLOY_SERVER_USERNAME }}
+          username: ${{ secrets.DEPLOY_SERVER_USERNAME }}
           key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
-          local: ./swagger/swagger.json
-          remote: /home/deployuser/deploy/swagger.json
-          port: 22
-          verbose: true
+          script: |
+            rsync -avz -e "ssh -o StrictHostKeyChecking=no" ./swagger/swagger.json /home/deployuser/deploy/swagger/swagger.json
 
       - name: Execute remote commands (build docker containers)
         uses: appleboy/ssh-action@master
