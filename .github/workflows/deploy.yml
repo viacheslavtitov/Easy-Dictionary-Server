@@ -62,7 +62,7 @@ jobs:
           user: ${{ secrets.DEPLOY_SERVER_USERNAME }}
           key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
           local: ./swagger/swagger.json
-          remote: ~/deploy/swagger_temp.json
+          remote: /home/deployuser/deploy/swagger_temp.json
           port: 22
           verbose: true
 
@@ -73,8 +73,8 @@ jobs:
           username: ${{ secrets.DEPLOY_SERVER_USERNAME }}
           key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
           script: |
-            rm -rf ~/deploy/swagger.json
-            mv ~/deploy/swagger_temp.json ~/deploy/swagger.json
+            rm -rf /home/deployuser/deploy/swagger.json
+            mv /home/deployuser/deploy/swagger_temp.json /home/deployuser/deploy/swagger.json
 
       - name: Execute remote commands (test swagger.json)
         uses: appleboy/ssh-action@master
