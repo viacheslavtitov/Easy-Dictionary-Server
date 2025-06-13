@@ -34,6 +34,8 @@ jobs:
         run: |
           mkdir -p swagger
           cp ./docs/swagger.json ./swagger/swagger.json
+          cat ./docs/swagger.json
+          cat ./swagger/swagger.json
 
       - name: Upload files via SCP (with alternative action)
         uses: cross-the-world/scp-pipeline@master
