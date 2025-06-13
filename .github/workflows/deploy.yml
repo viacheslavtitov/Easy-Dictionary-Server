@@ -47,7 +47,6 @@ jobs:
             easydictionary
             docker-compose.yml
             dockerfile
-            swagger-nginx.conf
           remote: ~/deploy/
           port: 22
 
@@ -56,7 +55,6 @@ jobs:
           echo "${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}" > /tmp/deploy_key
           chmod 600 /tmp/deploy_key
           rsync -avz -e "ssh -o StrictHostKeyChecking=no -i /tmp/deploy_key" ./swagger/ deployuser@${{ secrets.DEPLOY_SERVER_IP }}:/home/deployuser/deploy/swagger/
-          rsync -avz -e "ssh -o StrictHostKeyChecking=no -i /tmp/deploy_key" ./swagger-nginx.conf deployuser@${{ secrets.DEPLOY_SERVER_IP }}:/home/deployuser/deploy/swagger/
 
       - name: Execute remote commands (build docker containers)
         uses: appleboy/ssh-action@master

@@ -37,10 +37,9 @@ services:
     ports:
       - "8081:8080"
     environment:
-      - URL=/swagger.json
+      - SWAGGER_JSON=/swagger/swagger.json
     volumes:
-      - ./swagger/swagger.json:/usr/share/nginx/html/swagger.json:ro
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./swagger:/usr/share/nginx/html/swagger:ro
 
 volumes:
   postgres_data:
