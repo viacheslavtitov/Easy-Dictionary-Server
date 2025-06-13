@@ -35,6 +35,22 @@ jobs:
           mkdir -p swagger
           cp ./docs/swagger.json ./swagger/swagger.json
 
+      - name: Upload files via SCP (with alternative action)
+        uses: cross-the-world/scp-pipeline@master
+        with:
+          host: ${{ secrets.DEPLOY_SERVER_IP }}
+          user: ${{ secrets.DEPLOY_SERVER_USERNAME }}
+          pass: ""
+          key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+          connect_timeout: 30s
+          local: |
+            easydictionary
+            docker-compose.yml
+            dockerfile
+            swagger-nginx.conf
+          remote: ~/deploy/
+          port: 22
+
       - name: Rsync swagger.json to server
         run: |
           echo "${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}" > /tmp/deploy_key
