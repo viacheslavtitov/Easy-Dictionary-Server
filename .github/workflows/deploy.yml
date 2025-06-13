@@ -59,17 +59,15 @@ jobs:
           script: |
             rm -rf ~/deploy/swagger.json
 
-      - name: Upload swagger files
+      - name: Upload swagger file
         uses: cross-the-world/scp-pipeline@master
         with:
           host: ${{ secrets.DEPLOY_SERVER_IP }}
           user: ${{ secrets.DEPLOY_SERVER_USERNAME }}
-          pass: ""
           key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
-          connect_timeout: 30s
           local: |
-            ./swagger/swagger.json
-          remote: ~/deploy/swagger.json
+            ./swagger/swagger.json:swagger.json
+          remote: ~/deploy/
           port: 22
 
       - name: Execute remote commands (test swagger.json)
