@@ -50,6 +50,11 @@ jobs:
           remote: ~/deploy/
           port: 22
 
+      - name: Debug local swagger.json
+        run: |
+          ls -la ./swagger
+          cat ./swagger/swagger.json
+
       - name: Upload swagger.json (as temp file)
         uses: cross-the-world/scp-pipeline@master
         with:
@@ -59,6 +64,7 @@ jobs:
           local: ./swagger/swagger.json
           remote: ~/deploy/swagger_temp.json
           port: 22
+          verbose: true
 
       - name: Rename swagger_temp.json to swagger.json
         uses: appleboy/ssh-action@master
