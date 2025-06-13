@@ -66,6 +66,6 @@ jobs:
             cd ~/deploy
             ls -la
             docker build -t easydictionary:latest .
-
+            ls -la ./swagger
             docker-compose down
             docker-compose up -d --build
