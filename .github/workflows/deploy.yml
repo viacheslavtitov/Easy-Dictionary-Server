@@ -40,6 +40,7 @@ jobs:
         with:
           host: ${{ secrets.DEPLOY_SERVER_IP }}
           user: ${{ secrets.DEPLOY_SERVER_USERNAME }}
+          pass: ""
           key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
           script: |
             mkdir -p /home/deployuser/deploy/swagger
