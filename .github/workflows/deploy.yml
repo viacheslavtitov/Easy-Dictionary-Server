@@ -50,15 +50,25 @@ jobs:
           remote: ~/deploy/
           port: 22
 
-      - name: Upload swagger.json
+      - name: Upload swagger.json (as temp file)
         uses: cross-the-world/scp-pipeline@master
         with:
           host: ${{ secrets.DEPLOY_SERVER_IP }}
           user: ${{ secrets.DEPLOY_SERVER_USERNAME }}
           key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
           local: ./swagger/swagger.json
-          remote: ~/deploy/swagger.json
+          remote: ~/deploy/swagger_temp.json
           port: 22
+
+      - name: Rename swagger_temp.json to swagger.json
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEPLOY_SERVER_IP }}
+          username: ${{ secrets.DEPLOY_SERVER_USERNAME }}
+          key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+          script: |
+            rm -rf ~/deploy/swagger.json
+            mv ~/deploy/swagger_temp.json ~/deploy/swagger.json
 
       - name: Execute remote commands (test swagger.json)
         uses: appleboy/ssh-action@master
