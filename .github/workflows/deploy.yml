@@ -35,6 +35,15 @@ jobs:
           mkdir -p swagger
           cp ./docs/swagger.json ./swagger/swagger.json
 
+      - name: Ensure swagger folder exists
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEPLOY_SERVER_IP }}
+          user: ${{ secrets.DEPLOY_SERVER_USERNAME }}
+          key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+          script: |
+            mkdir -p /home/deployuser/deploy/swagger
+
       - name: Upload files via SCP (with alternative action)
         uses: cross-the-world/scp-pipeline@master
         with:
@@ -50,41 +59,16 @@ jobs:
           remote: ~/deploy/
           port: 22
 
-      - name: Debug local swagger.json
-        run: |
-          ls -la ./swagger
-          cat ./swagger/swagger.json
-
-      - name: Upload swagger.json (as temp file)
+      - name: Upload swagger.json
         uses: cross-the-world/scp-pipeline@master
         with:
           host: ${{ secrets.DEPLOY_SERVER_IP }}
           user: ${{ secrets.DEPLOY_SERVER_USERNAME }}
           key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
           local: ./swagger/swagger.json
-          remote: /home/deployuser/deploy/swagger_temp.json
+          remote: /home/deployuser/deploy/swagger.json
           port: 22
           verbose: true
-
-      - name: Rename swagger_temp.json to swagger.json
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.DEPLOY_SERVER_IP }}
-          username: ${{ secrets.DEPLOY_SERVER_USERNAME }}
-          key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
-          script: |
-            rm -rf /home/deployuser/deploy/swagger.json
-            mv /home/deployuser/deploy/swagger_temp.json /home/deployuser/deploy/swagger.json
-
-      - name: Execute remote commands (test swagger.json)
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.DEPLOY_SERVER_IP }}
-          username: ${{ secrets.DEPLOY_SERVER_USERNAME }}
-          key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
-          script: |
-            ls -l ~/deploy/swagger/swagger.json
-            file ~/deploy/swagger/swagger.json
 
       - name: Execute remote commands (build docker containers)
         uses: appleboy/ssh-action@master
