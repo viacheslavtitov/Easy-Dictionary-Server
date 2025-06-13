@@ -72,6 +72,16 @@ jobs:
           remote: ~/deploy/swagger.json
           port: 22
 
+      - name: Execute remote commands (test swagger.json)
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEPLOY_SERVER_IP }}
+          username: ${{ secrets.DEPLOY_SERVER_USERNAME }}
+          key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+          script: |
+            ls -l ~/deploy/swagger.json
+            file ~/deploy/swagger.json
+
       - name: Execute remote commands (build docker containers)
         uses: appleboy/ssh-action@master
         with:
