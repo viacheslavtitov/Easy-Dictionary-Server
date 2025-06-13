@@ -58,16 +58,20 @@ jobs:
           key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
           script: |
             rm -rf ~/deploy/swagger.json
+            rm -rf ~/deploy/swagger
 
-      - name: Upload swagger file
+      - name: Upload swagger files
         uses: cross-the-world/scp-pipeline@master
         with:
           host: ${{ secrets.DEPLOY_SERVER_IP }}
           user: ${{ secrets.DEPLOY_SERVER_USERNAME }}
+          pass: ""
           key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
-          local: |
-            ./swagger/swagger.json:swagger.json
+          connect_timeout: 30s
+          local: "/swagger/*"
           remote: ~/deploy/
+          scp: |
+            ./swagger/swagger.json => "~/deploy/swagger/"
           port: 22
 
       - name: Execute remote commands (test swagger.json)
@@ -77,8 +81,8 @@ jobs:
           username: ${{ secrets.DEPLOY_SERVER_USERNAME }}
           key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
           script: |
-            ls -l ~/deploy/swagger.json
-            file ~/deploy/swagger.json
+            ls -l ~/deploy/swagger/swagger.json
+            file ~/deploy/swagger/swagger.json
 
       - name: Execute remote commands (build docker containers)
         uses: appleboy/ssh-action@master
