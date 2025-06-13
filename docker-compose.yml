@@ -41,5 +41,14 @@ services:
     volumes:
       - /home/deployuser/deploy/swagger/swagger.json:/usr/share/nginx/html/swagger.json:ro
 
+  swagger-debug:
+    image: nginx:alpine
+    container_name: swagger-debug
+    restart: always
+    ports:
+      - "8082:80"
+    volumes:
+      - ./swagger/swagger.json:/usr/share/nginx/html/swagger.json:ro
+
 volumes:
   postgres_data:
