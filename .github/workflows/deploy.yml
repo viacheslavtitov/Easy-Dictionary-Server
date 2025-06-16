@@ -22,7 +22,7 @@ jobs:
 
       - name: Build Go Binary
         run: |
-          GOOS=linux GOARCH=amd64 go build -o easydictionary ./cmd
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o easydictionary ./cmd
 
       - name: Install swag
         run: go install github.com/swaggo/swag/cmd/swag@latest
