@@ -45,8 +45,8 @@ const (
 func LoadEnv() *Env {
 	env, err := parseEnv()
 	if err != nil {
-		log.Default().Fatalf("Failed to parse env")
-		log.Default().Fatal(err)
+		log.Default().Println("Failed to parse env")
+		log.Default().Println(err)
 		return nil
 	}
 	log.Default().Printf("The App is running in %s env", env.AppEnv)

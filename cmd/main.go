@@ -27,7 +27,7 @@ func main() {
 	//load environment configuration
 	env := internalenv.LoadEnv()
 	if env == nil {
-		zap.S().Panic("Config file didn't initialize. Server will stop")
+		zap.S().Panic("Environment didnt initialize. Server will stop")
 		os.Exit(1)
 	}
 	//init logger
