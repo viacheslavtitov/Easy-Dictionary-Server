@@ -15,7 +15,6 @@ import (
 	utils "easy-dictionary-server/internalenv/utils"
 
 	"github.com/gin-gonic/gin"
-	"github.com/tillberg/autorestart"
 	"go.uber.org/zap"
 )
 
@@ -26,20 +25,11 @@ import (
 // @BasePath /
 func main() {
 	//load environment configuration
-	changeEnvChan := make(chan internalenv.Env)
-	env := internalenv.LoadEnv(os.Args[1], changeEnvChan)
+	env := internalenv.LoadEnv()
 	if env == nil {
 		zap.S().Panic("Config file didn't initialize. Server will stop")
-		close(changeEnvChan)
 		os.Exit(1)
 	}
-	go func() {
-		newEnv := <-changeEnvChan
-		zap.S().Info(newEnv.AppEnv + " new config is not equal previous. Server will restart")
-		go autorestart.RestartViaExec() //work only on Unix systems
-	}()
-	done := make(chan os.Signal, 1)
-	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 	//init logger
 	internalenv.InitLogger(env)
 	zap.S().Debug("Debug log")
@@ -56,6 +46,8 @@ func main() {
 		ReadTimeout:  time.Duration(env.TimeOut) * time.Second,
 		WriteTimeout: time.Duration(env.TimeOut) * time.Second,
 	}
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
 	go func() {
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			zap.S().Fatal("Server error")
@@ -68,18 +60,13 @@ func main() {
 	routeGin.Use(gin.Recovery())
 	route.Setup(env.TimeOut, &routeGin.RouterGroup, database, env)
 	zap.S().Info("Server started")
-	<-done
-	zap.S().Info("Server is stopping")
-	close(changeEnvChan)
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	<-ctx.Done()
+	zap.S().Info("Server is stopping...")
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	if err := server.Shutdown(ctx); err != nil {
-		zap.S().Fatal("Server Shutdown:", err)
-		database.SQLDB.Close()
+
+	if err := server.Shutdown(shutdownCtx); err != nil {
+		zap.S().Fatal("Server forced to shutdown", err)
 	}
-	select {
-	case <-ctx.Done():
-		zap.S().Info("timeout of 5 seconds.")
-	}
-	zap.S().Info("Server stopped")
+	zap.S().Info("Server is stopped")
 }

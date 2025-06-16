@@ -1,16 +1,9 @@
 package internalenv
 
 import (
-	"bytes"
-	"context"
-	"encoding/json"
 	"log"
-
-	"cloud.google.com/go/firestore"
-	firebase "firebase.google.com/go"
-	"github.com/spf13/viper"
-	"google.golang.org/api/iterator"
-	"google.golang.org/api/option"
+	"os"
+	"strconv"
 )
 
 type Env struct {
@@ -36,161 +29,60 @@ func (env *Env) CombineServerAddress() string {
 }
 
 const (
-	envName           = "app_env"
-	jwtExpTimeMinutes = "JWT_EXP_TIME_MINUTES"
-	jwtSecret         = "JWT_SECRET"
-	serverAddress     = "address"
-	serverPort        = "port"
-	timeOut           = "timeout"
-	dbname            = "db_name"
-	dbhost            = "db_host"
-	dbport            = "db_port"
-	dbuser            = "db_user"
-	dbpassword        = "db_password"
+	envName           = "APP_ENV"
+	jwtExpTimeMinutes = "SERVER_CONFIG_JWT_EXP_TIME_MINUTES"
+	jwtSecret         = "SERVER_CONFIG_JWT_SECRET"
+	serverAddress     = "SERVER_CONFIG_ADDRESS"
+	serverPort        = "SERVER_CONFIG_PORT"
+	timeOut           = "SERVER_CONFIG_TIMEOUT"
+	dbname            = "SERVER_CONFIG_DB_NAME"
+	dbhost            = "SERVER_CONFIG_DB_HOST"
+	dbport            = "SERVER_CONFIG_DB_PORT"
+	dbuser            = "SERVER_CONFIG_DB_USER"
+	dbpassword        = "SERVER_CONFIG_DB_PASSWORD"
 )
 
-func LoadEnv(environment string, changeEnvChan chan Env) *Env {
-	// token := loadToekn()
-	// if token == nil {
-	// 	log.Default().Println("Token wasn't loaded")
-	// 	return nil
-	// }
-	// log.Default().Printf("AccessToken = %s", token.AccessToken)
-
-	log.Default().Printf("Load environment %s", environment)
-	viper.AddRemoteProvider("firestore", "google-cloud-project-id", "collection/document")
-	viper.SetConfigType("json")
-	opt := option.WithCredentialsFile("../service-account.json")
-	app, err := firebase.NewApp(context.Background(), nil, opt)
+func LoadEnv() *Env {
+	env, err := parseEnv()
 	if err != nil {
-		log.Default().Fatal("Couldn't load env credentials file", err)
+		log.Default().Fatalf("Failed to parse env")
+		log.Default().Fatal(err)
 		return nil
 	}
-	client, err := app.Firestore(context.Background())
-	if err != nil {
-		log.Default().Fatal("Couldn't init", err)
-		return nil
-	}
-	// defer client.Close()
-	doc, err := client.Collection("Environment").Doc(environment).Get(context.Background())
-	if err != nil {
-		log.Default().Fatal("Couldn't load config collection from Cloud Firestore", err)
-		return nil
-	}
-	data := doc.Data()
-	jsonData, err := json.Marshal(data)
-	if err != nil {
-		log.Default().Fatal("Couldn't encode JSON data", err)
-		return nil
-	}
-	err = viper.ReadConfig(bytes.NewBuffer(jsonData))
-	if err != nil {
-		log.Default().Fatal("Couldn't read config file", err)
-		return nil
-	} else {
-		log.Default().Println("Config was loaded")
-		log.Default().Println(viper.AllKeys())
-	}
-
-	env := parseEnv()
-	switch env.AppEnv {
-	case "local":
-		{
-			log.Default().Println("The App is running in local env")
-			log.Default().Printf("%s", jsonData)
-		}
-	case "development":
-		{
-			log.Default().Println("The App is running in development env")
-			log.Default().Printf("%s", jsonData)
-		}
-	case "production":
-		{
-			log.Default().Println("The App is running in production env")
-		}
-	default:
-		{
-			log.Default().Fatal("Unrecognized environment")
-			return nil
-		}
-	}
-	streamChanges := client.Collection("Environment").Doc(environment).Snapshots(context.Background())
-	go readNewConfig(streamChanges, client, changeEnvChan, &env)
-	return &env
+	log.Default().Printf("The App is running in %s env", env.AppEnv)
+	return env
 }
 
-func readNewConfig(streamChanges *firestore.DocumentSnapshotIterator, client *firestore.Client, changeChan chan Env, currentEnv *Env) {
-	for {
-		snap, err := streamChanges.Next()
-		if err != nil {
-			if err == iterator.Done {
-				continue
-			}
-			log.Default().Println("Failed to read next stream changes")
-			log.Default().Println(err)
-			continue
-		}
-		jsonData, err := json.Marshal(snap.Data())
-		if err != nil {
-			log.Default().Println(err)
-			continue
-		}
-		log.Default().Println("Config was changed")
-		log.Default().Printf("%s", jsonData)
-		err = viper.ReadConfig(bytes.NewBuffer(jsonData))
-		if err != nil {
-			log.Default().Fatal("Couldn't read remote config", err)
-			return
-		} else {
-			log.Default().Printf("Config was loaded keys = %d", len(viper.AllKeys()))
-			log.Default().Println(viper.AllKeys())
-			if len(viper.AllKeys()) == 0 {
-				continue
-			}
-		}
-		newEnv := parseEnv()
-		if newEnv == *currentEnv {
-			log.Default().Println("New config equals previous")
-		} else {
-			log.Default().Println("New config is not equal previous")
-			changeChan <- newEnv
-			break
-		}
+func parseEnv() (*Env, error) {
+	appEnvName := os.Getenv(envName)
+	appJwtExpTimeMinutes, err := strconv.Atoi(os.Getenv(jwtExpTimeMinutes))
+	if err != nil {
+		return nil, err
 	}
-	defer streamChanges.Stop()
-	defer client.Close()
+	appJwtSecret := os.Getenv(jwtSecret)
+	appServerAddress := os.Getenv(serverAddress)
+	appServerPort := os.Getenv(serverPort)
+	appTimeOut, err := strconv.Atoi(os.Getenv(timeOut))
+	if err != nil {
+		return nil, err
+	}
+	appDbName := os.Getenv(dbname)
+	appDbHost := os.Getenv(dbhost)
+	appDbPort, err := strconv.Atoi(os.Getenv(dbport))
+	if err != nil {
+		return nil, err
+	}
+	appDbUser := os.Getenv(dbuser)
+	appDbPassword := os.Getenv(dbpassword)
+	return &Env{AppEnv: appEnvName,
+		JwtExpTimeMinutes: appJwtExpTimeMinutes,
+		JwtSecret:         appJwtSecret,
+		ServerAddress:     appServerAddress,
+		ServerPort:        appServerPort,
+		TimeOut:           appTimeOut,
+		DBName:            appDbName,
+		DBHost:            appDbHost,
+		DBPort:            appDbPort,
+		DBUser:            appDbUser,
+		DBPassword:        appDbPassword}, nil
 }
-
-func parseEnv() Env {
-	return Env{AppEnv: viper.GetString(envName),
-		JwtExpTimeMinutes: viper.GetInt(jwtExpTimeMinutes),
-		JwtSecret:         viper.GetString(jwtSecret),
-		ServerAddress:     viper.GetString(serverAddress),
-		ServerPort:        viper.GetString(serverPort),
-		TimeOut:           viper.GetInt(timeOut),
-		DBName:            viper.GetString(dbname),
-		DBHost:            viper.GetString(dbhost),
-		DBPort:            viper.GetInt(dbport),
-		DBUser:            viper.GetString(dbuser),
-		DBPassword:        viper.GetString(dbpassword)}
-}
-
-// func loadToekn() *oauth2.Token {
-// 	var token *oauth2.Token
-// 	ctx := context.Background()
-// 	scopes := []string{
-// 		"https://www.googleapis.com/auth/cloud-platform",
-// 	}
-// 	credentials, err := auth.FindDefaultCredentials(ctx, scopes...)
-// 	if err == nil {
-// 		log.Default().Printf("found default credentials. %v", credentials)
-// 		token, err = credentials.TokenSource.Token()
-// 		log.Default().Printf("token: %v, err: %v", token, err)
-// 		if err != nil {
-// 			log.Default().Println(err)
-// 		}
-// 	} else {
-// 		log.Default().Println(err)
-// 	}
-// 	return token
-// }
