@@ -57,6 +57,7 @@ func parseEnv() (*Env, error) {
 	appEnvName := os.Getenv(envName)
 	appJwtExpTimeMinutes, err := strconv.Atoi(os.Getenv(jwtExpTimeMinutes))
 	if err != nil {
+		log.Default().Printf("Failed to convert %s as like %s int parameter", os.Getenv(jwtExpTimeMinutes), jwtExpTimeMinutes)
 		return nil, err
 	}
 	appJwtSecret := os.Getenv(jwtSecret)
@@ -64,12 +65,14 @@ func parseEnv() (*Env, error) {
 	appServerPort := os.Getenv(serverPort)
 	appTimeOut, err := strconv.Atoi(os.Getenv(timeOut))
 	if err != nil {
+		log.Default().Printf("Failed to convert %s as like %s int parameter", os.Getenv(timeOut), timeOut)
 		return nil, err
 	}
 	appDbName := os.Getenv(dbname)
 	appDbHost := os.Getenv(dbhost)
 	appDbPort, err := strconv.Atoi(os.Getenv(dbport))
 	if err != nil {
+		log.Default().Printf("Failed to convert %s as like %s int parameter", os.Getenv(dbport), dbport)
 		return nil, err
 	}
 	appDbUser := os.Getenv(dbuser)
