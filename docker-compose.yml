@@ -31,7 +31,7 @@ services:
       POSTGRES_PASSWORD: ${SERVER_CONFIG_DB_PASSWORD}
       POSTGRES_DB: ${SERVER_CONFIG_DB_NAME}
     ports:
-      - "5430:5432"
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
