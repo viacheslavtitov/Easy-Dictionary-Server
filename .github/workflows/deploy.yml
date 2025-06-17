@@ -71,7 +71,7 @@ jobs:
             ls -la ./swagger
             docker build -t easydictionary:latest .
             docker-compose down
-            echo "APP_ENV=${{ secrets.APP_ENV }}" >> .env
+            echo "APP_ENV=development" >> .env
             echo "SERVER_CONFIG_JWT_EXP_TIME_MINUTES=${{ secrets.SERVER_CONFIG_JWT_EXP_TIME_MINUTES }}" >> .env
             echo "SERVER_CONFIG_JWT_SECRET=${{ secrets.SERVER_CONFIG_JWT_SECRET }}" >> .env
             echo "SERVER_CONFIG_ADDRESS=${{ secrets.SERVER_CONFIG_ADDRESS }}" >> .env
