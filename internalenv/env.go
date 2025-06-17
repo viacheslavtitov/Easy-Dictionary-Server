@@ -35,11 +35,11 @@ const (
 	serverAddress     = "SERVER_CONFIG_ADDRESS"
 	serverPort        = "SERVER_CONFIG_PORT"
 	timeOut           = "SERVER_CONFIG_TIMEOUT"
-	dbname            = "SERVER_CONFIG_DB_NAME"
-	dbhost            = "SERVER_CONFIG_DB_HOST"
-	dbport            = "SERVER_CONFIG_DB_PORT"
-	dbuser            = "SERVER_CONFIG_DB_USER"
-	dbpassword        = "SERVER_CONFIG_DB_PASSWORD"
+	dbname            = "DB_NAME"
+	dbhost            = "DB_HOST"
+	dbport            = "DB_PORT"
+	dbuser            = "DB_USER"
+	dbpassword        = "DB_PASSWORD"
 )
 
 func LoadEnv() *Env {
