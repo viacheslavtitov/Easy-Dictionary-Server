@@ -32,6 +32,7 @@ jobs:
           pwd
           ls -la
           ls -la Easy-Dictionary-Server-Database
+          ls -la Easy-Dictionary-Server-Database/migrations
 
       - name: Setup Go
         uses: actions/setup-go@v5
