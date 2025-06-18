@@ -14,9 +14,15 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-        with:
-          submodules: recursive
-          fetch-depth: 0
+
+      - name: Configure Git to use token for submodules
+        run: |
+          git config --global url."https://${{ secrets.GH_TOKEN }}@github.com/".insteadOf "git@github.com:"
+
+      - name: Sync and pull submodules
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --recursive
 
       - name: Setup Go
         uses: actions/setup-go@v5
