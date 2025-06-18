@@ -27,6 +27,13 @@ jobs:
           git submodule sync --recursive
           git submodule update --init --recursive
 
+      - name: Check repositories
+        run: |
+          pwd
+          ls -la
+          ls -la Easy-Dictionary-Server
+          ls -la Easy-Dictionary-Server-Database
+
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
