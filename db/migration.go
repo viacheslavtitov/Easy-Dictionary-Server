@@ -33,7 +33,7 @@ func RunMigrations(db *sqlx.DB, migrationPath string) {
 	}
 	fmt.Println("PWD:", string(outLsD))
 
-	cmdLsApp := exec.Command("sh", "-c", "ls -la easydictionary")
+	cmdLsApp := exec.Command("sh", "-c", "ls -la migrations")
 	outLsApp, err := cmdLsApp.Output()
 	if err != nil {
 		fmt.Println("error:", err)

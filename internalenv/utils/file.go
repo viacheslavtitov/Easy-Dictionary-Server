@@ -23,6 +23,7 @@ func ReadFile(filepath string) (string, error) {
 }
 
 func GetMigrationsDir(environment string) string {
+	zap.S().Debugf("GetMigrationsDir called with environment: %s", environment)
 	if IsRunningTest() {
 		return "file://../../migrations"
 	} else {
