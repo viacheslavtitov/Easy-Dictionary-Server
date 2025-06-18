@@ -31,7 +31,6 @@ jobs:
         run: |
           pwd
           ls -la
-          ls -la Easy-Dictionary-Server
           ls -la Easy-Dictionary-Server-Database
 
       - name: Setup Go
