@@ -10,7 +10,7 @@ import (
 )
 
 func RunMigrations(db *sqlx.DB, migrationPath string) {
-	fmt.Println("Start migration...")
+	fmt.Printf("Start migration... %s", migrationPath)
 	driver, err := postgres.WithInstance(db.DB, &postgres.Config{})
 	if err != nil {
 		// zap.S().Fatalf("could not create migration driver: %v", err)
