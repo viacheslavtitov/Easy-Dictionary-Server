@@ -15,7 +15,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          submodules: 'false'
+          submodules: "false"
           fetch-depth: 0
 
       - name: Configure Git to use token for submodules
@@ -88,8 +88,9 @@ jobs:
             cd ~/deploy
             ls -la
             ls -la ./swagger
-            docker build -t easydictionary:latest .
             docker-compose down
+            docker rmi easydictionary:latest
+            docker build --no-cache -t easydictionary:latest .
             echo "APP_ENV=development" >> .env
             echo "SERVER_CONFIG_JWT_EXP_TIME_MINUTES=${{ secrets.SERVER_CONFIG_JWT_EXP_TIME_MINUTES }}" >> .env
             echo "SERVER_CONFIG_JWT_SECRET=${{ secrets.SERVER_CONFIG_JWT_SECRET }}" >> .env
@@ -101,4 +102,4 @@ jobs:
             echo "SERVER_CONFIG_DB_PORT=${{ secrets.SERVER_CONFIG_DB_PORT }}" >> .env
             echo "SERVER_CONFIG_DB_USER=${{ secrets.SERVER_CONFIG_DB_USER }}" >> .env
             echo "SERVER_CONFIG_DB_PASSWORD=${{ secrets.SERVER_CONFIG_DB_PASSWORD }}" >> .env
-            docker-compose up -d --build
+            docker-compose up -d
