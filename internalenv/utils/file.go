@@ -27,9 +27,9 @@ func GetMigrationsDir(environment string) string {
 		return "file://../../migrations"
 	} else {
 		if environment == "development" {
-			return "file://../Easy-Dictionary-Server-Database/migrations"
-		} else {
 			return "file://migrations"
+		} else {
+			return "file://../Easy-Dictionary-Server-Database/migrations"
 		}
 	}
 }
