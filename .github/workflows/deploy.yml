@@ -27,13 +27,6 @@ jobs:
           git submodule sync --recursive
           git submodule update --init --recursive
 
-      - name: Check repositories
-        run: |
-          pwd
-          ls -la
-          ls -la Easy-Dictionary-Server-Database
-          ls -la Easy-Dictionary-Server-Database/migrations
-
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
@@ -77,6 +70,7 @@ jobs:
           rsync -avz -e "ssh -o StrictHostKeyChecking=no -i /tmp/deploy_key" ./easydictionary deployuser@${{ secrets.DEPLOY_SERVER_IP }}:/home/deployuser/deploy/
           rsync -avz -e "ssh -o StrictHostKeyChecking=no -i /tmp/deploy_key" ./docker-compose.yml deployuser@${{ secrets.DEPLOY_SERVER_IP }}:/home/deployuser/deploy/
           rsync -avz -e "ssh -o StrictHostKeyChecking=no -i /tmp/deploy_key" ./dockerfile deployuser@${{ secrets.DEPLOY_SERVER_IP }}:/home/deployuser/deploy/
+          rsync -avz -e "ssh -o StrictHostKeyChecking=no -i /tmp/deploy_key" ./Easy-Dictionary-Server-Database/ deployuser@${{ secrets.DEPLOY_SERVER_IP }}:/home/deployuser/deploy/
 
       - name: Execute remote commands (build docker containers)
         uses: appleboy/ssh-action@master
