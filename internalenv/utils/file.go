@@ -22,11 +22,15 @@ func ReadFile(filepath string) (string, error) {
 	return text, nil
 }
 
-func GetMigrationsDir() string {
+func GetMigrationsDir(environment string) string {
 	if IsRunningTest() {
 		return "file://../../migrations"
 	} else {
-		return "file://../Easy-Dictionary-Server-Database/migrations"
+		if environment == "development" {
+			return "file://../Easy-Dictionary-Server-Database/migrations"
+		} else {
+			return "file://migrations"
+		}
 	}
 }
 

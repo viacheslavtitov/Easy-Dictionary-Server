@@ -36,7 +36,7 @@ func main() {
 	zap.S().Info("Info log")
 	//init database
 	database := db.Setup(env)
-	db.RunMigrations(database.SQLDB, utils.GetMigrationsDir())
+	db.RunMigrations(database.SQLDB, utils.GetMigrationsDir(env.AppEnv))
 	//init http routers
 	routeGin := gin.Default()
 	zap.S().Info("Trying to start http server by address " + env.CombineServerAddress())

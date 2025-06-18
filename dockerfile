@@ -1,6 +1,7 @@
 FROM alpine:latest
 
 COPY easydictionary /app/easydictionary
+COPY migrations /app/migrations
 
 WORKDIR /app
 
