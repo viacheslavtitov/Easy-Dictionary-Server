@@ -1,0 +1,3 @@
+[submodule "Easy-Dictionary-Server-Database"]
+    path = Easy-Dictionary-Server-Database
+    url = git@github.com:viacheslavtitov/Easy-Dictionary-Server-Database.git
