@@ -26,7 +26,7 @@ func GetMigrationsDir() string {
 	if IsRunningTest() {
 		return "file://../../migrations"
 	} else {
-		return "file://../Easy-Dictionary-Server/Easy-Dictionary-Server-Database/migrations"
+		return "file://../Easy-Dictionary-Server-Database/migrations"
 	}
 }
 
