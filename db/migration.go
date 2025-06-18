@@ -2,6 +2,7 @@ package db
 
 import (
 	"fmt"
+	"os/exec"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
@@ -11,6 +12,27 @@ import (
 
 func RunMigrations(db *sqlx.DB, migrationPath string) {
 	fmt.Printf("Start migration... %s", migrationPath)
+	cmd := exec.Command("pwd")
+	out, err := cmd.Output()
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+	fmt.Println("PWD:", string(out))
+
+	cmdLs := exec.Command("ls -la ..")
+	outLs, err := cmdLs.Output()
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+	fmt.Println("PWD:", string(outLs))
+
+	cmdLsD := exec.Command("ls -la ../Easy-Dictionary-Server-Database/migrations")
+	outLsD, err := cmdLsD.Output()
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+	fmt.Println("PWD:", string(outLsD))
+
 	driver, err := postgres.WithInstance(db.DB, &postgres.Config{})
 	if err != nil {
 		// zap.S().Fatalf("could not create migration driver: %v", err)
