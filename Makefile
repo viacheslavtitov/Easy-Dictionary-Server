@@ -1,3 +1,5 @@
+.PHONY: generate-swagger
+
 SWAGGER_HOST ?= localhost:8080
 
 generate-swagger:
