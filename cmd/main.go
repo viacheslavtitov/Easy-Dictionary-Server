@@ -58,6 +58,7 @@ func main() {
 	limiter := middleware.NewClientLimiter(5, 10) //max 5 requests per second, max 10 requests at the same time
 	routeGin.Use(middleware.RateLimitMiddleware(limiter))
 	routeGin.Use(gin.Recovery())
+	routeGin.Use(middleware.CORSMiddleware())
 	route.Setup(env.TimeOut, &routeGin.RouterGroup, database, env)
 	zap.S().Info("Server started")
 	<-ctx.Done()

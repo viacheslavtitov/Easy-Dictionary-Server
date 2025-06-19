@@ -39,6 +39,9 @@ jobs:
       - name: Install swag
         run: go install github.com/swaggo/swag/cmd/swag@latest
 
+      - name: Set Host For Swagger
+        run: make generate-swagger SWAGGER_HOST=${{ secrets.SWAGGER_HOST }}
+
       - name: Generate Swagger Docs
         run: swag init --generalInfo cmd/main.go --output ./docs --parseDependency --parseInternal
 
