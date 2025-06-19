@@ -3,4 +3,4 @@
 SWAGGER_HOST ?= localhost:8080
 
 generate-swagger:
-	sed -i "s|@host .*|@host $(SWAGGER_HOST)|" main.go
+	sed -i "s|@host .*|@host $(SWAGGER_HOST)|" cmd/main.go
