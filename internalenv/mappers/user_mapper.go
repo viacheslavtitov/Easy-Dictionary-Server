@@ -49,7 +49,7 @@ func FromUserDomain(u *domainUser.User, userId *int) *dbUser.UserEntity {
 }
 
 func FromUserDomainProviders(u *[]domainUser.UserProviders, userId *int) *[]dbUser.UserProviderEntity {
-	if u == nil || userId == nil {
+	if u == nil {
 		return &[]dbUser.UserProviderEntity{}
 	}
 	providers := make([]dbUser.UserProviderEntity, len(*u))
@@ -60,12 +60,22 @@ func FromUserDomainProviders(u *[]domainUser.UserProviders, userId *int) *[]dbUs
 }
 
 func FromUserDomainProvider(u *domainUser.UserProviders, userId *int) *dbUser.UserProviderEntity {
-	return &dbUser.UserProviderEntity{
-		ID:             u.ID,
-		UserId:         *userId,
-		Email:          u.Email,
-		HashedPassword: u.HashedPassword,
-		ProviderName:   u.ProviderName,
-		CreatedAt:      u.CreatedAt,
+	if userId != nil {
+		return &dbUser.UserProviderEntity{
+			ID:             u.ID,
+			UserId:         *userId,
+			Email:          u.Email,
+			HashedPassword: u.HashedPassword,
+			ProviderName:   u.ProviderName,
+			CreatedAt:      u.CreatedAt,
+		}
+	} else {
+		return &dbUser.UserProviderEntity{
+			ID:             u.ID,
+			Email:          u.Email,
+			HashedPassword: u.HashedPassword,
+			ProviderName:   u.ProviderName,
+			CreatedAt:      u.CreatedAt,
+		}
 	}
 }

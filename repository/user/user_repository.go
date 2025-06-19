@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 
 	database "easy-dictionary-server/db"
 	dbUser "easy-dictionary-server/db/user"
@@ -21,6 +22,10 @@ func NewUserRepository(db *database.Database) domain.UserRepository {
 
 func (ur *userRepository) Create(c context.Context, user *domain.User) (*domain.User, error) {
 	zap.S().Debugf("Create user")
+	if user.Providers == nil || len(*user.Providers) < 1 {
+		return nil, errors.New("User doesn't have any provider")
+	}
+	zap.S().Debugf("with providers %d", len(*user.Providers))
 	uuid, err := dbUser.CreateUser(ur.db, userMapper.FromUserDomain(user, nil))
 	if err != nil {
 		return nil, err

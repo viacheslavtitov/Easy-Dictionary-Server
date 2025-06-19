@@ -105,7 +105,7 @@ WITH new_user AS (
     INSERT INTO users (first_name, last_name, user_role, created_at)
     VALUES ($1, $2, $3, now())
     RETURNING id, uuid
-)
+),
 inserted_provider AS (
     INSERT INTO user_providers (user_id, provider_name, email, hashed_password, created_at)
     VALUES (
