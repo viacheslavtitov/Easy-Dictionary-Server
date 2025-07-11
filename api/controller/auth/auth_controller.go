@@ -90,8 +90,17 @@ func (authController *AuthController) Login(c *gin.Context) {
 			return
 		}
 
+		refreshToken, expiresAt, _, err := authController.AuthUseCase.CreateRefreshToken(c, user.UUID, time.Duration(authController.Env.RefreshJwtExpTimeMinutes)*time.Minute)
+		if err != nil {
+			zap.S().Errorf("Failed to create refresh token for user %s", user.UUID)
+			zap.S().Error(err)
+			c.JSON(http.StatusInternalServerError, domainAuth.ErrorResponse{Message: err.Error()})
+			return
+		}
 		authResponse := domainAuth.AuthResponse{
-			AccessToken: accessToken,
+			AccessToken:     accessToken,
+			RefreshToken:    refreshToken,
+			RefreshTokenExp: expiresAt,
 		}
 		c.JSON(http.StatusOK, authResponse)
 	}

@@ -9,6 +9,8 @@ import (
 	domain "easy-dictionary-server/domain/user"
 	userMapper "easy-dictionary-server/internalenv/mappers"
 
+	"time"
+
 	"go.uber.org/zap"
 )
 
@@ -91,4 +93,14 @@ func (ur *userRepository) DeleteUser(c context.Context, id int) (int64, error) {
 	}
 	deletedRows, err := rowsDeleted.RowsAffected()
 	return deletedRows, err
+}
+
+func (ur *userRepository) AddRefreshToken(context context.Context, userUUID string, refreshToken string, expiresAt time.Time) (*time.Time, error) {
+	zap.S().Debugf("Add refresh token to user %s", userUUID)
+	createdAt, err := dbUser.CreateRefreshToken(ur.db, userUUID, refreshToken, expiresAt)
+	if err != nil {
+		return nil, err
+	}
+	zap.S().Debugf("Refresh token created at %s", createdAt)
+	return createdAt, nil
 }

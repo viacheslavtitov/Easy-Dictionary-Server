@@ -69,4 +69,5 @@ type UserRepository interface {
 	GetByUUID(context context.Context, uuid string) (*User, error)
 	UpdateUser(context context.Context, user *User, userId int) (*User, error)
 	DeleteUser(context context.Context, id int) (int64, error)
+	AddRefreshToken(context context.Context, userUUID string, refreshToken string, expiresAt time.Time) (*time.Time, error)
 }

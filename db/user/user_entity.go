@@ -151,3 +151,12 @@ func DeleteUserById(db *database.Database, id int) (sql.Result, error) {
 	rowsDeleted, err := db.SQLDB.Exec(deleteUserByIdQuery(), id)
 	return rowsDeleted, err
 }
+
+func CreateRefreshToken(db *database.Database, userUUID string, refreshToken string, expiresAt time.Time) (*time.Time, error) {
+	var createdAt *time.Time
+	err := db.SQLDB.Get(&createdAt, createUserRefreshTokenQuery(), userUUID, refreshToken, expiresAt)
+	if err != nil {
+		return nil, err
+	}
+	return createdAt, nil
+}

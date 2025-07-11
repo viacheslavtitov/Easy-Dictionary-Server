@@ -154,3 +154,18 @@ LEFT JOIN user_providers p ON u.id = p.user_id;`
 func deleteUserByIdQuery() string {
 	return `DELETE FROM users WHERE id = $1`
 }
+
+// CreateUserRefreshTokenQuery get query to create user refresh token
+// Params:
+// - $1: user id
+// - $2: refresh token
+// - $3: expires time
+func createUserRefreshTokenQuery() string {
+	return `
+WITH new_refresh_token AS (
+INSERT INTO refresh_tokens (user_uuid, token, expires_at, created_at)
+VALUES ($1, $2, $3, now())
+RETURNING id, created_at)
+SELECT created_at FROM new_refresh_token;
+`
+}

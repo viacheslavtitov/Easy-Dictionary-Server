@@ -7,6 +7,7 @@ import (
 	"time"
 
 	jwt "github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
 
@@ -24,4 +25,10 @@ func CreateAccessToken(user *domainUser.User, appName string, secret string, rol
 	zap.S().Debugf("Create access token with user role %s, user id %d, user uuid %s", claims.Role, claims.UserID, claims.Subject)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(secret))
+}
+
+func CreateRefreshToken(duration time.Duration) (string, time.Time) {
+	refreshToken := uuid.NewString()
+	expiresAt := time.Now().Add(duration)
+	return refreshToken, expiresAt
 }

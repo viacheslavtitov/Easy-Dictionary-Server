@@ -14,10 +14,13 @@ type AuthRequest struct {
 }
 
 type AuthResponse struct {
-	AccessToken string
+	AccessToken     string
+	RefreshToken    string
+	RefreshTokenExp time.Time
 }
 
 type AuthUseCase interface {
 	GetUserByEmail(context context.Context, email string) (*domainUser.User, *int, error)
 	CreateAccessToken(user *domainUser.User, appName string, secret string, role string, duration time.Duration, userId int) (accessToken string, err error)
+	CreateRefreshToken(context context.Context, userUUID string, duration time.Duration) (refreshToken string, expiresAt time.Time, createdAt *time.Time, err error)
 }

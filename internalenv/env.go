@@ -7,17 +7,18 @@ import (
 )
 
 type Env struct {
-	AppEnv            string `json:"app_env"`
-	JwtExpTimeMinutes int    `json:"JWT_EXP_TIME_MINUTES"`
-	JwtSecret         string `json:"JWT_SECRET"`
-	ServerAddress     string `json:"address"`
-	ServerPort        string `json:"port"`
-	TimeOut           int    `json:"timeout"`
-	DBName            string `json:"db_name"`
-	DBHost            string `json:"db_host"`
-	DBPort            int    `json:"db_port"`
-	DBUser            string `json:"db_user"`
-	DBPassword        string `json:"db_password"`
+	AppEnv                   string `json:"app_env"`
+	JwtExpTimeMinutes        int    `json:"JWT_EXP_TIME_MINUTES"`
+	RefreshJwtExpTimeMinutes int    `json:"REFRESH_JWT_EXP_TIME_MINUTES"`
+	JwtSecret                string `json:"JWT_SECRET"`
+	ServerAddress            string `json:"address"`
+	ServerPort               string `json:"port"`
+	TimeOut                  int    `json:"timeout"`
+	DBName                   string `json:"db_name"`
+	DBHost                   string `json:"db_host"`
+	DBPort                   int    `json:"db_port"`
+	DBUser                   string `json:"db_user"`
+	DBPassword               string `json:"db_password"`
 }
 
 type EnvInteface interface {
@@ -29,17 +30,18 @@ func (env *Env) CombineServerAddress() string {
 }
 
 const (
-	envName           = "APP_ENV"
-	jwtExpTimeMinutes = "SERVER_CONFIG_JWT_EXP_TIME_MINUTES"
-	jwtSecret         = "SERVER_CONFIG_JWT_SECRET"
-	serverAddress     = "SERVER_CONFIG_ADDRESS"
-	serverPort        = "SERVER_CONFIG_PORT"
-	timeOut           = "SERVER_CONFIG_TIMEOUT"
-	dbname            = "DB_NAME"
-	dbhost            = "DB_HOST"
-	dbport            = "DB_PORT"
-	dbuser            = "DB_USER"
-	dbpassword        = "DB_PASSWORD"
+	envName                  = "APP_ENV"
+	jwtExpTimeMinutes        = "SERVER_CONFIG_JWT_EXP_TIME_MINUTES"
+	refreshJwtExpTimeMinutes = "SERVER_CONFIG_REFRESH_JWT_EXP_TIME_MINUTES"
+	jwtSecret                = "SERVER_CONFIG_JWT_SECRET"
+	serverAddress            = "SERVER_CONFIG_ADDRESS"
+	serverPort               = "SERVER_CONFIG_PORT"
+	timeOut                  = "SERVER_CONFIG_TIMEOUT"
+	dbname                   = "DB_NAME"
+	dbhost                   = "DB_HOST"
+	dbport                   = "DB_PORT"
+	dbuser                   = "DB_USER"
+	dbpassword               = "DB_PASSWORD"
 )
 
 func LoadEnv() *Env {
@@ -60,6 +62,11 @@ func parseEnv() (*Env, error) {
 		log.Default().Printf("Failed to convert %s as like %s int parameter", os.Getenv(jwtExpTimeMinutes), jwtExpTimeMinutes)
 		return nil, err
 	}
+	appRefreshJwtExpTimeMinutes, err := strconv.Atoi(os.Getenv(refreshJwtExpTimeMinutes))
+	if err != nil {
+		log.Default().Printf("Failed to convert %s as like %s int parameter", os.Getenv(refreshJwtExpTimeMinutes), refreshJwtExpTimeMinutes)
+		return nil, err
+	}
 	appJwtSecret := os.Getenv(jwtSecret)
 	appServerAddress := os.Getenv(serverAddress)
 	appServerPort := os.Getenv(serverPort)
@@ -78,14 +85,15 @@ func parseEnv() (*Env, error) {
 	appDbUser := os.Getenv(dbuser)
 	appDbPassword := os.Getenv(dbpassword)
 	return &Env{AppEnv: appEnvName,
-		JwtExpTimeMinutes: appJwtExpTimeMinutes,
-		JwtSecret:         appJwtSecret,
-		ServerAddress:     appServerAddress,
-		ServerPort:        appServerPort,
-		TimeOut:           appTimeOut,
-		DBName:            appDbName,
-		DBHost:            appDbHost,
-		DBPort:            appDbPort,
-		DBUser:            appDbUser,
-		DBPassword:        appDbPassword}, nil
+		JwtExpTimeMinutes:        appJwtExpTimeMinutes,
+		JwtSecret:                appJwtSecret,
+		RefreshJwtExpTimeMinutes: appRefreshJwtExpTimeMinutes,
+		ServerAddress:            appServerAddress,
+		ServerPort:               appServerPort,
+		TimeOut:                  appTimeOut,
+		DBName:                   appDbName,
+		DBHost:                   appDbHost,
+		DBPort:                   appDbPort,
+		DBUser:                   appDbUser,
+		DBPassword:               appDbPassword}, nil
 }
