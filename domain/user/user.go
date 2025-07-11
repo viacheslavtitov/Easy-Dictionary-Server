@@ -11,15 +11,15 @@ type User struct {
 	LastName  string           `json:"last_name"`
 	CreatedAt time.Time        `json:"created_at"`
 	Providers *[]UserProviders `json:"providers"`
-	Role      string
+	Role      string           `json:"-"`
 }
 
 type UserProviders struct {
-	ID             int    `json:"id"`
-	Email          string `json:"email"`
-	HashedPassword string
-	ProviderName   string `json:"name"`
-	ProviderToken  string
+	ID             int       `json:"id"`
+	Email          string    `json:"email"`
+	HashedPassword string    `json:"-"`
+	ProviderName   string    `json:"name"`
+	ProviderToken  string    `json:"provider_token"`
 	CreatedAt      time.Time `json:"created_at"`
 }
 

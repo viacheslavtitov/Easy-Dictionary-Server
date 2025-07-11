@@ -58,7 +58,7 @@ func (userController *UserController) Register(c *gin.Context, role string) {
 		pHash, err := middleware.GeneratePasswordHash(request.Password)
 		if err != nil {
 			zap.S().Error("Failed to generate password hash")
-			c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: "Password validation failed"})
+			c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: "Password validation failed"})
 			return
 		} else {
 			passwordHash = pHash
