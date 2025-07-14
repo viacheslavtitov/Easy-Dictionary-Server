@@ -99,4 +99,5 @@ jobs:
             echo "SERVER_CONFIG_DB_PORT=${{ secrets.SERVER_CONFIG_DB_PORT }}" >> .env
             echo "SERVER_CONFIG_DB_USER=${{ secrets.SERVER_CONFIG_DB_USER }}" >> .env
             echo "SERVER_CONFIG_DB_PASSWORD=${{ secrets.SERVER_CONFIG_DB_PASSWORD }}" >> .env
+            echo "SERVER_CONFIG_REFRESH_JWT_EXP_TIME_MINUTES=${{ secrets.SERVER_CONFIG_REFRESH_JWT_EXP_TIME_MINUTES }}" >> .env
             docker-compose up -d
