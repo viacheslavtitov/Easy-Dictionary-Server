@@ -158,7 +158,7 @@ func getOrCreateRefreshToken(context context.Context, user domainUser.User, user
 // @Tags         auth, token
 // @Accept       json
 // @Produce      json
-// @Param   input body domainAuth.RefreshTokenRequest
+// @Param   input body domainAuth.RefreshTokenRequest true "Refresh token"
 // @Success      200  {string}  Barear Access Token
 // @Failure      400  {object}  domain.ErrorResponse
 // @Failure      404  {object}  domain.ErrorResponse
