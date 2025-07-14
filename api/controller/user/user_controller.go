@@ -131,7 +131,7 @@ func (userController *UserController) GetUserByUUID(c *gin.Context) {
 	if _, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
 	}
-	user, err := userController.UserUseCase.GetByUUID(c, userUUID)
+	user, _, err := userController.UserUseCase.GetByUUID(c, userUUID)
 	if err != nil || user == nil {
 		zap.S().Errorf("Failed to get user by uuid %s", userUUID)
 		zap.S().Error(err)

@@ -39,6 +39,14 @@ type EditUserRequest struct {
 	LastName  string `json:"last_name" binding:"required"`
 }
 
+type RefreshToken struct {
+	ID        string    `json:"-"`
+	UserUUID  string    `json:"-"`
+	Token     string    `json:"-"`
+	ExpiresAt time.Time `json:"-"`
+	CreatedAt time.Time `json:"-"`
+}
+
 func (user *User) FindEmailProvider() (provider *UserProviders) {
 	if user.Providers == nil {
 		return nil
@@ -57,17 +65,23 @@ type UserUseCase interface {
 	UpdateUser(context context.Context, id int, uuid string, firstName string, lastName string) (*User, error)
 	DeleteUser(context context.Context, id int) (int64, error)
 	GetByID(context context.Context, id int) (*User, error)
-	GetByUUID(context context.Context, uuid string) (*User, error)
+	GetByUUID(context context.Context, uuid string) (*User, *int, error)
 	GetAllUsers(context context.Context) ([]*User, error)
+	GetRefreshToken(context context.Context, refreshToken string) (*RefreshToken, error)
+	GetRefreshTokenByUserUUID(context context.Context, refreshToken string) (*RefreshToken, error)
+	DeleteRefreshToken(context context.Context, tokenUUID string) (int64, error)
 }
 
 type UserRepository interface {
-	Create(context context.Context, user *User) (*User, error)
-	GetAllUsers(context context.Context) ([]*User, error)
-	GetByEmail(context context.Context, email string) (*User, *int, error)
-	GetByID(context context.Context, id int) (*User, error)
-	GetByUUID(context context.Context, uuid string) (*User, error)
-	UpdateUser(context context.Context, user *User, userId int) (*User, error)
-	DeleteUser(context context.Context, id int) (int64, error)
-	AddRefreshToken(context context.Context, userUUID string, refreshToken string, expiresAt time.Time) (*time.Time, error)
+	Create(user *User) (*User, error)
+	GetAllUsers() ([]*User, error)
+	GetByEmail(email string) (*User, *int, error)
+	GetByID(id int) (*User, error)
+	GetByUUID(uuid string) (*User, *int, error)
+	UpdateUser(user *User, userId int) (*User, error)
+	DeleteUser(id int) (int64, error)
+	AddRefreshToken(userUUID string, refreshToken string, expiresAt time.Time) (*time.Time, error)
+	GetRefreshToken(refreshToken string) (*RefreshToken, error)
+	GetRefreshTokenByUserUUID(refreshToken string) (*RefreshToken, error)
+	DeleteRefreshToken(tokenUUID string) (int64, error)
 }

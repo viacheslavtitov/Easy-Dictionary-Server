@@ -169,3 +169,22 @@ RETURNING id, created_at)
 SELECT created_at FROM new_refresh_token;
 `
 }
+
+// GetRefreshToken get query to get refresh token from refresh_tokens table
+func getRefreshTokenByTokenQuery() string {
+	return `
+SELECT * FROM refresh_tokens WHERE token = $1;`
+}
+
+// GetRefreshToken get query to get refresh token from refresh_tokens table
+func getRefreshTokenByUserUUIDQuery() string {
+	return `
+SELECT * FROM refresh_tokens WHERE user_uuid = $1;`
+}
+
+// DeleteUserByIdQuery get query to delete user by id from user table
+// Params:
+// - $1: id
+func deleteRefreshTokenByUserUUIDQuery() string {
+	return `DELETE FROM refresh_tokens WHERE user_uuid = $1`
+}

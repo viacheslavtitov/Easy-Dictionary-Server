@@ -41,6 +41,14 @@ type userWithProviderRow struct {
 	ProviderCreated *time.Time `db:"provider_created_at"`
 }
 
+type RefreshTokenEntity struct {
+	ID        string    `db:"id"`
+	UserUUID  string    `db:"user_uuid"`
+	Token     string    `db:"token"`
+	ExpiresAt time.Time `db:"expires_at"`
+	CreatedAt time.Time `db:"created_at"`
+}
+
 func GetAllUsers(db *database.Database, orderBy database.OrderByType) ([]UserEntity, error) {
 	var rows []userWithProviderRow
 	err := db.SQLDB.Select(&rows, getAllUsersQuery(orderBy))
@@ -159,4 +167,21 @@ func CreateRefreshToken(db *database.Database, userUUID string, refreshToken str
 		return nil, err
 	}
 	return createdAt, nil
+}
+
+func GetRefreshTokenByToken(db *database.Database, refreshToken string) (*RefreshTokenEntity, error) {
+	var token RefreshTokenEntity
+	err := db.SQLDB.Get(&token, getRefreshTokenByTokenQuery(), refreshToken)
+	return &token, err
+}
+
+func GetRefreshTokenByUserUUID(db *database.Database, userUUID string) (*RefreshTokenEntity, error) {
+	var token RefreshTokenEntity
+	err := db.SQLDB.Get(&token, getRefreshTokenByUserUUIDQuery(), userUUID)
+	return &token, err
+}
+
+func DeleteRefreshTokenByUserUUID(db *database.Database, uuid string) (sql.Result, error) {
+	rowsDeleted, err := db.SQLDB.Exec(deleteRefreshTokenByUserUUIDQuery(), uuid)
+	return rowsDeleted, err
 }

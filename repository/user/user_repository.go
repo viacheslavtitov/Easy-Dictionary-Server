@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"context"
 	"errors"
 
 	database "easy-dictionary-server/db"
@@ -22,7 +21,7 @@ func NewUserRepository(db *database.Database) domain.UserRepository {
 	return &userRepository{db: db}
 }
 
-func (ur *userRepository) Create(c context.Context, user *domain.User) (*domain.User, error) {
+func (ur *userRepository) Create(user *domain.User) (*domain.User, error) {
 	zap.S().Debugf("Create user")
 	if user.Providers == nil || len(*user.Providers) < 1 {
 		return nil, errors.New("User doesn't have any provider")
@@ -37,7 +36,7 @@ func (ur *userRepository) Create(c context.Context, user *domain.User) (*domain.
 	return user, nil
 }
 
-func (ur *userRepository) GetAllUsers(c context.Context) ([]*domain.User, error) {
+func (ur *userRepository) GetAllUsers() ([]*domain.User, error) {
 	zap.S().Debugf("GetAllUsers")
 	usersEntity, err := dbUser.GetAllUsers(ur.db, database.OrderByASC)
 	users := []*domain.User{}
@@ -47,7 +46,7 @@ func (ur *userRepository) GetAllUsers(c context.Context) ([]*domain.User, error)
 	return users, err
 }
 
-func (ur *userRepository) GetByEmail(c context.Context, email string) (*domain.User, *int, error) {
+func (ur *userRepository) GetByEmail(email string) (*domain.User, *int, error) {
 	zap.S().Debugf("GetByEmail %s", email)
 	userEntity, err := dbUser.GetUserByEmail(ur.db, email)
 	// zap.S().Debugf("User UUID %s", userEntity.UUID)
@@ -57,7 +56,7 @@ func (ur *userRepository) GetByEmail(c context.Context, email string) (*domain.U
 	return userMapper.ToUserDomain(userEntity), &userEntity.ID, nil
 }
 
-func (ur *userRepository) GetByID(c context.Context, id int) (*domain.User, error) {
+func (ur *userRepository) GetByID(id int) (*domain.User, error) {
 	zap.S().Debugf("GetByID %d", id)
 	userEntity, err := dbUser.GetUserById(ur.db, id)
 	if err != nil {
@@ -66,16 +65,16 @@ func (ur *userRepository) GetByID(c context.Context, id int) (*domain.User, erro
 	return userMapper.ToUserDomain(userEntity), nil
 }
 
-func (ur *userRepository) GetByUUID(c context.Context, uuid string) (*domain.User, error) {
+func (ur *userRepository) GetByUUID(uuid string) (*domain.User, *int, error) {
 	zap.S().Debugf("GetByUUID %s", uuid)
 	userEntity, err := dbUser.GetUserByUUID(ur.db, uuid)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return userMapper.ToUserDomain(userEntity), nil
+	return userMapper.ToUserDomain(userEntity), &userEntity.ID, nil
 }
 
-func (ur *userRepository) UpdateUser(c context.Context, user *domain.User, userId int) (*domain.User, error) {
+func (ur *userRepository) UpdateUser(user *domain.User, userId int) (*domain.User, error) {
 	zap.S().Debugf("UpdateUser %s %s", user.FirstName, user.LastName)
 	userEntity := userMapper.FromUserDomain(user, &userId)
 	err := dbUser.UpdateUser(ur.db, userEntity)
@@ -85,7 +84,7 @@ func (ur *userRepository) UpdateUser(c context.Context, user *domain.User, userI
 	return user, nil
 }
 
-func (ur *userRepository) DeleteUser(c context.Context, id int) (int64, error) {
+func (ur *userRepository) DeleteUser(id int) (int64, error) {
 	zap.S().Debugf("DeleteUser %d", id)
 	rowsDeleted, errQuery := dbUser.DeleteUserById(ur.db, id)
 	if errQuery != nil {
@@ -95,7 +94,7 @@ func (ur *userRepository) DeleteUser(c context.Context, id int) (int64, error) {
 	return deletedRows, err
 }
 
-func (ur *userRepository) AddRefreshToken(context context.Context, userUUID string, refreshToken string, expiresAt time.Time) (*time.Time, error) {
+func (ur *userRepository) AddRefreshToken(userUUID string, refreshToken string, expiresAt time.Time) (*time.Time, error) {
 	zap.S().Debugf("Add refresh token to user %s", userUUID)
 	createdAt, err := dbUser.CreateRefreshToken(ur.db, userUUID, refreshToken, expiresAt)
 	if err != nil {
@@ -103,4 +102,32 @@ func (ur *userRepository) AddRefreshToken(context context.Context, userUUID stri
 	}
 	zap.S().Debugf("Refresh token created at %s", createdAt)
 	return createdAt, nil
+}
+
+func (ur *userRepository) GetRefreshToken(refreshToken string) (*domain.RefreshToken, error) {
+	zap.S().Debugf("GetRefreshToken %s", refreshToken)
+	refreshTokenEntity, err := dbUser.GetRefreshTokenByToken(ur.db, refreshToken)
+	if err != nil {
+		return nil, err
+	}
+	return userMapper.ToRefreshTokenDomain(refreshTokenEntity), nil
+}
+
+func (ur *userRepository) GetRefreshTokenByUserUUID(userUUID string) (*domain.RefreshToken, error) {
+	zap.S().Debugf("GetRefreshTokenByUserUUID %s", userUUID)
+	refreshTokenEntity, err := dbUser.GetRefreshTokenByUserUUID(ur.db, userUUID)
+	if err != nil {
+		return nil, err
+	}
+	return userMapper.ToRefreshTokenDomain(refreshTokenEntity), nil
+}
+
+func (ur *userRepository) DeleteRefreshToken(userUUID string) (int64, error) {
+	zap.S().Debugf("DeleteRefreshToken for user %s", userUUID)
+	rowsDeleted, errQuery := dbUser.DeleteRefreshTokenByUserUUID(ur.db, userUUID)
+	if errQuery != nil {
+		return 0, errQuery
+	}
+	deletedRows, err := rowsDeleted.RowsAffected()
+	return deletedRows, err
 }

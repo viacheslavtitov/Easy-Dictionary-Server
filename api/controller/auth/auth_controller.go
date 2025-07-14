@@ -1,11 +1,13 @@
 package controller
 
 import (
+	"context"
 	"net/http"
 	"time"
 
 	middleware "easy-dictionary-server/api/middleware"
 	domainAuth "easy-dictionary-server/domain"
+	domainUser "easy-dictionary-server/domain/user"
 	internalenv "easy-dictionary-server/internalenv"
 	validatorutil "easy-dictionary-server/internalenv/validator"
 
@@ -15,6 +17,7 @@ import (
 
 type AuthController struct {
 	AuthUseCase domainAuth.AuthUseCase
+	UserUseCase domainUser.UserUseCase
 	Env         *internalenv.Env
 }
 
@@ -89,6 +92,123 @@ func (authController *AuthController) Login(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, domainAuth.ErrorResponse{Message: err.Error()})
 			return
 		}
+
+		refreshToken, err := getOrCreateRefreshToken(c, *user, authController.UserUseCase, authController.AuthUseCase, *authController.Env)
+		if err != nil {
+			zap.S().Errorf("Failed to create refresh token for user %s", user.UUID)
+			zap.S().Error(err)
+			c.JSON(http.StatusInternalServerError, domainAuth.ErrorResponse{Message: err.Error()})
+			return
+		}
+		authResponse := domainAuth.AuthResponse{
+			AccessToken:     accessToken,
+			RefreshToken:    refreshToken.Token,
+			RefreshTokenExp: refreshToken.ExpiresAt,
+		}
+		c.JSON(http.StatusOK, authResponse)
+	}
+}
+
+func getOrCreateRefreshToken(context context.Context, user domainUser.User, userUseCase domainUser.UserUseCase, authUseCase domainAuth.AuthUseCase, env internalenv.Env) (*domainUser.RefreshToken, error) {
+	zap.S().Debug("Try to get or create refresh token")
+	refreshTokenModel, err := userUseCase.GetRefreshTokenByUserUUID(context, user.UUID)
+	if err != nil {
+		zap.S().Errorf("Failed to get refresh token for user %s", user.UUID)
+		zap.S().Error(err)
+		return nil, err
+	} else if refreshTokenModel == nil {
+		refreshToken, expiresAt, createdAt, err := authUseCase.CreateRefreshToken(context, user.UUID, time.Duration(env.RefreshJwtExpTimeMinutes)*time.Minute)
+		if err != nil {
+			zap.S().Errorf("Failed to create refresh token for user %s", user.UUID)
+			zap.S().Error(err)
+			return nil, err
+		}
+		return &domainUser.RefreshToken{
+			Token:     refreshToken,
+			ExpiresAt: expiresAt,
+			CreatedAt: *createdAt,
+		}, nil
+	} else if refreshTokenModel.ExpiresAt.Before(time.Now()) {
+		zap.S().Debugf("Refresh token is expired %s but now %s", refreshTokenModel.ExpiresAt, time.Now())
+		rows, err := userUseCase.DeleteRefreshToken(context, refreshTokenModel.UserUUID)
+		if err != nil {
+			zap.S().Errorf("User %s doesn't have any refresh tokens", refreshTokenModel.UserUUID)
+			zap.S().Error(err)
+		}
+		zap.S().Debugf("Deleted %d tokens", rows)
+
+		refreshToken, expiresAt, createdAt, err := authUseCase.CreateRefreshToken(context, user.UUID, time.Duration(env.RefreshJwtExpTimeMinutes)*time.Minute)
+		if err != nil {
+			zap.S().Errorf("Failed to create refresh token for user %s", user.UUID)
+			zap.S().Error(err)
+			return nil, err
+		}
+		return &domainUser.RefreshToken{
+			Token:     refreshToken,
+			ExpiresAt: expiresAt,
+			CreatedAt: *createdAt,
+		}, nil
+	}
+	return refreshTokenModel, nil
+}
+
+// SignIn godoc
+// @Summary      Refresh Token
+// @Description  Do refresh access token by refresh token
+// @Tags         auth, token
+// @Accept       json
+// @Produce      json
+// @Param   input body domainAuth.RefreshTokenRequest
+// @Success      200  {string}  Barear Access Token
+// @Failure      400  {object}  domain.ErrorResponse
+// @Failure      404  {object}  domain.ErrorResponse
+// @Failure      500  {object}  domain.ErrorResponse
+// @Router       /api/refresh [post]
+func (authController *AuthController) RefreshToken(c *gin.Context) {
+	zap.S().Info("POST RefreshToken")
+	var request domainAuth.RefreshTokenRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		zap.S().Error(err)
+		validationErrors := validatorutil.FormatValidationError(err)
+		c.JSON(http.StatusBadRequest, gin.H{"validation_errors": validationErrors})
+		return
+	}
+
+	refreshTokenModel, err := authController.UserUseCase.GetRefreshToken(c, request.RefreshToken)
+	if err != nil {
+		zap.S().Errorf("Refresh token %s not found", request.RefreshToken)
+		zap.S().Error(err)
+		c.JSON(http.StatusForbidden, domainAuth.ErrorResponse{Message: "Refresh token " + request.RefreshToken + " not found"})
+		return
+	} else {
+		zap.S().Debugf("Refresh token found %s", refreshTokenModel.Token)
+		if refreshTokenModel.ExpiresAt.Before(time.Now()) {
+			c.JSON(http.StatusUnauthorized, domainAuth.ErrorResponse{Message: "Invalid or expired refresh token"})
+			return
+		}
+		user, userId, err := authController.UserUseCase.GetByUUID(c, refreshTokenModel.UserUUID)
+		if err != nil {
+			zap.S().Errorf("User %s not found", refreshTokenModel.UserUUID)
+			zap.S().Error(err)
+			c.JSON(http.StatusForbidden, domainAuth.ErrorResponse{Message: "User " + refreshTokenModel.UserUUID + " not found"})
+			return
+		}
+		accessToken, err := authController.AuthUseCase.CreateAccessToken(user, authController.Env.AppEnv, authController.Env.JwtSecret, user.Role,
+			time.Duration(authController.Env.JwtExpTimeMinutes)*time.Minute, *userId)
+		if err != nil {
+			zap.S().Errorf("Failed to create access token for user %s", user.UUID)
+			zap.S().Error(err)
+			c.JSON(http.StatusInternalServerError, domainAuth.ErrorResponse{Message: err.Error()})
+			return
+		}
+		rows, err := authController.UserUseCase.DeleteRefreshToken(c, refreshTokenModel.UserUUID)
+		if err != nil {
+			zap.S().Errorf("User %s doesn't have any refresh tokens", refreshTokenModel.UserUUID)
+			zap.S().Error(err)
+			c.JSON(http.StatusForbidden, domainAuth.ErrorResponse{Message: "User " + refreshTokenModel.UserUUID + " not found"})
+			return
+		}
+		zap.S().Debugf("Deleted %d tokens", rows)
 
 		refreshToken, expiresAt, _, err := authController.AuthUseCase.CreateRefreshToken(c, user.UUID, time.Duration(authController.Env.RefreshJwtExpTimeMinutes)*time.Minute)
 		if err != nil {

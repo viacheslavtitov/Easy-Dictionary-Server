@@ -79,3 +79,13 @@ func FromUserDomainProvider(u *domainUser.UserProviders, userId *int) *dbUser.Us
 		}
 	}
 }
+
+func ToRefreshTokenDomain(u *dbUser.RefreshTokenEntity) *domainUser.RefreshToken {
+	return &domainUser.RefreshToken{
+		ID:        u.ID,
+		Token:     u.Token,
+		CreatedAt: u.CreatedAt,
+		ExpiresAt: u.ExpiresAt,
+		UserUUID:  u.UserUUID,
+	}
+}

@@ -19,6 +19,10 @@ type AuthResponse struct {
 	RefreshTokenExp time.Time
 }
 
+type RefreshTokenRequest struct {
+	RefreshToken string `json:"RefreshToken" binding:"required"`
+}
+
 type AuthUseCase interface {
 	GetUserByEmail(context context.Context, email string) (*domainUser.User, *int, error)
 	CreateAccessToken(user *domainUser.User, appName string, secret string, role string, duration time.Duration, userId int) (accessToken string, err error)
