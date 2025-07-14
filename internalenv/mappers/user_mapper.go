@@ -81,6 +81,9 @@ func FromUserDomainProvider(u *domainUser.UserProviders, userId *int) *dbUser.Us
 }
 
 func ToRefreshTokenDomain(u *dbUser.RefreshTokenEntity) *domainUser.RefreshToken {
+	if u == nil {
+		return nil
+	}
 	return &domainUser.RefreshToken{
 		ID:        u.ID,
 		Token:     u.Token,

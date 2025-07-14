@@ -6,6 +6,8 @@ import (
 	pointers "easy-dictionary-server/internalenv/utils"
 	"errors"
 	"time"
+
+	"go.uber.org/zap"
 )
 
 type UserEntity struct {
@@ -172,12 +174,20 @@ func CreateRefreshToken(db *database.Database, userUUID string, refreshToken str
 func GetRefreshTokenByToken(db *database.Database, refreshToken string) (*RefreshTokenEntity, error) {
 	var token RefreshTokenEntity
 	err := db.SQLDB.Get(&token, getRefreshTokenByTokenQuery(), refreshToken)
+	if err == sql.ErrNoRows {
+		zap.S().Debugf("No refresh tokens found for token %s", refreshToken)
+		return nil, nil
+	}
 	return &token, err
 }
 
 func GetRefreshTokenByUserUUID(db *database.Database, userUUID string) (*RefreshTokenEntity, error) {
 	var token RefreshTokenEntity
 	err := db.SQLDB.Get(&token, getRefreshTokenByUserUUIDQuery(), userUUID)
+	if err == sql.ErrNoRows {
+		zap.S().Debugf("No refresh tokens found for user %s", userUUID)
+		return nil, nil
+	}
 	return &token, err
 }
 
