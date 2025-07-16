@@ -14,6 +14,18 @@ func ToDictionaryDomain(d *dbDictionary.DictionaryEntity) *domainDictionary.Dict
 	}
 }
 
+func ToDetailShortDictionaryDomain(d *dbDictionary.DetailShortDictionaryEntity) *domainDictionary.DetailShortDictionary {
+	return &domainDictionary.DetailShortDictionary{
+		ID:            d.ID,
+		Dialect:       d.Dialect,
+		LangFrom:      ToLanguageDomain(d.LangFrom),
+		LangTo:        ToLanguageDomain(d.LangTo),
+		WordTagsCount: d.WordTagCount,
+		WordsCount:    d.WordCount,
+		QuizCount:     d.QuizCount,
+	}
+}
+
 func FromDictionaryDomain(d *domainDictionary.Dictionary, userId int) *dbDictionary.DictionaryEntity {
 	return &dbDictionary.DictionaryEntity{
 		ID:         d.ID,

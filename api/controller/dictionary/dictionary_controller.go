@@ -35,11 +35,39 @@ func (dictionaryController *DictionaryController) GetAllForUser(c *gin.Context) 
 	} else {
 		dictionaries, err := dictionaryController.DictionaryUseCase.GetAllForUser(c, *userID)
 		if err != nil {
-			zap.S().Error("Failed to get languages")
+			zap.S().Error("Failed to get dictionaries")
 			zap.S().Error(err)
 			c.JSON(http.StatusInternalServerError, err.Error())
 		} else {
-			zap.S().Debugf("Got languages %d", len(*dictionaries))
+			zap.S().Debugf("Got dictionaries %d", len(*dictionaries))
+			c.JSON(http.StatusOK, &dictionaries)
+		}
+	}
+}
+
+// GetAllForUser godoc
+// @Summary      Get all details dictionaries for user
+// @Description  Get all details dictionaries for user
+// @Tags         dictionary
+// @Accept       json
+// @Produce      json
+// @Success      200  {array}  dictionaryDomain.DetailShortDictionary
+// @Failure      400  {object}  domain.ErrorResponse
+// @Failure      404  {object}  domain.ErrorResponse
+// @Failure      500  {object}  domain.ErrorResponse
+// @Router       /api/dictionary/all [get]
+func (dictionaryController *DictionaryController) GetAllShortDictionariesForUser(c *gin.Context) {
+	zap.S().Info("GET GetAllShortDictionariesForUser")
+	if userID, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
+		return
+	} else {
+		dictionaries, err := dictionaryController.DictionaryUseCase.GetAllDetailShortForUser(c, *userID)
+		if err != nil {
+			zap.S().Error("Failed to get dictionaries")
+			zap.S().Error(err)
+			c.JSON(http.StatusInternalServerError, err.Error())
+		} else {
+			zap.S().Debugf("Got dictionaries %d", len(*dictionaries))
 			c.JSON(http.StatusOK, &dictionaries)
 		}
 	}

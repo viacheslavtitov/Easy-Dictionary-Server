@@ -155,7 +155,7 @@ func getOrCreateRefreshToken(context context.Context, user domainUser.User, user
 // SignIn godoc
 // @Summary      Refresh Token
 // @Description  Do refresh access token by refresh token
-// @Tags         auth, token
+// @Tags         auth
 // @Accept       json
 // @Produce      json
 // @Param   input body domainAuth.RefreshTokenRequest true "Refresh token"

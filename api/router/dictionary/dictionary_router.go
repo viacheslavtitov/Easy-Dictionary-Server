@@ -23,6 +23,7 @@ func NewDictionaryRouter(timeout int, group *gin.RouterGroup, database *database
 		dictGroup.POST("api/dictionary/create", dc.Create)
 		dictGroup.POST("api/dictionary/edit", dc.Edit)
 		dictGroup.GET("api/dictionary/all", dc.GetAllForUser)
+		dictGroup.GET("api/dictionary/all/short", dc.GetAllShortDictionariesForUser)
 		dictGroup.DELETE("api/dictionary/:id", dc.Delete)
 	}
 }

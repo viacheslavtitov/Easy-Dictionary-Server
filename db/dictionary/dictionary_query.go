@@ -49,3 +49,39 @@ RETURNING id, dialect, lang_from_id, lang_to_id;`
 func deleteUserDictionaryByIdQuery() string {
 	return `DELETE FROM dictionary WHERE id = $1`
 }
+
+// GetAllDictionariesWithShortInfoForUserQuery get query to get dictionaries with entities from dictionary and related tables
+// Params:
+// - $1: user uuid
+func getAllDictionariesWithShortInfoForUserQuery() string {
+	return `SELECT
+  d.id AS dictionary_id,
+  d.dialect,
+  d.lang_from_id,
+  d.lang_to_id,
+
+  lf.id AS lang_from_id,
+  lf.name AS lang_from_name,
+  lf.code AS lang_from_code,
+
+  lt.id AS lang_to_id,
+  lt.name AS lang_to_name,
+  lt.code AS lang_to_code,
+
+  COUNT(DISTINCT w.id) AS word_count,
+  COUNT(DISTINCT wt.id) AS word_tag_count,
+  COUNT(DISTINCT q.id) AS quiz_count
+
+FROM dictionary d
+LEFT JOIN language lf ON d.lang_from_id = lf.id
+LEFT JOIN language lt ON d.lang_to_id = lt.id
+LEFT JOIN word w ON w.dictionary_id = d.id
+LEFT JOIN word_tag wt ON wt.dictionary_id = d.id
+LEFT JOIN quiz q ON q.dictionary_id = d.id
+WHERE d.user_id = $1
+GROUP BY d.id, d.dialect, d.lang_from_id, d.lang_to_id,
+         lf.id, lf.name, lf.code,
+         lt.id, lt.name, lt.code
+ORDER BY d.id;
+`
+}
