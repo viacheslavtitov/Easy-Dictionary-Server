@@ -40,7 +40,7 @@ type userQuizWithDictionaryRow struct {
 	Name                string     `db:"name"`
 	Time                *time.Time `db:"time"`
 	DictionaryId        int        `db:"dictionary_id"`
-	Dialect             string     `db:"dialect"`
+	Dialect             *string    `db:"dialect"`
 	LangFromId          int        `db:"lang_from_id"`
 	LangToId            int        `db:"lang_to_id"`
 	QuizWordCount       int64      `db:"quiz_word_count"`
@@ -53,7 +53,7 @@ type userQuizDetailWithDictionaryRow struct {
 	Name                     string     `db:"name"`
 	Time                     *time.Time `db:"time"`
 	DictionaryId             int        `db:"dictionary_id"`
-	Dialect                  string     `db:"dialect"`
+	Dialect                  *string    `db:"dialect"`
 	LangFromId               int        `db:"lang_from_id"`
 	LangToId                 int        `db:"lang_to_id"`
 	QuizWordId               int        `db:"quiz_word_id"`

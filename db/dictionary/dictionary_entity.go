@@ -19,10 +19,10 @@ type dictionaryDetailShortRow struct {
 	Dialect      *string `db:"dialect"`
 	LangFromID   int     `db:"lang_from_id"`
 	LangFromName string  `db:"lang_from_name"`
-	LangFromCode string  `db:"lang_from_code"`
+	LangFromCode *string `db:"lang_from_code"`
 	LangToID     int     `db:"lang_to_id"`
 	LangToName   string  `db:"lang_to_name"`
-	LangToCode   string  `db:"lang_to_code"`
+	LangToCode   *string `db:"lang_to_code"`
 	WordCount    int     `db:"word_count"`
 	WordTagCount int     `db:"word_tag_count"`
 	QuizCount    int     `db:"quiz_count"`
