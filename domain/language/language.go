@@ -5,26 +5,26 @@ import (
 )
 
 type Language struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-	Code string `json:"code"`
+	ID   int     `json:"id"`
+	Name string  `json:"name"`
+	Code *string `json:"code"`
 }
 
 type LanguageRequest struct {
-	Name string `json:"name" binding:"required"`
-	Code string `json:"code" binding:"required"`
+	Name string  `json:"name" binding:"required"`
+	Code *string `json:"code"`
 }
 
 type EditLanguageRequest struct {
-	ID   int    `json:"id"`
-	Name string `json:"name" binding:"required"`
-	Code string `json:"code" binding:"required"`
+	ID   int     `json:"id"`
+	Name string  `json:"name" binding:"required"`
+	Code *string `json:"code"`
 }
 
 type LanguageUseCase interface {
 	GetAllForUser(c context.Context, userId int) (*[]Language, error)
-	Create(c context.Context, userId int, name string, code string) error
-	Update(c context.Context, userId int, id int, name string, code string) error
+	Create(c context.Context, userId int, name string, code *string) error
+	Update(c context.Context, userId int, id int, name string, code *string) error
 	DeleteById(c context.Context, id int) (int64, error)
 }
 

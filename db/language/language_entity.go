@@ -6,10 +6,10 @@ import (
 )
 
 type LanguageEntity struct {
-	ID     int    `db:"id"`
-	UserId int    `db:"user_id"`
-	Name   string `db:"name"`
-	Code   string `db:"code"`
+	ID     int     `db:"id"`
+	UserId int     `db:"user_id"`
+	Name   string  `db:"name"`
+	Code   *string `db:"code"`
 }
 
 func GetAllLanguagesForUser(db *database.Database, userId int) (*[]LanguageEntity, error) {

@@ -25,7 +25,7 @@ func (lu *languageUsecase) GetAllForUser(c context.Context, userId int) (*[]doma
 	return lu.languageRepository.GetAllForUser(ctx, userId)
 }
 
-func (lu *languageUsecase) Create(c context.Context, userId int, name string, code string) error {
+func (lu *languageUsecase) Create(c context.Context, userId int, name string, code *string) error {
 	ctx, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(lu.contextTimeout))
 	defer cancel()
 	return lu.languageRepository.Create(ctx, userId, domainLanguage.Language{
@@ -33,7 +33,7 @@ func (lu *languageUsecase) Create(c context.Context, userId int, name string, co
 		Code: code})
 }
 
-func (lu *languageUsecase) Update(c context.Context, userId int, id int, name string, code string) error {
+func (lu *languageUsecase) Update(c context.Context, userId int, id int, name string, code *string) error {
 	ctx, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(lu.contextTimeout))
 	defer cancel()
 	return lu.languageRepository.Update(ctx, userId, domainLanguage.Language{

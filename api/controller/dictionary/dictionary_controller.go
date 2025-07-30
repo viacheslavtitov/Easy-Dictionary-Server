@@ -55,7 +55,7 @@ func (dictionaryController *DictionaryController) GetAllForUser(c *gin.Context) 
 // @Failure      400  {object}  domain.ErrorResponse
 // @Failure      404  {object}  domain.ErrorResponse
 // @Failure      500  {object}  domain.ErrorResponse
-// @Router       /api/dictionary/all [get]
+// @Router       /api/dictionary/all/short [get]
 func (dictionaryController *DictionaryController) GetAllShortDictionariesForUser(c *gin.Context) {
 	zap.S().Info("GET GetAllShortDictionariesForUser")
 	if userID, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {

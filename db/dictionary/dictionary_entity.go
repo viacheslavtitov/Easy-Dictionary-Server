@@ -7,30 +7,30 @@ import (
 )
 
 type DictionaryEntity struct {
-	ID         int    `db:"id"`
-	UserId     int    `db:"user_id"`
-	Dialect    string `db:"dialect"`
-	LangFromId int    `db:"lang_from_id"`
-	LangToId   int    `db:"lang_to_id"`
+	ID         int     `db:"id"`
+	UserId     int     `db:"user_id"`
+	Dialect    *string `db:"dialect"`
+	LangFromId int     `db:"lang_from_id"`
+	LangToId   int     `db:"lang_to_id"`
 }
 
 type dictionaryDetailShortRow struct {
-	DictionaryID int    `db:"dictionary_id"`
-	Dialect      string `db:"dialect"`
-	LangFromID   int    `db:"lang_from_id"`
-	LangFromName string `db:"lang_from_name"`
-	LangFromCode string `db:"lang_from_code"`
-	LangToID     int    `db:"lang_to_id"`
-	LangToName   string `db:"lang_to_name"`
-	LangToCode   string `db:"lang_to_code"`
-	WordCount    int    `db:"word_count"`
-	WordTagCount int    `db:"word_tag_count"`
-	QuizCount    int    `db:"quiz_count"`
+	DictionaryID int     `db:"dictionary_id"`
+	Dialect      *string `db:"dialect"`
+	LangFromID   int     `db:"lang_from_id"`
+	LangFromName string  `db:"lang_from_name"`
+	LangFromCode string  `db:"lang_from_code"`
+	LangToID     int     `db:"lang_to_id"`
+	LangToName   string  `db:"lang_to_name"`
+	LangToCode   string  `db:"lang_to_code"`
+	WordCount    int     `db:"word_count"`
+	WordTagCount int     `db:"word_tag_count"`
+	QuizCount    int     `db:"quiz_count"`
 }
 
 type DetailShortDictionaryEntity struct {
 	ID           int                        `json:"id"`
-	Dialect      string                     `json:"dialect"`
+	Dialect      *string                    `json:"dialect"`
 	LangFrom     *dbLanguage.LanguageEntity `json:"lang_from"`
 	LangTo       *dbLanguage.LanguageEntity `json:"lang_to"`
 	WordTagCount int                        `json:"word_tag_count"`
