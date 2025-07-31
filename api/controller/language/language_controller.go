@@ -88,7 +88,7 @@ func (languageController *LanguageController) Edit(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param   input body languageDomain.LanguageRequest true "Language data"
-// @Success 201 {object} domain.SuccessResponse
+// @Success 201 {object} languageDomain.Language
 // @Failure 400 {object} domain.ErrorResponse
 // @Router /api/language/create [post]
 func (languageController *LanguageController) Create(c *gin.Context) {
@@ -103,14 +103,14 @@ func (languageController *LanguageController) Create(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{"validation_errors": validationErrors})
 			return
 		}
-		err := languageController.LanguageUseCase.Create(c, *userID, request.Name, request.Code)
+		lang, err := languageController.LanguageUseCase.Create(c, *userID, request.Name, request.Code)
 		if err != nil {
 			zap.S().Error("Failed to create language with " + request.Name)
 			zap.S().Error(err)
 			c.JSON(http.StatusInternalServerError, err.Error())
 		} else {
 			zap.S().Debugf("Language created %s %s", request.Name, request.Code)
-			c.JSON(http.StatusCreated, domain.SuccessResponse{Message: "Language created"})
+			c.JSON(http.StatusCreated, lang)
 		}
 	}
 }

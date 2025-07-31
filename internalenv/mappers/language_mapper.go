@@ -6,6 +6,9 @@ import (
 )
 
 func ToLanguageDomain(l *dbLanguage.LanguageEntity) *domainLanguage.Language {
+	if l == nil {
+		return nil
+	}
 	return &domainLanguage.Language{
 		ID:   l.ID,
 		Name: l.Name,

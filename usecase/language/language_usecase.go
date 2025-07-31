@@ -25,7 +25,7 @@ func (lu *languageUsecase) GetAllForUser(c context.Context, userId int) (*[]doma
 	return lu.languageRepository.GetAllForUser(ctx, userId)
 }
 
-func (lu *languageUsecase) Create(c context.Context, userId int, name string, code *string) error {
+func (lu *languageUsecase) Create(c context.Context, userId int, name string, code *string) (*domainLanguage.Language, error) {
 	ctx, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(lu.contextTimeout))
 	defer cancel()
 	return lu.languageRepository.Create(ctx, userId, domainLanguage.Language{

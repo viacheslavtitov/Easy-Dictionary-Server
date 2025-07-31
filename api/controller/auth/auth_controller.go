@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	controllerCommon "easy-dictionary-server/api/controller"
 	middleware "easy-dictionary-server/api/middleware"
 	domainAuth "easy-dictionary-server/domain"
 	domainUser "easy-dictionary-server/domain/user"
@@ -181,6 +182,40 @@ func (authController *AuthController) RefreshToken(c *gin.Context) {
 		c.JSON(http.StatusForbidden, domainAuth.ErrorResponse{Message: "Refresh token " + request.RefreshToken + " not found"})
 		return
 	} else {
+		if refreshTokenModel == nil {
+			if userID, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
+				c.JSON(http.StatusUnauthorized, domainAuth.ErrorResponse{Message: "User not found"})
+				return
+			} else {
+				user, err := authController.UserUseCase.GetByID(c, *userID)
+				if err != nil {
+					c.JSON(http.StatusUnauthorized, domainAuth.ErrorResponse{Message: "User not found"})
+					return
+				}
+				refreshToken, err := getOrCreateRefreshToken(c, *user, authController.UserUseCase, authController.AuthUseCase, *authController.Env)
+				if err != nil {
+					zap.S().Errorf("Failed to create refresh token for user %s", user.UUID)
+					zap.S().Error(err)
+					c.JSON(http.StatusInternalServerError, domainAuth.ErrorResponse{Message: err.Error()})
+					return
+				}
+				accessToken, err := authController.AuthUseCase.CreateAccessToken(user, authController.Env.AppEnv, authController.Env.JwtSecret, user.Role,
+					time.Duration(authController.Env.JwtExpTimeMinutes)*time.Minute, *userID)
+				if err != nil {
+					zap.S().Errorf("Failed to create access token for user %s", user.UUID)
+					zap.S().Error(err)
+					c.JSON(http.StatusInternalServerError, domainAuth.ErrorResponse{Message: err.Error()})
+					return
+				}
+				authResponse := domainAuth.AuthResponse{
+					AccessToken:     accessToken,
+					RefreshToken:    refreshToken.Token,
+					RefreshTokenExp: refreshToken.ExpiresAt,
+				}
+				c.JSON(http.StatusOK, authResponse)
+				return
+			}
+		}
 		zap.S().Debugf("Refresh token found %s", refreshTokenModel.Token)
 		if refreshTokenModel.ExpiresAt.Before(time.Now()) {
 			c.JSON(http.StatusUnauthorized, domainAuth.ErrorResponse{Message: "Invalid or expired refresh token"})

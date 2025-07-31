@@ -19,10 +19,10 @@ func NewLanguageRepository(db *database.Database) domain.LanguageRepository {
 	return &languageRepository{db: db}
 }
 
-func (lr *languageRepository) Create(c context.Context, userId int, language domain.Language) error {
+func (lr *languageRepository) Create(c context.Context, userId int, language domain.Language) (*domain.Language, error) {
 	zap.S().Debugf("Create language %s %s for user %d", language.Name, language.Code, userId)
-	err := dbLanguage.CreateLanguage(lr.db, userId, languageMapper.FromLanguageDomain(&language, userId))
-	return err
+	lang, err := dbLanguage.CreateLanguage(lr.db, userId, languageMapper.FromLanguageDomain(&language, userId))
+	return languageMapper.ToLanguageDomain(lang), err
 }
 
 func (lr *languageRepository) GetAllForUser(c context.Context, userId int) (*[]domain.Language, error) {

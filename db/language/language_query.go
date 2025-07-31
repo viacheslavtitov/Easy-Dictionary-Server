@@ -19,8 +19,12 @@ WHERE user_id = $1;`
 // - $3: user id
 func createUserLanguageQuery() string {
 	return `
-INSERT INTO language (name, code, user_id)
-VALUES ($1, $2, $3);
+WITH new_language AS (
+	INSERT INTO language (name, code, user_id)
+	VALUES ($1, $2, $3);
+	RETURNING id, name, code, user_id
+),
+SELECT id, name, code, user_id FROM new_language;
 `
 }
 
