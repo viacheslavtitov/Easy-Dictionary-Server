@@ -23,7 +23,7 @@ WITH new_language AS (
 	INSERT INTO language (name, code, user_id)
 	VALUES ($1, $2, $3)
 	RETURNING id, name, code, user_id
-),
+)
 SELECT id, name, code, user_id FROM new_language;
 `
 }
