@@ -95,7 +95,7 @@ func (languageController *LanguageController) Create(c *gin.Context) {
 	if userID, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
 	} else {
-		zap.S().Infof("POST Create language for: %d", &userID)
+		zap.S().Infof("POST Create language for: %d", userID)
 		var request languageDomain.LanguageRequest
 		if err := c.ShouldBindJSON(&request); err != nil {
 			zap.S().Error(err)
@@ -109,7 +109,7 @@ func (languageController *LanguageController) Create(c *gin.Context) {
 			zap.S().Error(err)
 			c.JSON(http.StatusInternalServerError, err.Error())
 		} else {
-			zap.S().Debugf("Language created %s %s", request.Name, request.Code)
+			zap.S().Debugf("Language created %s %v", request.Name, request.Code)
 			c.JSON(http.StatusCreated, lang)
 		}
 	}

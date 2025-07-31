@@ -24,7 +24,7 @@ WITH new_language AS (
 	VALUES ($1, $2, $3)
 	RETURNING id, name, code, user_id
 )
-SELECT id, name, code, user_id FROM new_language;
+SELECT * FROM new_language;
 `
 }
 

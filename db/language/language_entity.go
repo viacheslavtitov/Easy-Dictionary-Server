@@ -22,12 +22,12 @@ func GetAllLanguagesForUser(db *database.Database, userId int) (*[]LanguageEntit
 }
 
 func CreateLanguage(db *database.Database, userId int, entity *LanguageEntity) (*LanguageEntity, error) {
-	var lang *LanguageEntity
+	var lang LanguageEntity
 	err := db.SQLDB.Get(&lang, createUserLanguageQuery(), entity.Name, entity.Code, userId)
 	if err != nil {
 		return nil, err
 	}
-	return lang, nil
+	return &lang, nil
 }
 
 func UpdateLanguage(db *database.Database, entity *LanguageEntity) (*LanguageEntity, error) {
