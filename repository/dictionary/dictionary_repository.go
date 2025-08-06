@@ -49,9 +49,9 @@ func (dr *dictionaryRepository) GetAllDetailShortForUser(userId int) (*[]domain.
 	return &dictionaries, nil
 }
 
-func (dr *dictionaryRepository) Update(userId int, dictionary domain.Dictionary) error {
+func (dr *dictionaryRepository) Update(userId int, id int, dialect *string) error {
 	zap.S().Debugf("Update dictionary for user %d", userId)
-	_, err := dbDictionary.UpdateDictionary(dr.db, dictionaryMapper.FromDictionaryDomain(&dictionary, userId))
+	_, err := dbDictionary.UpdateDictionary(dr.db, id, dialect)
 	return err
 }
 

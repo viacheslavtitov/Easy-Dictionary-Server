@@ -97,7 +97,7 @@ func (dictionaryController *DictionaryController) Edit(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{"validation_errors": validationErrors})
 			return
 		}
-		err := dictionaryController.DictionaryUseCase.Update(c, *userID, request.ID, request.Dialect, request.LangFromId, request.LangToId)
+		err := dictionaryController.DictionaryUseCase.Update(c, *userID, request.ID, request.Dialect)
 		if err != nil {
 			zap.S().Errorf("Failed to update dictionary by id %d", request.ID)
 			zap.S().Error(err)

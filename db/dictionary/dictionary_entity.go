@@ -52,9 +52,9 @@ func CreateDictionary(db *database.Database, userId int, entity *DictionaryEntit
 	return err
 }
 
-func UpdateDictionary(db *database.Database, entity *DictionaryEntity) (*DictionaryEntity, error) {
+func UpdateDictionary(db *database.Database, id int, dialect *string) (*DictionaryEntity, error) {
 	var dictionary DictionaryEntity
-	err := db.SQLDB.Get(&dictionary, updateUserDictionaryQuery(), entity.Dialect, entity.LangFromId, entity.LangToId, entity.ID)
+	err := db.SQLDB.Get(&dictionary, updateUserDictionaryQuery(), dialect, id)
 	if err != nil {
 		return nil, err
 	}

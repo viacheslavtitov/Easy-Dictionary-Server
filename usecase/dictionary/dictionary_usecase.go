@@ -40,14 +40,10 @@ func (du *dictionaryUsecase) Create(c context.Context, userId int, dialect *stri
 		LangToId:   langToId})
 }
 
-func (du *dictionaryUsecase) Update(c context.Context, userId int, id int, dialect *string, langFromId int, langToId int) error {
+func (du *dictionaryUsecase) Update(c context.Context, userId int, id int, dialect *string) error {
 	_, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(du.contextTimeout))
 	defer cancel()
-	return du.dictionaryRepository.Update(userId, domainDictionary.Dictionary{
-		ID:         id,
-		Dialect:    dialect,
-		LangFromId: langFromId,
-		LangToId:   langToId})
+	return du.dictionaryRepository.Update(userId, id, dialect)
 }
 
 func (du *dictionaryUsecase) DeleteById(c context.Context, id int) (int64, error) {

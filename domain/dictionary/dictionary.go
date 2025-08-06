@@ -19,10 +19,8 @@ type DictionaryRequest struct {
 }
 
 type EditDictionaryRequest struct {
-	ID         int     `json:"id" binding:"required"`
-	Dialect    *string `json:"dialect"`
-	LangFromId int     `json:"lang_from_id" binding:"required"`
-	LangToId   int     `json:"lang_to_id" binding:"required"`
+	ID      int     `json:"id" binding:"required"`
+	Dialect *string `json:"dialect"`
 }
 
 type DetailShortDictionary struct {
@@ -39,7 +37,7 @@ type DictionaryUseCase interface {
 	GetAllForUser(c context.Context, userId int) (*[]Dictionary, error)
 	GetAllDetailShortForUser(c context.Context, userId int) (*[]DetailShortDictionary, error)
 	Create(c context.Context, userId int, dialect *string, langFromId int, langToId int) error
-	Update(c context.Context, userId int, id int, dialect *string, langFromId int, langToId int) error
+	Update(c context.Context, userId int, id int, dialect *string) error
 	DeleteById(c context.Context, id int) (int64, error)
 }
 
@@ -47,6 +45,6 @@ type DictionaryRepository interface {
 	GetAllForUser(userId int) (*[]Dictionary, error)
 	GetAllDetailShortForUser(userId int) (*[]DetailShortDictionary, error)
 	Create(userId int, dictionary Dictionary) error
-	Update(userId int, dictionary Dictionary) error
+	Update(userId int, id int, dialect *string) error
 	DeleteById(id int) (int64, error)
 }
