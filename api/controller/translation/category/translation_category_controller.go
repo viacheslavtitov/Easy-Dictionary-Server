@@ -4,6 +4,7 @@ import (
 	controllerCommon "easy-dictionary-server/api/controller"
 	"easy-dictionary-server/domain"
 	domainTranslationCategory "easy-dictionary-server/domain/translation/category"
+	translationCategoryMapper "easy-dictionary-server/internalenv/mappers"
 	validatorutil "easy-dictionary-server/internalenv/validator"
 
 	"net/http"
@@ -23,7 +24,7 @@ type TranslationCategoryController struct {
 // @Tags         translation_category
 // @Accept       json
 // @Produce      json
-// @Success      200  {array}  domainTranslationCategory.TranslationCategory
+// @Success      200  {array}  domainTranslationCategory.TranslationCategoryResponse
 // @Failure      400  {object}  domain.ErrorResponse
 // @Failure      404  {object}  domain.ErrorResponse
 // @Failure      500  {object}  domain.ErrorResponse
@@ -40,7 +41,11 @@ func (controller *TranslationCategoryController) GetAllForUser(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, err.Error())
 		} else {
 			zap.S().Debugf("Got translation categories %d", len(*tcategories))
-			c.JSON(http.StatusOK, &tcategories)
+			var categories []domainTranslationCategory.TranslationCategoryResponse
+			for _, tCategory := range *tcategories {
+				categories = append(categories, *translationCategoryMapper.ToTranslationCategoryResponseDomain(&tCategory))
+			}
+			c.JSON(http.StatusOK, &categories)
 		}
 	}
 }

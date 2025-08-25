@@ -16,6 +16,12 @@ type TranslationCategoryRequest struct {
 	DictionaryId int    `json:"dictionary_id" binding:"required"`
 }
 
+type TranslationCategoryResponse struct {
+	ID           int    `json:"id"`
+	Name         string `json:"name"`
+	DictionaryId int    `json:"dictionary_id"`
+}
+
 type EditTranslationCategoryRequest struct {
 	ID           int    `json:"id"`
 	Name         string `json:"name" binding:"required"`

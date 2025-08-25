@@ -22,3 +22,11 @@ func FromTranslationCategoryDomain(tc *domainTranslationCategory.TranslationCate
 		UserId:       tc.UserId,
 	}
 }
+
+func ToTranslationCategoryResponseDomain(tc *domainTranslationCategory.TranslationCategory) *domainTranslationCategory.TranslationCategoryResponse {
+	return &domainTranslationCategory.TranslationCategoryResponse{
+		ID:           tc.ID,
+		Name:         tc.Name,
+		DictionaryId: tc.DictionaryId,
+	}
+}
