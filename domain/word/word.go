@@ -10,7 +10,6 @@ type Word struct {
 	Original     string  `json:"original"`
 	Phonetic     *string `json:"phonetic"`
 	Type         *string `json:"type"`
-	CategoryId   *int    `json:"category_id"`
 }
 
 type WordRequest struct {
@@ -18,7 +17,6 @@ type WordRequest struct {
 	Original     string  `json:"original" binding:"required"`
 	Phonetic     *string `json:"phonetic"`
 	Type         *string `json:"type"`
-	CategoryId   *int    `json:"category_id"`
 }
 
 type EditWordRequest struct {
@@ -27,7 +25,6 @@ type EditWordRequest struct {
 	Original     string  `json:"original" binding:"required"`
 	Phonetic     *string `json:"phonetic"`
 	Type         *string `json:"type"`
-	CategoryId   *int    `json:"category_id"`
 }
 
 type WordsWithPaginationResponse struct {
@@ -39,8 +36,8 @@ type WordsWithPaginationResponse struct {
 type WordUseCase interface {
 	GetAllForDictionary(c context.Context, dictionaryId int, lastId int, pageSize int) (*[]Word, error)
 	SearchWordsForDictionary(c context.Context, query string, dictionaryId int, lastId int, pageSize int) (*[]Word, error)
-	Create(c context.Context, dictionaryId int, original string, phonetic *string, wordType *string, categoryId *int) error
-	Update(c context.Context, id int, dictionaryId int, original string, phonetic *string, wordType *string, categoryId *int) error
+	Create(c context.Context, dictionaryId int, original string, phonetic *string, wordType *string) error
+	Update(c context.Context, id int, dictionaryId int, original string, phonetic *string, wordType *string) error
 	DeleteById(c context.Context, id int) (int64, error)
 }
 

@@ -34,12 +34,11 @@ LIMIT $4;`
 // - $1: original
 // - $2: phonetic
 // - $3: type
-// - $4: category id
-// - $5: dictionary id
+// - $4: dictionary id
 func createWordQuery() string {
 	return `
-INSERT INTO word (original, phonetic, type, category_id, dictionary_id)
-VALUES ($1, $2, $3, $4, $5);
+INSERT INTO word (original, phonetic, type, dictionary_id)
+VALUES ($1, $2, $3, $4);
 `
 }
 
@@ -48,8 +47,7 @@ VALUES ($1, $2, $3, $4, $5);
 // - $1: original
 // - $2: phonetic
 // - $3: type
-// - $4: category id
-// - $5: word id
+// - $4: word id
 func updateWordQuery() string {
 	return `
 UPDATE word
@@ -57,9 +55,8 @@ SET
     original = $1,
     phonetic = $2,
     type = $3,
-    category_id = $4
-WHERE id = $5
-RETURNING id, original, phonetic, type, category_id, dictionary_id;`
+WHERE id = $4
+RETURNING id, original, phonetic, type, dictionary_id;`
 }
 
 // DeleteWordByIdQuery get query to delete word by id from word table

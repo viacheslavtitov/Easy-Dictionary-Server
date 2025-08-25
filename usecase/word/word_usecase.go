@@ -31,18 +31,17 @@ func (wu *wordUsecase) SearchWordsForDictionary(c context.Context, query string,
 	return wu.wordRepository.SearchWordsForDictionary(ctx, query, dictionaryId, lastId, pageSize)
 }
 
-func (wu *wordUsecase) Create(c context.Context, dictionaryId int, original string, phonetic *string, wordType *string, categoryId *int) error {
+func (wu *wordUsecase) Create(c context.Context, dictionaryId int, original string, phonetic *string, wordType *string) error {
 	ctx, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(wu.contextTimeout))
 	defer cancel()
 	return wu.wordRepository.Create(ctx, dictionaryId, &domainWord.Word{
 		DictionaryId: dictionaryId,
 		Original:     original,
 		Phonetic:     phonetic,
-		Type:         wordType,
-		CategoryId:   categoryId})
+		Type:         wordType})
 }
 
-func (wu *wordUsecase) Update(c context.Context, id int, dictionaryId int, original string, phonetic *string, wordType *string, categoryId *int) error {
+func (wu *wordUsecase) Update(c context.Context, id int, dictionaryId int, original string, phonetic *string, wordType *string) error {
 	ctx, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(wu.contextTimeout))
 	defer cancel()
 	return wu.wordRepository.Update(ctx, &domainWord.Word{
@@ -50,8 +49,7 @@ func (wu *wordUsecase) Update(c context.Context, id int, dictionaryId int, origi
 		DictionaryId: dictionaryId,
 		Original:     original,
 		Phonetic:     phonetic,
-		Type:         wordType,
-		CategoryId:   categoryId})
+		Type:         wordType})
 }
 
 func (wu *wordUsecase) DeleteById(c context.Context, id int) (int64, error) {

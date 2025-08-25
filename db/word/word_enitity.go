@@ -11,7 +11,6 @@ type WordEntity struct {
 	Original     string  `db:"original"`
 	Phonetic     *string `db:"phonetic"`
 	Type         *string `db:"type"`
-	CategoryId   *int    `db:"category_id"`
 }
 
 func GetAllWordsForDictionary(db *database.Database, dictionaryId int, lastId int, pageSize int) (*[]WordEntity, error) {
@@ -33,13 +32,13 @@ func SearchWordsForDictionary(db *database.Database, query string, dictionaryId 
 }
 
 func CreateWord(db *database.Database, dictionaryId int, entity *WordEntity) error {
-	_, err := db.SQLDB.Exec(createWordQuery(), entity.Original, entity.Phonetic, entity.Type, entity.CategoryId, dictionaryId)
+	_, err := db.SQLDB.Exec(createWordQuery(), entity.Original, entity.Phonetic, entity.Type, dictionaryId)
 	return err
 }
 
 func UpdateWord(db *database.Database, entity *WordEntity) (*WordEntity, error) {
 	var word WordEntity
-	err := db.SQLDB.Get(&word, updateWordQuery(), entity.Original, entity.Phonetic, entity.Type, entity.CategoryId, entity.ID)
+	err := db.SQLDB.Get(&word, updateWordQuery(), entity.Original, entity.Phonetic, entity.Type, entity.ID)
 	if err != nil {
 		return nil, err
 	}
