@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 
+	translationDomain "easy-dictionary-server/domain/translation"
 	domainWord "easy-dictionary-server/domain/word"
 	commonUseCase "easy-dictionary-server/usecase"
 )
@@ -39,6 +40,27 @@ func (wu *wordUsecase) Create(c context.Context, dictionaryId int, original stri
 		Original:     original,
 		Phonetic:     phonetic,
 		Type:         wordType})
+}
+
+func (wu *wordUsecase) CreateWithTranslations(c context.Context, dictionaryId int, original string, phonetic *string, wordType *string, translations *[]translationDomain.TranslationWithoutWordRequest) error {
+	ctx, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(wu.contextTimeout))
+	defer cancel()
+	var convertedTranslations []translationDomain.Translation
+	for _, t := range *translations {
+		convertedTranslations = append(convertedTranslations, translationDomain.Translation{
+			ID:          -1,
+			WordId:      -1,
+			CategoryId:  t.CategoryId,
+			Translate:   t.Translate,
+			Description: t.Description,
+		})
+	}
+	return wu.wordRepository.CreateWithTranslations(ctx, dictionaryId, &domainWord.WordWithTranslations{
+		DictionaryId: dictionaryId,
+		Original:     original,
+		Phonetic:     phonetic,
+		Type:         wordType,
+		Translations: &convertedTranslations})
 }
 
 func (wu *wordUsecase) Update(c context.Context, id int, dictionaryId int, original string, phonetic *string, wordType *string) error {

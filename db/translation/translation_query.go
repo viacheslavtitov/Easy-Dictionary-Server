@@ -21,7 +21,7 @@ WHERE word_id = $1;`
 // - $2: category id
 // - $3: translate
 // - $4: description
-func createTranslationQuery() string {
+func CreateTranslationQuery() string {
 	return `
 INSERT INTO translation (word_id, category_id, translate, description)
 VALUES ($1, $2, $3, $4);

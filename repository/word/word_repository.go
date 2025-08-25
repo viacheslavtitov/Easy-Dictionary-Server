@@ -25,6 +25,12 @@ func (wr *wordRepository) Create(c context.Context, dictionaryId int, word *doma
 	return err
 }
 
+func (wr *wordRepository) CreateWithTranslations(c context.Context, dictionaryId int, word *domain.WordWithTranslations) error {
+	zap.S().Debugf("Create word %s for user %d", word.Original, dictionaryId)
+	_, err := dbWord.CreateWordWithTranslations(wr.db, c, dictionaryId, wordMapper.FromWordWithTranslationDomain(word))
+	return err
+}
+
 func (wr *wordRepository) GetAllForDictionary(c context.Context, dictionaryId int, lastId int, pageSize int) (*[]domain.Word, error) {
 	zap.S().Debugf("GetAllForDictionary %d", dictionaryId)
 	wordEntities, err := dbWord.GetAllWordsForDictionary(wr.db, dictionaryId, lastId, pageSize)

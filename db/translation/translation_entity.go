@@ -13,6 +13,12 @@ type TranslationEntity struct {
 	Description *string `db:"description"`
 }
 
+type TranslationEmptyEntity struct {
+	CategoryId  *int    `db:"category_id"`
+	Translate   string  `db:"translate"`
+	Description *string `db:"description"`
+}
+
 func GetAllTranslationsForWord(db *database.Database, wordId int) (*[]TranslationEntity, error) {
 	var tc []TranslationEntity
 	err := db.SQLDB.Select(&tc, getAllTranslationsForWordQuery(), wordId)
@@ -23,7 +29,7 @@ func GetAllTranslationsForWord(db *database.Database, wordId int) (*[]Translatio
 }
 
 func CreateTranslation(db *database.Database, entity *TranslationEntity) error {
-	_, err := db.SQLDB.Exec(createTranslationQuery(), entity.WordId, entity.CategoryId, entity.Translate, entity.Description)
+	_, err := db.SQLDB.Exec(CreateTranslationQuery(), entity.WordId, entity.CategoryId, entity.Translate, entity.Description)
 	return err
 }
 

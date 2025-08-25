@@ -19,6 +19,12 @@ type TranslationRequest struct {
 	Description *string `json:"description"`
 }
 
+type TranslationWithoutWordRequest struct {
+	CategoryId  *int    `json:"category_id"`
+	Translate   string  `json:"translate" binding:"required"`
+	Description *string `json:"description"`
+}
+
 type EditTranslationRequest struct {
 	ID          int     `json:"id" binding:"required"`
 	WordId      int     `json:"word_id" binding:"required"`

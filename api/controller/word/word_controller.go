@@ -209,6 +209,39 @@ func (controller *WordController) Create(c *gin.Context) {
 	}
 }
 
+// Create godoc
+// @Summary Create word with translations
+// @Description Create new word with translations for dictionary
+// @Tags word
+// @Accept  json
+// @Produce  json
+// @Param   input body domainWord.WordWithTranslationRequest true "Word data"
+// @Success 201 {object} domain.SuccessResponse
+// @Failure 400 {object} domain.ErrorResponse
+// @Router /api/word/create [post]
+func (controller *WordController) CreateWordWithTranslations(c *gin.Context) {
+	zap.S().Info("POST Create word with translations")
+	if _, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
+		return
+	}
+	var request domainWord.WordWithTranslationRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		zap.S().Error(err)
+		validationErrors := validatorutil.FormatValidationError(err)
+		c.JSON(http.StatusBadRequest, gin.H{"validation_errors": validationErrors})
+		return
+	}
+	err := controller.WordUseCase.CreateWithTranslations(c, request.DictionaryId, request.Original, request.Phonetic, request.Type, request.Translations)
+	if err != nil {
+		zap.S().Error("Failed to create word with " + request.Original)
+		zap.S().Error(err)
+		c.JSON(http.StatusInternalServerError, err.Error())
+	} else {
+		zap.S().Debugf("Word created %s", request.Original)
+		c.JSON(http.StatusCreated, domain.SuccessResponse{Message: "Word created"})
+	}
+}
+
 // Delete godoc
 // @Summary Delete word
 // @Description Delete word for dictionary

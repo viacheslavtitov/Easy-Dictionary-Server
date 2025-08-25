@@ -29,6 +29,20 @@ ORDER BY id
 LIMIT $4;`
 }
 
+// CreateWordAndReturnIdQuery get query to create word
+// Params:
+// - $1: original
+// - $2: phonetic
+// - $3: type
+// - $4: dictionary id
+func createWordAndReturnIdQuery() string {
+	return `
+INSERT INTO word (original, phonetic, type, dictionary_id)
+VALUES ($1, $2, $3, $4)
+RETURNING id;
+`
+}
+
 // CreateWordQuery get query to create word
 // Params:
 // - $1: original
