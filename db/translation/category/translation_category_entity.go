@@ -21,6 +21,15 @@ func GetAllTranslationCategoriesForUser(db *database.Database, userId int) (*[]T
 	return &tc, err
 }
 
+func GetAllTranslationCategoriesForUserDictionary(db *database.Database, userId int, dictionaryId int) (*[]TranslationCategoryEntity, error) {
+	var tc []TranslationCategoryEntity
+	err := db.SQLDB.Select(&tc, getAllTranslationCategoriesForUserDictionaryQuery(), userId, dictionaryId)
+	if err != nil {
+		return nil, err
+	}
+	return &tc, err
+}
+
 func CreateTranslationCategory(db *database.Database, entity *TranslationCategoryEntity) error {
 	_, err := db.SQLDB.Exec(createUserTranslationCategoryQuery(), entity.Name, entity.UserId, entity.DictionaryId)
 	return err

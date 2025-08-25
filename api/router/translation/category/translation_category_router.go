@@ -23,6 +23,7 @@ func NewTranslationCategoryRouter(timeout int, group *gin.RouterGroup, database 
 		transCategoryGroup.POST("api/translation/category/create", lc.Create)
 		transCategoryGroup.POST("api/translation/category/edit", lc.Edit)
 		transCategoryGroup.GET("api/translation/category/all", lc.GetAllForUser)
+		transCategoryGroup.GET("api/translation/category/all/:id", lc.GetAllForUserDictionary)
 		transCategoryGroup.DELETE("api/translation/category/:id", lc.Delete)
 	}
 }

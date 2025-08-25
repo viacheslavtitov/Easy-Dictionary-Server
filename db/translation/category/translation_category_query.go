@@ -1,6 +1,6 @@
 package db
 
-// getAllTranslationCategoriesForUserQuery get query to get all translation categories from all dictionaries
+// GetAllTranslationCategoriesForUserQuery get query to get all translation categories from all dictionaries
 // Params:
 // - $1: user id
 func getAllTranslationCategoriesForUserQuery() string {
@@ -9,6 +9,19 @@ SELECT tc.*
 FROM translation_category tc
 JOIN dictionary d ON tc.dictionary_id = d.id
 WHERE d.user_id = $1;
+`
+}
+
+// GetAllTranslationCategoriesForUserDictionaryQuery get query to get all translation categories for particular dictionary
+// Params:
+// - $1: user id
+// - $2: dictionary id
+func getAllTranslationCategoriesForUserDictionaryQuery() string {
+	return `
+SELECT tc.*
+FROM translation_category tc
+JOIN dictionary d ON tc.dictionary_id = d.id
+WHERE d.user_id = $1 AND d.id = $2;
 `
 }
 

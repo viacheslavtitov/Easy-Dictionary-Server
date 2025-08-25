@@ -25,6 +25,12 @@ func (lu *translationCategoryUsecase) GetAllForUser(c context.Context, userId in
 	return lu.translationCategoryRepository.GetAllForUser(ctx, userId)
 }
 
+func (lu *translationCategoryUsecase) GetAllForDictionary(c context.Context, userId int, dictionaryId int) (*[]domainTranslationCategory.TranslationCategory, error) {
+	ctx, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(lu.contextTimeout))
+	defer cancel()
+	return lu.translationCategoryRepository.GetAllForDictionary(ctx, userId, dictionaryId)
+}
+
 func (lu *translationCategoryUsecase) Create(c context.Context, userId int, dictionaryId int, name string) error {
 	ctx, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(lu.contextTimeout))
 	defer cancel()

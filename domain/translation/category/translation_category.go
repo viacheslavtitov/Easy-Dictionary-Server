@@ -30,6 +30,7 @@ type EditTranslationCategoryRequest struct {
 
 type TranslationCategoryUseCase interface {
 	GetAllForUser(c context.Context, userId int) (*[]TranslationCategory, error)
+	GetAllForDictionary(c context.Context, userId int, dictionaryId int) (*[]TranslationCategory, error)
 	Create(c context.Context, userId int, dictionaryId int, name string) error
 	Update(c context.Context, userId int, id int, dictionaryId int, name string) error
 	DeleteById(c context.Context, id int) (int64, error)
@@ -37,6 +38,7 @@ type TranslationCategoryUseCase interface {
 
 type TranslationCategoryRepository interface {
 	GetAllForUser(c context.Context, userId int) (*[]TranslationCategory, error)
+	GetAllForDictionary(c context.Context, userId int, dictionaryId int) (*[]TranslationCategory, error)
 	Create(c context.Context, userId int, translationCategory *TranslationCategory) error
 	Update(c context.Context, userId int, translationCategory *TranslationCategory) error
 	DeleteById(c context.Context, id int) (int64, error)

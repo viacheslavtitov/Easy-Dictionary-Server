@@ -38,6 +38,19 @@ func (lr *translationCategoryRepository) GetAllForUser(c context.Context, userId
 	return &categories, nil
 }
 
+func (lr *translationCategoryRepository) GetAllForDictionary(c context.Context, userId int, dictionaryId int) (*[]domain.TranslationCategory, error) {
+	zap.S().Debugf("GetAllForUser %d", userId)
+	tsEntity, err := dbTranslationCategory.GetAllTranslationCategoriesForUserDictionary(lr.db, userId, dictionaryId)
+	if err != nil {
+		return nil, err
+	}
+	var categories []domain.TranslationCategory
+	for _, tCategory := range *tsEntity {
+		categories = append(categories, *translationCategoryMapper.ToTranslationCategoryDomain(&tCategory))
+	}
+	return &categories, nil
+}
+
 func (lr *translationCategoryRepository) Update(c context.Context, userId int, ts *domain.TranslationCategory) error {
 	zap.S().Debugf("Update translation category %s for user %d", ts.Name, userId)
 	_, err := dbTranslationCategory.UpdateTranslationCategory(lr.db, translationCategoryMapper.FromTranslationCategoryDomain(ts, userId))

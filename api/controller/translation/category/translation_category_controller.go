@@ -50,6 +50,44 @@ func (controller *TranslationCategoryController) GetAllForUser(c *gin.Context) {
 	}
 }
 
+// GetAllForUserDictionary godoc
+// @Summary      Get all translation categories for user dictionary
+// @Description  Get all translation categories for user dictionary
+// @Tags         translation_category
+// @Accept       json
+// @Produce      json
+// @Success      200  {array}  domainTranslationCategory.TranslationCategoryResponse
+// @Failure      400  {object}  domain.ErrorResponse
+// @Failure      404  {object}  domain.ErrorResponse
+// @Failure      500  {object}  domain.ErrorResponse
+// @Router       /api/translation/category/all:id [get]
+func (controller *TranslationCategoryController) GetAllForUserDictionary(c *gin.Context) {
+	zap.S().Info("GET GetAllForUserDictionary")
+	if userID, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
+		return
+	} else {
+		dictionaryId := c.Param("id")
+		if dictionaryIdInt, err := strconv.Atoi(dictionaryId); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid dictionary ID"})
+			return
+		} else {
+			tcategories, err := controller.TranslationCategoryUseCase.GetAllForDictionary(c, *userID, dictionaryIdInt)
+			if err != nil {
+				zap.S().Error("Failed to get translation categories")
+				zap.S().Error(err)
+				c.JSON(http.StatusInternalServerError, err.Error())
+			} else {
+				zap.S().Debugf("Got translation categories %d", len(*tcategories))
+				var categories []domainTranslationCategory.TranslationCategoryResponse
+				for _, tCategory := range *tcategories {
+					categories = append(categories, *translationCategoryMapper.ToTranslationCategoryResponseDomain(&tCategory))
+				}
+				c.JSON(http.StatusOK, &categories)
+			}
+		}
+	}
+}
+
 // Edit godoc
 // @Summary      Edit translation category for user
 // @Description  Update translation category for user
