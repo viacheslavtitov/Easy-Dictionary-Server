@@ -218,7 +218,7 @@ func (controller *WordController) Create(c *gin.Context) {
 // @Param   input body domainWord.WordWithTranslationRequest true "Word data"
 // @Success 201 {object} domain.SuccessResponse
 // @Failure 400 {object} domain.ErrorResponse
-// @Router /api/word/create [post]
+// @Router /api/word/create/translations [post]
 func (controller *WordController) CreateWordWithTranslations(c *gin.Context) {
 	zap.S().Info("POST Create word with translations")
 	if _, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
