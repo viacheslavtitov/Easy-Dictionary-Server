@@ -31,28 +31,28 @@ func (wr *wordRepository) CreateWithTranslations(c context.Context, dictionaryId
 	return err
 }
 
-func (wr *wordRepository) GetAllForDictionary(c context.Context, dictionaryId int, lastId int, pageSize int) (*[]domain.Word, error) {
+func (wr *wordRepository) GetAllForDictionary(c context.Context, userId int, dictionaryId int, lastId int, pageSize int) (*[]domain.WordWithTranslationsAndCategories, error) {
 	zap.S().Debugf("GetAllForDictionary %d", dictionaryId)
 	wordEntities, err := dbWord.GetAllWordsForDictionary(wr.db, dictionaryId, lastId, pageSize)
 	if err != nil {
 		return nil, err
 	}
-	var words []domain.Word
+	var words []domain.WordWithTranslationsAndCategories
 	for _, wEntity := range *wordEntities {
-		words = append(words, *wordMapper.ToWordDomain(&wEntity))
+		words = append(words, *wordMapper.ToWordWithTranslationAndCategoryDomain(&wEntity, userId, dictionaryId))
 	}
 	return &words, nil
 }
 
-func (wr *wordRepository) SearchWordsForDictionary(c context.Context, query string, dictionaryId int, lastId int, pageSize int) (*[]domain.Word, error) {
+func (wr *wordRepository) SearchWordsForDictionary(c context.Context, query string, userId int, dictionaryId int, lastId int, pageSize int) (*[]domain.WordWithTranslationsAndCategories, error) {
 	zap.S().Debugf("SearchWordsForDictionary %d %s", dictionaryId, query)
 	wordEntities, err := dbWord.SearchWordsForDictionary(wr.db, query, dictionaryId, lastId, pageSize)
 	if err != nil {
 		return nil, err
 	}
-	var words []domain.Word
+	var words []domain.WordWithTranslationsAndCategories
 	for _, wEntity := range *wordEntities {
-		words = append(words, *wordMapper.ToWordDomain(&wEntity))
+		words = append(words, *wordMapper.ToWordWithTranslationAndCategoryDomain(&wEntity, userId, dictionaryId))
 	}
 	return &words, nil
 }

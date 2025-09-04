@@ -23,6 +23,15 @@ func FromTranslationCategoryDomain(tc *domainTranslationCategory.TranslationCate
 	}
 }
 
+func ToTranslationCategoryShortDomain(tc *dbTranslationCategory.TranslationCategoryShortEntity, userId int, dictionaryId int) *domainTranslationCategory.TranslationCategory {
+	return &domainTranslationCategory.TranslationCategory{
+		ID:           tc.ID,
+		Name:         tc.Name,
+		DictionaryId: dictionaryId,
+		UserId:       userId,
+	}
+}
+
 func ToTranslationCategoryResponseDomain(tc *domainTranslationCategory.TranslationCategory) *domainTranslationCategory.TranslationCategoryResponse {
 	return &domainTranslationCategory.TranslationCategoryResponse{
 		ID:           tc.ID,

@@ -12,6 +12,11 @@ type TranslationCategoryEntity struct {
 	Name         string `db:"name"`
 }
 
+type TranslationCategoryShortEntity struct {
+	ID   int    `db:"id"`
+	Name string `db:"name"`
+}
+
 func GetAllTranslationCategoriesForUser(db *database.Database, userId int) (*[]TranslationCategoryEntity, error) {
 	var tc []TranslationCategoryEntity
 	err := db.SQLDB.Select(&tc, getAllTranslationCategoriesForUserQuery(), userId)

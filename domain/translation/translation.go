@@ -2,6 +2,7 @@ package domain
 
 import (
 	"context"
+	translationCategoryDomain "easy-dictionary-server/domain/translation/category"
 )
 
 type Translation struct {
@@ -10,6 +11,14 @@ type Translation struct {
 	CategoryId  *int    `json:"category_id"`
 	Translate   string  `json:"translate"`
 	Description *string `json:"description"`
+}
+
+type TranslationWithCategories struct {
+	ID          int                                            `json:"id"`
+	WordId      int                                            `json:"word_id"`
+	Category    *translationCategoryDomain.TranslationCategory `json:"category"`
+	Translate   string                                         `json:"translate"`
+	Description *string                                        `json:"description"`
 }
 
 type TranslationRequest struct {

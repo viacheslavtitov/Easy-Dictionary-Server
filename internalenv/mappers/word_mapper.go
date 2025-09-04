@@ -3,6 +3,7 @@ package mapper
 import (
 	translationEntity "easy-dictionary-server/db/translation"
 	dbWord "easy-dictionary-server/db/word"
+	domainTranslation "easy-dictionary-server/domain/translation"
 	domainWord "easy-dictionary-server/domain/word"
 )
 
@@ -36,6 +37,21 @@ func FromWordWithTranslationDomain(w *domainWord.WordWithTranslations) *dbWord.W
 		})
 	}
 	return &dbWord.WordEntity{
+		ID:           w.ID,
+		DictionaryId: w.DictionaryId,
+		Original:     w.Original,
+		Phonetic:     w.Phonetic,
+		Type:         w.Type,
+		Translations: &translations,
+	}
+}
+
+func ToWordWithTranslationAndCategoryDomain(w *dbWord.WordFullEntity, userId int, dictionaryId int) *domainWord.WordWithTranslationsAndCategories {
+	var translations []domainTranslation.TranslationWithCategories
+	for _, tc := range *w.Translations {
+		translations = append(translations, *ToTranslationWithCategoryDomain(&tc, userId, dictionaryId))
+	}
+	return &domainWord.WordWithTranslationsAndCategories{
 		ID:           w.ID,
 		DictionaryId: w.DictionaryId,
 		Original:     w.Original,

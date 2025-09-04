@@ -20,16 +20,16 @@ func NewWordUsecase(wordRepository domainWord.WordRepository, timeout int) domai
 	}
 }
 
-func (wu *wordUsecase) GetAllForDictionary(c context.Context, dictionaryId int, lastId int, pageSize int) (*[]domainWord.Word, error) {
+func (wu *wordUsecase) GetAllForDictionary(c context.Context, userId int, dictionaryId int, lastId int, pageSize int) (*[]domainWord.WordWithTranslationsAndCategories, error) {
 	ctx, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(wu.contextTimeout))
 	defer cancel()
-	return wu.wordRepository.GetAllForDictionary(ctx, dictionaryId, lastId, pageSize)
+	return wu.wordRepository.GetAllForDictionary(ctx, userId, dictionaryId, lastId, pageSize)
 }
 
-func (wu *wordUsecase) SearchWordsForDictionary(c context.Context, query string, dictionaryId int, lastId int, pageSize int) (*[]domainWord.Word, error) {
+func (wu *wordUsecase) SearchWordsForDictionary(c context.Context, query string, userId int, dictionaryId int, lastId int, pageSize int) (*[]domainWord.WordWithTranslationsAndCategories, error) {
 	ctx, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(wu.contextTimeout))
 	defer cancel()
-	return wu.wordRepository.SearchWordsForDictionary(ctx, query, dictionaryId, lastId, pageSize)
+	return wu.wordRepository.SearchWordsForDictionary(ctx, query, userId, dictionaryId, lastId, pageSize)
 }
 
 func (wu *wordUsecase) Create(c context.Context, dictionaryId int, original string, phonetic *string, wordType *string) error {

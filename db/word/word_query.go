@@ -7,10 +7,33 @@ package db
 // - $3: page size
 func getAllWordsByDictionaryQuery() string {
 	return `
-SELECT * FROM word
-WHERE dictionary_id = $1 AND id > $2
-ORDER BY id
-LIMIT $3;`
+WITH paged_words AS (
+  SELECT id
+  FROM word
+  WHERE dictionary_id = $1
+  ORDER BY id
+  LIMIT $3 OFFSET $2
+)
+SELECT
+  w.id            AS word_id,
+  w.dictionary_id AS word_dictionary_id,
+  w.original      AS word_original,
+  w.phonetic      AS word_phonetic,
+  w.type          AS word_type,
+
+  t.id            AS translation_id,
+  t.description   AS translation_description,
+  t.translate     AS translation_text,
+
+  tc.id           AS category_id,
+  tc.name         AS category_name
+FROM paged_words pw
+JOIN word w ON w.id = pw.id
+LEFT JOIN translation t  ON t.word_id = w.id
+LEFT JOIN translation_category tc
+       ON tc.id = t.category_id
+      AND tc.dictionary_id = w.dictionary_id
+ORDER BY w.id, t.id;`
 }
 
 // GetSearchWordsByDictionaryQuery get query to get all words for dictionary table
@@ -20,13 +43,34 @@ LIMIT $3;`
 // - $3: last id from latest page
 // - $4: page size
 func getSearchWordsByDictionaryQuery() string {
-	return `
-SELECT * FROM word
-WHERE dictionary_id = $1
+	return `WITH paged_words AS (
+  SELECT id
+  FROM word
+  WHERE dictionary_id = $1
   AND original ILIKE '%' || $2 || '%'
-  AND id > $3
-ORDER BY id
-LIMIT $4;`
+  ORDER BY id
+  LIMIT $4 OFFSET $3
+)
+SELECT
+  w.id            AS word_id,
+  w.dictionary_id AS word_dictionary_id,
+  w.original      AS word_original,
+  w.phonetic      AS word_phonetic,
+  w.type          AS word_type,
+
+  t.id            AS translation_id,
+  t.description   AS translation_description,
+  t.translate     AS translation_text,
+
+  tc.id           AS category_id,
+  tc.name         AS category_name
+FROM paged_words pw
+JOIN word w ON w.id = pw.id
+LEFT JOIN translation t  ON t.word_id = w.id
+LEFT JOIN translation_category tc
+       ON tc.id = t.category_id
+      AND tc.dictionary_id = w.dictionary_id
+ORDER BY w.id, t.id;`
 }
 
 // CreateWordAndReturnIdQuery get query to create word

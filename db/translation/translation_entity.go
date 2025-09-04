@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	database "easy-dictionary-server/db"
+	translationCategoryDB "easy-dictionary-server/db/translation/category"
 )
 
 type TranslationEntity struct {
@@ -17,6 +18,14 @@ type TranslationEmptyEntity struct {
 	CategoryId  *int    `db:"category_id"`
 	Translate   string  `db:"translate"`
 	Description *string `db:"description"`
+}
+
+type TranslationWithCategoryEntity struct {
+	ID          int                                                   `db:"id"`
+	WordId      int                                                   `db:"word_id"`
+	Category    *translationCategoryDB.TranslationCategoryShortEntity `db:"category"`
+	Translate   string                                                `db:"translate"`
+	Description *string                                               `db:"description"`
 }
 
 func GetAllTranslationsForWord(db *database.Database, wordId int) (*[]TranslationEntity, error) {
