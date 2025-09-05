@@ -29,7 +29,7 @@ func FromWordDomain(w *domainWord.Word) *dbWord.WordEntity {
 
 func FromWordWithTranslationDomain(w *domainWord.WordWithTranslations) *dbWord.WordEntity {
 	var translations []translationEntity.TranslationEmptyEntity
-	for _, wEntity := range translations {
+	for _, wEntity := range *w.Translations {
 		translations = append(translations, translationEntity.TranslationEmptyEntity{
 			CategoryId:  wEntity.CategoryId,
 			Translate:   wEntity.Translate,

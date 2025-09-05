@@ -6,3 +6,10 @@ func Deref(s *string) string {
 	}
 	return *s
 }
+
+func DerefInt(s *int) int {
+	if s == nil {
+		return 0
+	}
+	return *s
+}

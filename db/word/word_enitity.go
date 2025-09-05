@@ -7,8 +7,9 @@ import (
 	translationEntity "easy-dictionary-server/db/translation"
 	translationCategoryDB "easy-dictionary-server/db/translation/category"
 	pointers "easy-dictionary-server/internalenv/utils"
-	"errors"
 	"fmt"
+
+	"go.uber.org/zap"
 )
 
 type WordEntity struct {
@@ -65,38 +66,54 @@ func mapWordsFullToEntity(err error, rows []wordFullEntityRow) (*[]WordFullEntit
 		return nil, err
 	}
 	if len(rows) == 0 {
-		return nil, errors.New("Words were not found")
+		return &[]WordFullEntity{}, nil
 	}
-	words := []WordFullEntity{}
-	for _, wordEntity := range rows {
-		word := WordFullEntity{
-			ID:           wordEntity.ID,
-			DictionaryId: wordEntity.DictionaryId,
-			Original:     wordEntity.Original,
-			Phonetic:     wordEntity.Phonetic,
-			Type:         wordEntity.Type,
-			Translations: &[]translationEntity.TranslationWithCategoryEntity{},
-		}
-		for _, wordRow := range rows {
-			if wordRow.TranslationId != nil {
-				translate := translationEntity.TranslationWithCategoryEntity{
-					ID:          *wordRow.TranslationId,
-					WordId:      word.ID,
-					Translate:   pointers.Deref(wordRow.TranslationTranslate),
-					Description: wordRow.TranslationDescription,
-				}
-				if wordRow.CategoryId != nil {
-					translate.Category = &translationCategoryDB.TranslationCategoryShortEntity{
-						ID:   *wordRow.CategoryId,
-						Name: pointers.Deref(wordRow.CategoryName),
-					}
-				}
-				*word.Translations = append(*word.Translations, translate)
+	wordsByID := make(map[int]*WordFullEntity, len(rows))
+	order := make([]int, 0, len(rows))
+
+	for _, r := range rows {
+		w, ok := wordsByID[r.ID]
+		if !ok {
+			translations := make([]translationEntity.TranslationWithCategoryEntity, 0, 4)
+			w = &WordFullEntity{
+				ID:           r.ID,
+				DictionaryId: r.DictionaryId,
+				Original:     r.Original,
+				Phonetic:     r.Phonetic,
+				Type:         r.Type,
+				Translations: &translations,
 			}
+			wordsByID[r.ID] = w
+			order = append(order, r.ID)
 		}
-		words = append(words, word)
+
+		if r.TranslationId == nil {
+			continue
+		}
+
+		t := translationEntity.TranslationWithCategoryEntity{
+			ID:          *r.TranslationId,
+			WordId:      r.ID,
+			Description: r.TranslationDescription,
+		}
+		t.Translate = pointers.Deref(r.TranslationTranslate)
+
+		if r.CategoryId != nil || r.CategoryName != nil {
+			cat := &translationCategoryDB.TranslationCategoryShortEntity{
+				ID:   pointers.DerefInt(r.CategoryId),
+				Name: pointers.Deref(r.CategoryName),
+			}
+			t.Category = cat
+		}
+
+		*w.Translations = append(*w.Translations, t)
 	}
-	return &words, err
+
+	result := make([]WordFullEntity, 0, len(wordsByID))
+	for _, id := range order {
+		result = append(result, *wordsByID[id])
+	}
+	return &result, nil
 }
 
 func CreateWord(db *database.Database, dictionaryId int, entity *WordEntity) error {
@@ -105,8 +122,10 @@ func CreateWord(db *database.Database, dictionaryId int, entity *WordEntity) err
 }
 
 func CreateWordWithTranslations(db *database.Database, ctx context.Context, dictionaryId int, entity *WordEntity) (int, error) {
+	zap.S().Debugf("CreateWordWithTranslations for dictionary %d with translations %d", dictionaryId, len(*entity.Translations))
 	tx, err := db.SQLDB.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelReadCommitted})
 	if err != nil {
+		zap.S().Debugln("Failed to start transaction")
 		return 0, err
 	}
 	defer func() {
@@ -121,13 +140,15 @@ func CreateWordWithTranslations(db *database.Database, ctx context.Context, dict
 	if err != nil {
 		return 0, fmt.Errorf("insert word: %w", err)
 	}
+	zap.S().Debugf("Word inserted by id %d", wordId)
 	stmt, err := tx.PrepareContext(ctx, translationEntity.CreateTranslationQuery())
 	if err != nil {
 		return 0, fmt.Errorf("prepare translation insert: %w", err)
 	}
 	defer stmt.Close()
 	for _, t := range *entity.Translations {
-		if _, err = stmt.ExecContext(ctx, wordId, t.CategoryId, t.Description, t.Translate); err != nil {
+		if _, err = stmt.ExecContext(ctx, wordId, t.CategoryId, t.Translate, t.Description); err != nil {
+			zap.S().Debugln("Failed to insert transaction")
 			return 0, fmt.Errorf("insert translation: %w", err)
 		}
 	}
