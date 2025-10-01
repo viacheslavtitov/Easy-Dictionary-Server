@@ -6,6 +6,9 @@ import (
 )
 
 func ToTranslationCategoryDomain(tc *dbTranslationCategory.TranslationCategoryEntity) *domainTranslationCategory.TranslationCategory {
+	if(tc == nil) {
+		return nil
+	}
 	return &domainTranslationCategory.TranslationCategory{
 		ID:           tc.ID,
 		Name:         tc.Name,
@@ -15,6 +18,9 @@ func ToTranslationCategoryDomain(tc *dbTranslationCategory.TranslationCategoryEn
 }
 
 func FromTranslationCategoryDomain(tc *domainTranslationCategory.TranslationCategory, userId int) *dbTranslationCategory.TranslationCategoryEntity {
+	if(tc == nil) {
+		return nil
+	}
 	return &dbTranslationCategory.TranslationCategoryEntity{
 		ID:           tc.ID,
 		Name:         tc.Name,
@@ -24,6 +30,9 @@ func FromTranslationCategoryDomain(tc *domainTranslationCategory.TranslationCate
 }
 
 func ToTranslationCategoryShortDomain(tc *dbTranslationCategory.TranslationCategoryShortEntity, userId int, dictionaryId int) *domainTranslationCategory.TranslationCategory {
+	if(tc == nil) {
+		return nil
+	}
 	return &domainTranslationCategory.TranslationCategory{
 		ID:           tc.ID,
 		Name:         tc.Name,
@@ -33,6 +42,9 @@ func ToTranslationCategoryShortDomain(tc *dbTranslationCategory.TranslationCateg
 }
 
 func ToTranslationCategoryResponseDomain(tc *domainTranslationCategory.TranslationCategory) *domainTranslationCategory.TranslationCategoryResponse {
+	if(tc == nil) {
+		return nil
+	}
 	return &domainTranslationCategory.TranslationCategoryResponse{
 		ID:           tc.ID,
 		Name:         tc.Name,
