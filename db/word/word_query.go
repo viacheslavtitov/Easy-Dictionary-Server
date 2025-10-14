@@ -7,12 +7,13 @@ package db
 // - $3: page size
 func getAllWordsByDictionaryQuery() string {
 	return `
-WITH paged_words AS (
+WITH page AS (
   SELECT id
   FROM word
   WHERE dictionary_id = $1
+    AND id > $2               -- $2 = lastId (0 for first page)
   ORDER BY id
-  LIMIT $3 OFFSET $2
+  LIMIT $3                    -- $3 = pageSize (+1, if you want to know has_more)
 )
 SELECT
   w.id            AS word_id,
@@ -27,9 +28,10 @@ SELECT
 
   tc.id           AS category_id,
   tc.name         AS category_name
-FROM paged_words pw
-JOIN word w ON w.id = pw.id
-LEFT JOIN translation t  ON t.word_id = w.id
+FROM word w
+JOIN page p           ON p.id = w.id
+LEFT JOIN translation t
+       ON t.word_id = w.id
 LEFT JOIN translation_category tc
        ON tc.id = t.category_id
       AND tc.dictionary_id = w.dictionary_id
@@ -43,13 +45,15 @@ ORDER BY w.id, t.id;`
 // - $3: last id from latest page
 // - $4: page size
 func getSearchWordsByDictionaryQuery() string {
-	return `WITH paged_words AS (
+	return `
+WITH page AS (
   SELECT id
   FROM word
   WHERE dictionary_id = $1
-  AND original ILIKE '%' || $2 || '%'
+    AND original ILIKE '%' || $2 || '%'
+    AND id > $3               -- $3 = lastId (0 for first page)
   ORDER BY id
-  LIMIT $4 OFFSET $3
+  LIMIT $4                    -- $4 = pageSize (+1, if you want to know has_more)
 )
 SELECT
   w.id            AS word_id,
@@ -64,9 +68,10 @@ SELECT
 
   tc.id           AS category_id,
   tc.name         AS category_name
-FROM paged_words pw
-JOIN word w ON w.id = pw.id
-LEFT JOIN translation t  ON t.word_id = w.id
+FROM word w
+JOIN page p           ON p.id = w.id
+LEFT JOIN translation t
+       ON t.word_id = w.id
 LEFT JOIN translation_category tc
        ON tc.id = t.category_id
       AND tc.dictionary_id = w.dictionary_id

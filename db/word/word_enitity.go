@@ -45,7 +45,7 @@ type wordFullEntityRow struct {
 
 func GetAllWordsForDictionary(db *database.Database, dictionaryId int, lastId int, pageSize int) (*[]WordFullEntity, error) {
 	var words []wordFullEntityRow
-	err := db.SQLDB.Select(&words, getAllWordsByDictionaryQuery(), dictionaryId, lastId, pageSize)
+	err := db.SQLDB.Select(&words, getAllWordsByDictionaryQuery(), dictionaryId, lastId, pageSize+1)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func GetAllWordsForDictionary(db *database.Database, dictionaryId int, lastId in
 
 func SearchWordsForDictionary(db *database.Database, query string, dictionaryId int, lastId int, pageSize int) (*[]WordFullEntity, error) {
 	var words []wordFullEntityRow
-	err := db.SQLDB.Select(&words, getSearchWordsByDictionaryQuery(), dictionaryId, query, lastId, pageSize)
+	err := db.SQLDB.Select(&words, getSearchWordsByDictionaryQuery(), dictionaryId, query, lastId, pageSize+1)
 	if err != nil {
 		return nil, err
 	}

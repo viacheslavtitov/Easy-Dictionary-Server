@@ -55,14 +55,14 @@ type EditWordRequest struct {
 }
 
 type WordsWithPaginationResponse struct {
-	Words    []WordWithTranslationsAndCategories `json:"words"`
-	PageSize int                                 `json:"page_size"`
-	LatestId int                                 `json:"latest_id"`
+	Words      []WordWithTranslationsAndCategories `json:"words"`
+	NextLastID int                                 `json:"next_last_id"`
+	HasMore    bool                                `json:"has_more"`
 }
 
 type WordUseCase interface {
-	GetAllForDictionary(c context.Context, userId int, dictionaryId int, lastId int, pageSize int) (*[]WordWithTranslationsAndCategories, error)
-	SearchWordsForDictionary(c context.Context, query string, userId int, dictionaryId int, lastId int, pageSize int) (*[]WordWithTranslationsAndCategories, error)
+	GetAllForDictionary(c context.Context, userId int, dictionaryId int, lastId int, pageSize int) (*WordsWithPaginationResponse, error)
+	SearchWordsForDictionary(c context.Context, query string, userId int, dictionaryId int, lastId int, pageSize int) (*WordsWithPaginationResponse, error)
 	Create(c context.Context, dictionaryId int, original string, phonetic *string, wordType *string) error
 	CreateWithTranslations(c context.Context, dictionaryId int, original string, phonetic *string, wordType *string, translations *[]translationDomain.TranslationWithoutWordRequest) error
 	Update(c context.Context, id int, dictionaryId int, original string, phonetic *string, wordType *string) error
@@ -70,8 +70,8 @@ type WordUseCase interface {
 }
 
 type WordRepository interface {
-	GetAllForDictionary(c context.Context, userId int, dictionaryId int, lastId int, pageSize int) (*[]WordWithTranslationsAndCategories, error)
-	SearchWordsForDictionary(c context.Context, query string, userId int, dictionaryId int, lastId int, pageSize int) (*[]WordWithTranslationsAndCategories, error)
+	GetAllForDictionary(c context.Context, userId int, dictionaryId int, lastId int, pageSize int) (*WordsWithPaginationResponse, error)
+	SearchWordsForDictionary(c context.Context, query string, userId int, dictionaryId int, lastId int, pageSize int) (*WordsWithPaginationResponse, error)
 	Create(c context.Context, dictionaryId int, word *Word) error
 	CreateWithTranslations(c context.Context, dictionaryId int, word *WordWithTranslations) error
 	Update(c context.Context, word *Word) error

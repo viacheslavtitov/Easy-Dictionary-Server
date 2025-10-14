@@ -52,28 +52,15 @@ func (controller *WordController) GetAllForDictionary(c *gin.Context) {
 		return
 	}
 	zap.S().Infof("GET all words for dictionary %d with lastId %d and pageSize %d", dictionaryIdInt, lastIdInt, pageSizeInt)
-	words, err := controller.WordUseCase.GetAllForDictionary(c, *userId, dictionaryIdInt, lastIdInt, pageSizeInt)
+	wordsResponse, err := controller.WordUseCase.GetAllForDictionary(c, *userId, dictionaryIdInt, lastIdInt, pageSizeInt)
 	if err != nil {
 		zap.S().Error("Failed to get words")
 		zap.S().Error(err)
 		c.JSON(http.StatusInternalServerError, err.Error())
 	} else {
-		count := len(*words)
+		count := len(wordsResponse.Words)
 		zap.S().Debugf("Got words %d", count)
-		if count > 0 {
-			last := (*words)[count-1].ID
-			c.JSON(http.StatusOK, domainWord.WordsWithPaginationResponse{
-				Words:    *words,
-				LatestId: last,
-				PageSize: pageSizeInt,
-			})
-		} else {
-			c.JSON(http.StatusOK, domainWord.WordsWithPaginationResponse{
-				Words:    []domainWord.WordWithTranslationsAndCategories{},
-				LatestId: 0,
-				PageSize: 0,
-			})
-		}
+		c.JSON(http.StatusOK, wordsResponse)
 	}
 }
 
@@ -118,28 +105,15 @@ func (controller *WordController) SearchForDictionary(c *gin.Context) {
 		return
 	}
 	zap.S().Infof("GET search words in dictionary %d with lastId %d and pageSize %d and query %s", dictionaryIdInt, lastIdInt, pageSizeInt, query)
-	words, err := controller.WordUseCase.SearchWordsForDictionary(c, query, *userId, dictionaryIdInt, lastIdInt, pageSizeInt)
+	wordsResponse, err := controller.WordUseCase.SearchWordsForDictionary(c, query, *userId, dictionaryIdInt, lastIdInt, pageSizeInt)
 	if err != nil {
 		zap.S().Error("Failed to get words")
 		zap.S().Error(err)
 		c.JSON(http.StatusInternalServerError, err.Error())
 	} else {
-		count := len(*words)
+		count := len(wordsResponse.Words)
 		zap.S().Debugf("Got words %d", count)
-		if count > 0 {
-			last := (*words)[count-1].ID
-			c.JSON(http.StatusOK, domainWord.WordsWithPaginationResponse{
-				Words:    *words,
-				LatestId: last,
-				PageSize: pageSizeInt,
-			})
-		} else {
-			c.JSON(http.StatusOK, domainWord.WordsWithPaginationResponse{
-				Words:    []domainWord.WordWithTranslationsAndCategories{},
-				LatestId: 0,
-				PageSize: 0,
-			})
-		}
+		c.JSON(http.StatusOK, wordsResponse)
 	}
 }
 
