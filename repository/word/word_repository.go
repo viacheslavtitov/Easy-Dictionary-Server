@@ -38,7 +38,7 @@ func (wr *wordRepository) GetAllForDictionary(c context.Context, userId int, dic
 		return &domain.WordsWithPaginationResponse{Words: []domain.WordWithTranslationsAndCategories{}, NextLastID: 0, HasMore: false}, err
 	}
 	hasMore := false
-	if distinctWordIDs(wordEntities) > pageSize {
+	if len(*wordEntities) > pageSize {
 		hasMore = true
 		*wordEntities = (*wordEntities)[:pageSize]
 	}
@@ -60,7 +60,7 @@ func (wr *wordRepository) SearchWordsForDictionary(c context.Context, query stri
 		return &domain.WordsWithPaginationResponse{Words: []domain.WordWithTranslationsAndCategories{}, NextLastID: 0, HasMore: false}, err
 	}
 	hasMore := false
-	if distinctWordIDs(wordEntities) > pageSize {
+	if len(*wordEntities) > pageSize {
 		hasMore = true
 		*wordEntities = (*wordEntities)[:pageSize]
 	}
@@ -89,20 +89,4 @@ func (wr *wordRepository) DeleteById(c context.Context, id int) (int64, error) {
 	}
 	deletedRows, err := rowsDeleted.RowsAffected()
 	return deletedRows, err
-}
-
-func distinctWordIDs(words *[]dbWord.WordFullEntity) int {
-	if words == nil {
-		return 0
-	}
-	if len(*words) == 0 {
-		return 0
-	}
-	max := (*words)[0].ID
-	for _, it := range (*words)[1:] {
-		if it.ID > max {
-			max = it.ID
-		}
-	}
-	return max
 }
