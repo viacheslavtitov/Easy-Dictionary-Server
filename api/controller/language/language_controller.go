@@ -56,7 +56,7 @@ func (languageController *LanguageController) GetAllForUser(c *gin.Context) {
 // @Failure      400  {object}  domain.ErrorResponse
 // @Failure      404  {object}  domain.ErrorResponse
 // @Failure      500  {object}  domain.ErrorResponse
-// @Router       /api/language/edit [post]
+// @Router       /api/languages/edit [post]
 func (languageController *LanguageController) Edit(c *gin.Context) {
 	zap.S().Info("POST Edit")
 	if userID, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
@@ -90,7 +90,7 @@ func (languageController *LanguageController) Edit(c *gin.Context) {
 // @Param   input body languageDomain.LanguageRequest true "Language data"
 // @Success 201 {object} languageDomain.Language
 // @Failure 400 {object} domain.ErrorResponse
-// @Router /api/language/create [post]
+// @Router /api/languages/create [post]
 func (languageController *LanguageController) Create(c *gin.Context) {
 	if userID, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
@@ -124,7 +124,7 @@ func (languageController *LanguageController) Create(c *gin.Context) {
 // @Param id path int true "ID language"
 // @Success 201 {object} domain.SuccessResponse
 // @Failure 400 {object} domain.ErrorResponse
-// @Router /api/language/:id [delete]
+// @Router /api/languages/:id [delete]
 func (languageController *LanguageController) Delete(c *gin.Context) {
 	languageId := c.Param("id")
 	zap.S().Infof("DELETE Delete language %d", languageId)
