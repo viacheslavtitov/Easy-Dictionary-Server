@@ -95,7 +95,7 @@ func (controller *TranslationController) Edit(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param   input body domainTranslation.TranslationRequest true "Translation data"
-// @Success 201 {object} domain.SuccessResponse
+// @Success 201 {object} domain.SuccessIdResponse
 // @Failure 400 {object} domain.ErrorResponse
 // @Router /api/translation/create [post]
 func (controller *TranslationController) Create(c *gin.Context) {
@@ -117,7 +117,7 @@ func (controller *TranslationController) Create(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, err.Error())
 	} else if createdId != nil {
 		zap.S().Debugf("Translation created %s", request.Translate)
-		c.JSON(http.StatusCreated, gin.H{"id": createdId})
+		c.JSON(http.StatusCreated, domain.SuccessIdResponse{Id: *createdId})
 	} else {
 		c.JSON(http.StatusInternalServerError, "Something was wrong")
 	}
