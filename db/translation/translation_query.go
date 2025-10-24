@@ -23,8 +23,9 @@ WHERE word_id = $1;`
 // - $4: description
 func CreateTranslationQuery() string {
 	return `
-INSERT INTO translation (word_id, category_id, translate, description)
-VALUES ($1, $2, $3, $4);
+    INSERT INTO translation (word_id, category_id, translate, description)
+    VALUES ($1, $2, $3, $4)
+    RETURNING id;
 `
 }
 

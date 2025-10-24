@@ -44,14 +44,14 @@ type EditTranslationRequest struct {
 
 type TranslationUseCase interface {
 	GetAllForWord(c context.Context, wordId int) (*[]Translation, error)
-	Create(c context.Context, wordId int, categoryId *int, translate string, description *string) error
+	Create(c context.Context, wordId int, categoryId *int, translate string, description *string) (*int, error)
 	Update(c context.Context, id int, categoryId *int, translate string, description *string) error
 	DeleteById(c context.Context, id int) (int64, error)
 }
 
 type TranslationRepository interface {
 	GetAllForWord(c context.Context, wordId int) (*[]Translation, error)
-	Create(c context.Context, wordId int, translation *Translation) error
+	Create(c context.Context, wordId int, translation *Translation) (*int, error)
 	Update(c context.Context, translation *Translation) error
 	DeleteById(c context.Context, id int) (int64, error)
 }

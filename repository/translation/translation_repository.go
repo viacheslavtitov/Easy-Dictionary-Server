@@ -19,10 +19,10 @@ func NewTranslationRepository(db *database.Database) domain.TranslationRepositor
 	return &translationRepository{db: db}
 }
 
-func (lr *translationRepository) Create(c context.Context, wordId int, translation *domain.Translation) error {
+func (lr *translationRepository) Create(c context.Context, wordId int, translation *domain.Translation) (*int, error) {
 	zap.S().Debugf("Create translation %s for word %d", translation.Translate, wordId)
-	err := dbtranslation.CreateTranslation(lr.db, translationMapper.FromTranslationDomain(translation))
-	return err
+	createdId, err := dbtranslation.CreateTranslation(lr.db, translationMapper.FromTranslationDomain(translation))
+	return createdId, err
 }
 
 func (lr *translationRepository) GetAllForWord(c context.Context, wordId int) (*[]domain.Translation, error) {
