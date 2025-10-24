@@ -25,7 +25,7 @@ func (lu *translationUsecase) GetAllForWord(c context.Context, wordId int) (*[]d
 	return lu.translationRepository.GetAllForWord(ctx, wordId)
 }
 
-func (lu *translationUsecase) Create(c context.Context, wordId int, categoryId *int, translate string, description *string) error {
+func (lu *translationUsecase) Create(c context.Context, wordId int, categoryId *int, translate string, description *string) (*int, error) {
 	ctx, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(lu.contextTimeout))
 	defer cancel()
 	return lu.translationRepository.Create(ctx, wordId, &domainTranslation.Translation{

@@ -110,14 +110,16 @@ func (controller *TranslationController) Create(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"validation_errors": validationErrors})
 		return
 	}
-	err := controller.TranslationUseCase.Create(c, request.WordId, request.CategoryId, request.Translate, request.Description)
+	createdId, err := controller.TranslationUseCase.Create(c, request.WordId, request.CategoryId, request.Translate, request.Description)
 	if err != nil {
 		zap.S().Error("Failed to create translation with " + request.Translate)
 		zap.S().Error(err)
 		c.JSON(http.StatusInternalServerError, err.Error())
-	} else {
+	} else if createdId != nil {
 		zap.S().Debugf("Translation created %s", request.Translate)
-		c.JSON(http.StatusCreated, domain.SuccessResponse{Message: "Translation created"})
+		c.JSON(http.StatusCreated, gin.H{"id": createdId})
+	} else {
+		c.JSON(http.StatusInternalServerError, "Something was wrong")
 	}
 }
 

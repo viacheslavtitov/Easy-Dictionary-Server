@@ -37,9 +37,13 @@ func GetAllTranslationsForWord(db *database.Database, wordId int) (*[]Translatio
 	return &tc, err
 }
 
-func CreateTranslation(db *database.Database, entity *TranslationEntity) error {
-	_, err := db.SQLDB.Exec(CreateTranslationQuery(), entity.WordId, entity.CategoryId, entity.Translate, entity.Description)
-	return err
+func CreateTranslation(db *database.Database, entity *TranslationEntity) (*int, error) {
+	var creatdId int
+	err := db.SQLDB.QueryRow(CreateTranslationQuery(), entity.WordId, entity.CategoryId, entity.Translate, entity.Description).Scan(&creatdId)
+	if err != nil {
+		return nil, err
+	}
+	return &creatdId, nil
 }
 
 func UpdateTranslation(db *database.Database, entity *TranslationEntity) (*TranslationEntity, error) {
