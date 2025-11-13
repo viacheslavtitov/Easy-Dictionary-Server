@@ -4,20 +4,23 @@ import (
 	"database/sql"
 	database "easy-dictionary-server/db"
 	translationCategoryDB "easy-dictionary-server/db/translation/category"
+	"time"
 )
 
 type TranslationEntity struct {
-	ID          int     `db:"id"`
-	WordId      int     `db:"word_id"`
-	CategoryId  *int    `db:"category_id"`
-	Translate   string  `db:"translate"`
-	Description *string `db:"description"`
+	ID          int       `db:"id"`
+	WordId      int       `db:"word_id"`
+	CategoryId  *int      `db:"category_id"`
+	Translate   string    `db:"translate"`
+	Description *string   `db:"description"`
+	CreatedAt   time.Time `db:"created_at"`
 }
 
 type TranslationEmptyEntity struct {
-	CategoryId  *int    `db:"category_id"`
-	Translate   string  `db:"translate"`
-	Description *string `db:"description"`
+	CategoryId  *int      `db:"category_id"`
+	Translate   string    `db:"translate"`
+	Description *string   `db:"description"`
+	CreatedAt   time.Time `db:"created_at"`
 }
 
 type TranslationWithCategoryEntity struct {
@@ -26,6 +29,7 @@ type TranslationWithCategoryEntity struct {
 	Category    *translationCategoryDB.TranslationCategoryShortEntity `db:"category"`
 	Translate   string                                                `db:"translate"`
 	Description *string                                               `db:"description"`
+	CreatedAt   time.Time                                             `db:"created_at"`
 }
 
 func GetAllTranslationsForWord(db *database.Database, wordId int) (*[]TranslationEntity, error) {

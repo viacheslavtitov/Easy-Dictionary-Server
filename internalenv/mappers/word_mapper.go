@@ -14,6 +14,7 @@ func ToWordDomain(w *dbWord.WordEntity) *domainWord.Word {
 		Original:     w.Original,
 		Phonetic:     w.Phonetic,
 		Type:         w.Type,
+		CreatedAt:    w.CreatedAt,
 	}
 }
 
@@ -58,5 +59,6 @@ func ToWordWithTranslationAndCategoryDomain(w *dbWord.WordFullEntity, userId int
 		Phonetic:     w.Phonetic,
 		Type:         w.Type,
 		Translations: &translations,
+		CreatedAt:    w.CreatedAt,
 	}
 }

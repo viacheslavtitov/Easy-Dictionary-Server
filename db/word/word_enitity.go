@@ -8,39 +8,43 @@ import (
 	translationCategoryDB "easy-dictionary-server/db/translation/category"
 	pointers "easy-dictionary-server/internalenv/utils"
 	"fmt"
+	"time"
 
 	"go.uber.org/zap"
 )
 
 type WordEntity struct {
-	ID           int     `db:"id"`
-	DictionaryId int     `db:"dictionary_id"`
-	Original     string  `db:"original"`
-	Phonetic     *string `db:"phonetic"`
-	Type         *string `db:"type"`
+	ID           int       `db:"id"`
+	DictionaryId int       `db:"dictionary_id"`
+	Original     string    `db:"original"`
+	Phonetic     *string   `db:"phonetic"`
+	Type         *string   `db:"type"`
+	CreatedAt    time.Time `db:"created_at"`
 	Translations *[]translationEntity.TranslationEmptyEntity
 }
 
 type WordFullEntity struct {
-	ID           int     `db:"id"`
-	DictionaryId int     `db:"dictionary_id"`
-	Original     string  `db:"original"`
-	Phonetic     *string `db:"phonetic"`
-	Type         *string `db:"type"`
+	ID           int       `db:"id"`
+	DictionaryId int       `db:"dictionary_id"`
+	Original     string    `db:"original"`
+	Phonetic     *string   `db:"phonetic"`
+	Type         *string   `db:"type"`
+	CreatedAt    time.Time `db:"created_at"`
 	Translations *[]translationEntity.TranslationWithCategoryEntity
 }
 
 type wordFullEntityRow struct {
-	ID                     int     `db:"word_id"`
-	DictionaryId           int     `db:"word_dictionary_id"`
-	Original               string  `db:"word_original"`
-	Phonetic               *string `db:"word_phonetic"`
-	Type                   *string `db:"word_type"`
-	TranslationId          *int    `db:"translation_id"`
-	TranslationDescription *string `db:"translation_description"`
-	TranslationTranslate   *string `db:"translation_text"`
-	CategoryId             *int    `db:"category_id"`
-	CategoryName           *string `db:"category_name"`
+	ID                     int       `db:"word_id"`
+	DictionaryId           int       `db:"word_dictionary_id"`
+	Original               string    `db:"word_original"`
+	Phonetic               *string   `db:"word_phonetic"`
+	Type                   *string   `db:"word_type"`
+	TranslationId          *int      `db:"translation_id"`
+	TranslationDescription *string   `db:"translation_description"`
+	TranslationTranslate   *string   `db:"translation_text"`
+	CategoryId             *int      `db:"category_id"`
+	CategoryName           *string   `db:"category_name"`
+	CreatedAt              time.Time `db:"created_at"`
 }
 
 func GetAllWordsForDictionary(db *database.Database, dictionaryId int, lastId int, pageSize int) (*[]WordFullEntity, error) {

@@ -12,6 +12,7 @@ func ToTranslationDomain(tc *dbTranslation.TranslationEntity) *domainTranslation
 		CategoryId:  tc.CategoryId,
 		Translate:   tc.Translate,
 		Description: tc.Description,
+		CreatedAt:   tc.CreatedAt,
 	}
 }
 
@@ -32,5 +33,6 @@ func ToTranslationWithCategoryDomain(tc *dbTranslation.TranslationWithCategoryEn
 		Category:    ToTranslationCategoryShortDomain(tc.Category, userId, dictionaryId),
 		Translate:   tc.Translate,
 		Description: tc.Description,
+		CreatedAt:   tc.CreatedAt,
 	}
 }

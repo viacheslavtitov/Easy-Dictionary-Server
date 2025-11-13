@@ -3,14 +3,16 @@ package domain
 import (
 	"context"
 	translationCategoryDomain "easy-dictionary-server/domain/translation/category"
+	"time"
 )
 
 type Translation struct {
-	ID          int     `json:"id"`
-	WordId      int     `json:"word_id"`
-	CategoryId  *int    `json:"category_id"`
-	Translate   string  `json:"translate"`
-	Description *string `json:"description"`
+	ID          int       `json:"id"`
+	WordId      int       `json:"word_id"`
+	CategoryId  *int      `json:"category_id"`
+	Translate   string    `json:"translate"`
+	Description *string   `json:"description"`
+	CreatedAt   time.Time `json:"created_at"`
 }
 
 type TranslationWithCategories struct {
@@ -19,6 +21,7 @@ type TranslationWithCategories struct {
 	Category    *translationCategoryDomain.TranslationCategory `json:"category"`
 	Translate   string                                         `json:"translate"`
 	Description *string                                        `json:"description"`
+	CreatedAt   time.Time                                      `json:"created_at"`
 }
 
 type TranslationRequest struct {
