@@ -10,7 +10,8 @@ SELECT
 	word_id AS word_id,
 	category_id AS category_id,
 	translate AS translate,
-	description AS description
+	description AS description,
+	created_at AS created_at
 FROM translation
 WHERE word_id = $1;`
 }

@@ -21,10 +21,12 @@ SELECT
   w.original      AS word_original,
   w.phonetic      AS word_phonetic,
   w.type          AS word_type,
+  w.created_at AS word_created_at,
 
   t.id            AS translation_id,
   t.description   AS translation_description,
   t.translate     AS translation_text,
+  t.created_at AS translation_created_at,
 
   tc.id           AS category_id,
   tc.name         AS category_name
@@ -61,10 +63,12 @@ SELECT
   w.original      AS word_original,
   w.phonetic      AS word_phonetic,
   w.type          AS word_type,
+  w.created_at AS word_created_at,
 
   t.id            AS translation_id,
   t.description   AS translation_description,
   t.translate     AS translation_text,
+  t.created_at AS translation_created_at,
 
   tc.id           AS category_id,
   tc.name         AS category_name

@@ -44,7 +44,8 @@ type wordFullEntityRow struct {
 	TranslationTranslate   *string   `db:"translation_text"`
 	CategoryId             *int      `db:"category_id"`
 	CategoryName           *string   `db:"category_name"`
-	CreatedAt              time.Time `db:"created_at"`
+	WordCreatedAt          time.Time `db:"word_created_at"`
+	TranslationCreatedAt   time.Time `db:"translation_created_at"`
 }
 
 func GetAllWordsForDictionary(db *database.Database, dictionaryId int, lastId int, pageSize int) (*[]WordFullEntity, error) {
@@ -86,6 +87,7 @@ func mapWordsFullToEntity(err error, rows []wordFullEntityRow) (*[]WordFullEntit
 				Phonetic:     r.Phonetic,
 				Type:         r.Type,
 				Translations: &translations,
+				CreatedAt:    r.WordCreatedAt,
 			}
 			wordsByID[r.ID] = w
 			order = append(order, r.ID)
@@ -99,6 +101,7 @@ func mapWordsFullToEntity(err error, rows []wordFullEntityRow) (*[]WordFullEntit
 			ID:          *r.TranslationId,
 			WordId:      r.ID,
 			Description: r.TranslationDescription,
+			CreatedAt:   r.TranslationCreatedAt,
 		}
 		t.Translate = pointers.Deref(r.TranslationTranslate)
 
