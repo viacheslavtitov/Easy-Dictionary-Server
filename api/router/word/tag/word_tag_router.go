@@ -18,11 +18,12 @@ func NewWordRouter(timeout int, group *gin.RouterGroup, database *database.Datab
 	lc := &controller.WordTagController{
 		WordTagUseCase: usecase.NewWordTagUsecase(rl, timeout),
 	}
-	transCategoryGroup := group.Group("", middleware.JWTMiddleware(env, middleware.Client.VALUE))
+	wordTagGroup := group.Group("", middleware.JWTMiddleware(env, middleware.Client.VALUE))
 	{
-		transCategoryGroup.POST("api/word/tag/create", lc.Create)
-		transCategoryGroup.POST("api/word/tag/edit", lc.Edit)
-		transCategoryGroup.GET("api/word/tag/all", lc.GetAllForDictionary)
-		transCategoryGroup.DELETE("api/word/tag/:id", lc.Delete)
+		wordTagGroup.POST("api/word/tag/create", lc.Create)
+		wordTagGroup.POST("api/word/tag/edit", lc.Edit)
+		wordTagGroup.GET("api/word/tag/dictionary/all", lc.GetAllForDictionary)
+		wordTagGroup.GET("api/word/tag/word/all", lc.GetAllForDictionary)
+		wordTagGroup.DELETE("api/word/tag/:id", lc.Delete)
 	}
 }

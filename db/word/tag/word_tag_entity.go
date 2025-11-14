@@ -8,6 +8,7 @@ import (
 type WordTagEntity struct {
 	ID           int    `db:"id"`
 	DictionaryId int    `db:"dictionary_id"`
+	WordId       int    `db:"word_id"`
 	Name         string `db:"name"`
 }
 
@@ -20,8 +21,17 @@ func GetAllWordTagsForDictionary(db *database.Database, dictionaryId int) (*[]Wo
 	return &words, err
 }
 
+func GetAllWordTagsForWord(db *database.Database, wordId int) (*[]WordTagEntity, error) {
+	var words []WordTagEntity
+	err := db.SQLDB.Select(&words, getAllWordTagsByWordQuery(), wordId)
+	if err != nil {
+		return nil, err
+	}
+	return &words, err
+}
+
 func CreateWordTag(db *database.Database, entity *WordTagEntity) error {
-	_, err := db.SQLDB.Exec(createWordTagQuery(), entity.Name, entity.DictionaryId)
+	_, err := db.SQLDB.Exec(createWordTagQuery(), entity.Name, entity.DictionaryId, entity.WordId)
 	return err
 }
 

@@ -25,21 +25,27 @@ func (wu *wordTagUsecase) GetAllForDictionary(c context.Context, dictionaryId in
 	return wu.wordTagRepository.GetAllForDictionary(ctx, dictionaryId)
 }
 
-func (wu *wordTagUsecase) Create(c context.Context, dictionaryId int, name string) error {
+func (wu *wordTagUsecase) GetAllForWord(c context.Context, wordId int) (*[]domainWordTag.WordTag, error) {
+	ctx, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(wu.contextTimeout))
+	defer cancel()
+	return wu.wordTagRepository.GetAllForWord(ctx, wordId)
+}
+
+func (wu *wordTagUsecase) Create(c context.Context, dictionaryId int, wordId int, name string) error {
 	ctx, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(wu.contextTimeout))
 	defer cancel()
 	return wu.wordTagRepository.Create(ctx, &domainWordTag.WordTag{
 		DictionaryId: dictionaryId,
+		WordId:       wordId,
 		Name:         name})
 }
 
-func (wu *wordTagUsecase) Update(c context.Context, id int, dictionaryId int, name string) error {
+func (wu *wordTagUsecase) Update(c context.Context, id int, name string) error {
 	ctx, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(wu.contextTimeout))
 	defer cancel()
 	return wu.wordTagRepository.Update(ctx, &domainWordTag.WordTag{
-		ID:           id,
-		DictionaryId: dictionaryId,
-		Name:         name})
+		ID:   id,
+		Name: name})
 }
 
 func (wu *wordTagUsecase) DeleteById(c context.Context, id int) (int64, error) {

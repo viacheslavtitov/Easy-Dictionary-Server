@@ -28,25 +28,67 @@ type WordTagController struct {
 // @Failure      400  {object}  domain.ErrorResponse
 // @Failure      404  {object}  domain.ErrorResponse
 // @Failure      500  {object}  domain.ErrorResponse
-// @Router       /api/word/tag/all [get]
+// @Router       /api/word/tag/dictionary/all [get]
 func (controller *WordTagController) GetAllForDictionary(c *gin.Context) {
-	dictionaryId := c.Query("dictionaryId")
-	zap.S().Infof("GET all word tags for dictionary %s", dictionaryId)
 	if _, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
 	}
-	if dictionaryIdInt, err := strconv.Atoi(dictionaryId); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid dictionary ID"})
+	dictionaryIdInt, err := controllerCommon.ParseQueryInt(c, "id")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid dictionary Id"})
 		return
+	}
+	zap.S().Infof("GET all word tags for dictionary %d", dictionaryIdInt)
+	words, err := controller.WordTagUseCase.GetAllForDictionary(c, dictionaryIdInt)
+	if err != nil {
+		zap.S().Error("Failed to get word tags")
+		zap.S().Error(err)
+		c.JSON(http.StatusInternalServerError, err.Error())
 	} else {
-		words, err := controller.WordTagUseCase.GetAllForDictionary(c, dictionaryIdInt)
-		if err != nil {
-			zap.S().Error("Failed to get word tags")
-			zap.S().Error(err)
-			c.JSON(http.StatusInternalServerError, err.Error())
-		} else {
-			zap.S().Debugf("Got word tags %d", len(*words))
+		count := len(*words)
+		zap.S().Debugf("Got word tags %d", count)
+		if count > 0 {
 			c.JSON(http.StatusOK, &words)
+		} else {
+			c.JSON(http.StatusOK, []domainWordTag.WordTag{})
+		}
+	}
+}
+
+// GetAllForWord godoc
+// @Summary      Get all word tags for word
+// @Description  Get all word tags for word
+// @Tags         word_tag
+// @Accept       json
+// @Produce      json
+// @Param   id    query     int     true     "Word id"
+// @Success      200  {array}  domainWordTag.WordTag
+// @Failure      400  {object}  domain.ErrorResponse
+// @Failure      404  {object}  domain.ErrorResponse
+// @Failure      500  {object}  domain.ErrorResponse
+// @Router       /api/word/tag/word/all [get]
+func (controller *WordTagController) GetAllForWord(c *gin.Context) {
+	if _, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
+		return
+	}
+	wordIdInt, err := controllerCommon.ParseQueryInt(c, "id")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid word Id"})
+		return
+	}
+	zap.S().Infof("GET all word tags for word %d", wordIdInt)
+	words, err := controller.WordTagUseCase.GetAllForWord(c, wordIdInt)
+	if err != nil {
+		zap.S().Error("Failed to get word tags")
+		zap.S().Error(err)
+		c.JSON(http.StatusInternalServerError, err.Error())
+	} else {
+		count := len(*words)
+		zap.S().Debugf("Got word tags %d", count)
+		if count > 0 {
+			c.JSON(http.StatusOK, &words)
+		} else {
+			c.JSON(http.StatusOK, []domainWordTag.WordTag{})
 		}
 	}
 }
@@ -75,7 +117,7 @@ func (controller *WordTagController) Edit(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"validation_errors": validationErrors})
 		return
 	}
-	err := controller.WordTagUseCase.Update(c, request.ID, request.DictionaryId, request.Name)
+	err := controller.WordTagUseCase.Update(c, request.ID, request.Name)
 	if err != nil {
 		zap.S().Error("Failed to update word tag with " + request.Name)
 		zap.S().Error(err)
@@ -108,7 +150,7 @@ func (controller *WordTagController) Create(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"validation_errors": validationErrors})
 		return
 	}
-	err := controller.WordTagUseCase.Create(c, request.DictionaryId, request.Name)
+	err := controller.WordTagUseCase.Create(c, request.DictionaryId, request.WordId, request.Name)
 	if err != nil {
 		zap.S().Error("Failed to create word tag with " + request.Name)
 		zap.S().Error(err)

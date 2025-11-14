@@ -9,6 +9,7 @@ func ToWordTagDomain(w *dbWordTag.WordTagEntity) *domainWordTag.WordTag {
 	return &domainWordTag.WordTag{
 		ID:           w.ID,
 		DictionaryId: w.DictionaryId,
+		WordId:       w.WordId,
 		Name:         w.Name,
 	}
 }
@@ -17,6 +18,7 @@ func FromWordTagDomain(w *domainWordTag.WordTag) *dbWordTag.WordTagEntity {
 	return &dbWordTag.WordTagEntity{
 		ID:           w.ID,
 		DictionaryId: w.DictionaryId,
+		WordId:       w.WordId,
 		Name:         w.Name,
 	}
 }

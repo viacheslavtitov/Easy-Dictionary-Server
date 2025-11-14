@@ -20,7 +20,7 @@ func NewWordTagRepository(db *database.Database) domain.WordTagRepository {
 }
 
 func (wr *wordTagRepository) Create(c context.Context, wordTag *domain.WordTag) error {
-	zap.S().Debugf("Create word tag %s for dictionary %d", wordTag.Name, wordTag.DictionaryId)
+	zap.S().Debugf("Create word tag %s for dictionary %d and word %d", wordTag.Name, wordTag.DictionaryId, wordTag.WordId)
 	err := dbWordTag.CreateWordTag(wr.db, wordTagMapper.FromWordTagDomain(wordTag))
 	return err
 }
@@ -38,8 +38,21 @@ func (wr *wordTagRepository) GetAllForDictionary(c context.Context, dictionaryId
 	return &words, nil
 }
 
+func (wr *wordTagRepository) GetAllForWord(c context.Context, wordId int) (*[]domain.WordTag, error) {
+	zap.S().Debugf("GetAllForWord %d", wordId)
+	wordEntities, err := dbWordTag.GetAllWordTagsForWord(wr.db, wordId)
+	if err != nil {
+		return nil, err
+	}
+	var words []domain.WordTag
+	for _, wEntity := range *wordEntities {
+		words = append(words, *wordTagMapper.ToWordTagDomain(&wEntity))
+	}
+	return &words, nil
+}
+
 func (wr *wordTagRepository) Update(c context.Context, wordTag *domain.WordTag) error {
-	zap.S().Debugf("Update word tag %s for dictionary %d", wordTag.Name, wordTag.DictionaryId)
+	zap.S().Debugf("Update word tag %s for dictionary %d and word %d", wordTag.Name, wordTag.DictionaryId, wordTag.WordId)
 	_, err := dbWordTag.UpdateWordTag(wr.db, wordTagMapper.FromWordTagDomain(wordTag))
 	return err
 }
