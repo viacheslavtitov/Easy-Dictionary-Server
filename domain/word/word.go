@@ -3,6 +3,7 @@ package domain
 import (
 	"context"
 	translationDomain "easy-dictionary-server/domain/translation"
+	wordTagDomain "easy-dictionary-server/domain/word/tag"
 	"time"
 )
 
@@ -23,6 +24,7 @@ type WordWithTranslations struct {
 	Type         *string                          `json:"type"`
 	CreatedAt    time.Time                        `json:"created_at"`
 	Translations *[]translationDomain.Translation `json:"translations"`
+	WordTags     *[]wordTagDomain.WordTag         `json:"tags"`
 }
 
 type WordWithTranslationsAndCategories struct {
@@ -33,6 +35,7 @@ type WordWithTranslationsAndCategories struct {
 	Type         *string                                        `json:"type"`
 	CreatedAt    time.Time                                      `json:"created_at"`
 	Translations *[]translationDomain.TranslationWithCategories `json:"translations"`
+	WordTags     *[]wordTagDomain.WordTag                       `json:"tags"`
 }
 
 type WordRequest struct {

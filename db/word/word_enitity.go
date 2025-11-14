@@ -6,6 +6,7 @@ import (
 	database "easy-dictionary-server/db"
 	translationEntity "easy-dictionary-server/db/translation"
 	translationCategoryDB "easy-dictionary-server/db/translation/category"
+	wordTagEntity "easy-dictionary-server/db/word/tag"
 	pointers "easy-dictionary-server/internalenv/utils"
 	"fmt"
 	"time"
@@ -21,6 +22,7 @@ type WordEntity struct {
 	Type         *string   `db:"type"`
 	CreatedAt    time.Time `db:"created_at"`
 	Translations *[]translationEntity.TranslationEmptyEntity
+	WordTags     *[]wordTagEntity.WordTagEntity
 }
 
 type WordFullEntity struct {
@@ -31,6 +33,7 @@ type WordFullEntity struct {
 	Type         *string   `db:"type"`
 	CreatedAt    time.Time `db:"created_at"`
 	Translations *[]translationEntity.TranslationWithCategoryEntity
+	WordTags     *[]wordTagEntity.WordTagEntity
 }
 
 type wordFullEntityRow struct {
@@ -46,6 +49,9 @@ type wordFullEntityRow struct {
 	CategoryName           *string   `db:"category_name"`
 	WordCreatedAt          time.Time `db:"word_created_at"`
 	TranslationCreatedAt   time.Time `db:"translation_created_at"`
+	WordTagId              *int      `db:"word_tag_id"`
+	WordTagWordId          *int      `db:"word_tag_word_id"`
+	WordTagName            *string   `db:"word_tag_name"`
 }
 
 func GetAllWordsForDictionary(db *database.Database, dictionaryId int, lastId int, pageSize int) (*[]WordFullEntity, error) {
@@ -80,6 +86,7 @@ func mapWordsFullToEntity(err error, rows []wordFullEntityRow) (*[]WordFullEntit
 		w, ok := wordsByID[r.ID]
 		if !ok {
 			translations := make([]translationEntity.TranslationWithCategoryEntity, 0, 4)
+			wordTags := make([]wordTagEntity.WordTagEntity, 0, 4)
 			w = &WordFullEntity{
 				ID:           r.ID,
 				DictionaryId: r.DictionaryId,
@@ -88,9 +95,20 @@ func mapWordsFullToEntity(err error, rows []wordFullEntityRow) (*[]WordFullEntit
 				Type:         r.Type,
 				Translations: &translations,
 				CreatedAt:    r.WordCreatedAt,
+				WordTags:     &wordTags,
 			}
 			wordsByID[r.ID] = w
 			order = append(order, r.ID)
+		}
+
+		if r.WordTagId != nil {
+			wt := wordTagEntity.WordTagEntity{
+				ID:           *r.WordTagId,
+				WordId:       r.ID,
+				DictionaryId: r.DictionaryId,
+				Name:         *r.WordTagName,
+			}
+			*w.WordTags = append(*w.WordTags, wt)
 		}
 
 		if r.TranslationId == nil {

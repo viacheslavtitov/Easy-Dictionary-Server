@@ -3,8 +3,10 @@ package mapper
 import (
 	translationEntity "easy-dictionary-server/db/translation"
 	dbWord "easy-dictionary-server/db/word"
+	wordTagEntity "easy-dictionary-server/db/word/tag"
 	domainTranslation "easy-dictionary-server/domain/translation"
 	domainWord "easy-dictionary-server/domain/word"
+	domainWordTag "easy-dictionary-server/domain/word/tag"
 )
 
 func ToWordDomain(w *dbWord.WordEntity) *domainWord.Word {
@@ -37,6 +39,14 @@ func FromWordWithTranslationDomain(w *domainWord.WordWithTranslations) *dbWord.W
 			Description: wEntity.Description,
 		})
 	}
+	var wordTags []wordTagEntity.WordTagEntity
+	for _, wtEntity := range *w.WordTags {
+		wordTags = append(wordTags, wordTagEntity.WordTagEntity{
+			ID:     wtEntity.ID,
+			WordId: w.ID,
+			Name:   wtEntity.Name,
+		})
+	}
 	return &dbWord.WordEntity{
 		ID:           w.ID,
 		DictionaryId: w.DictionaryId,
@@ -44,6 +54,7 @@ func FromWordWithTranslationDomain(w *domainWord.WordWithTranslations) *dbWord.W
 		Phonetic:     w.Phonetic,
 		Type:         w.Type,
 		Translations: &translations,
+		WordTags:     &wordTags,
 	}
 }
 
@@ -51,6 +62,10 @@ func ToWordWithTranslationAndCategoryDomain(w *dbWord.WordFullEntity, userId int
 	var translations []domainTranslation.TranslationWithCategories
 	for _, tc := range *w.Translations {
 		translations = append(translations, *ToTranslationWithCategoryDomain(&tc, userId, dictionaryId))
+	}
+	var wordTags []domainWordTag.WordTag
+	for _, wt := range *w.WordTags {
+		wordTags = append(wordTags, *ToWordTagDomain(&wt))
 	}
 	return &domainWord.WordWithTranslationsAndCategories{
 		ID:           w.ID,
@@ -60,5 +75,6 @@ func ToWordWithTranslationAndCategoryDomain(w *dbWord.WordFullEntity, userId int
 		Type:         w.Type,
 		Translations: &translations,
 		CreatedAt:    w.CreatedAt,
+		WordTags:     &wordTags,
 	}
 }
