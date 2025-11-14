@@ -42,6 +42,17 @@ VALUES ($1, $2);
 `
 }
 
+// AddWordTagToWordQuery get query to create word tag
+// Params:
+// - $1: word tag id
+// - $2: word id
+func AddWordTagToWordQuery() string {
+	return `
+INSERT INTO word_tag_word (word_tag_id, word_id)
+VALUES ($1, $2);
+`
+}
+
 // UpdateWordTagQuery get query to update word tag
 // Params:
 // - $1: name

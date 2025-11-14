@@ -175,6 +175,19 @@ func CreateWordWithTranslations(db *database.Database, ctx context.Context, dict
 			return 0, fmt.Errorf("insert translation: %w", err)
 		}
 	}
+	if entity.WordTags != nil && len(*entity.WordTags) > 0 {
+		stmtTag, err := tx.PrepareContext(ctx, wordTagEntity.AddWordTagToWordQuery())
+		if err != nil {
+			return 0, fmt.Errorf("prepare word tag insert: %w", err)
+		}
+		defer stmtTag.Close()
+		for _, tag := range *entity.WordTags {
+			if _, err = stmtTag.ExecContext(ctx, tag.ID, wordId); err != nil {
+				zap.S().Debugln("Failed to insert tag")
+				return 0, fmt.Errorf("insert tag: %w", err)
+			}
+		}
+	}
 	return wordId, nil
 }
 

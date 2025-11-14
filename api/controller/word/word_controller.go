@@ -207,7 +207,7 @@ func (controller *WordController) CreateWordWithTranslations(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"validation_errors": validationErrors})
 		return
 	}
-	err := controller.WordUseCase.CreateWithTranslations(c, request.DictionaryId, request.Original, request.Phonetic, request.Type, request.Translations)
+	err := controller.WordUseCase.CreateWithTranslations(c, request.DictionaryId, request.Original, request.Phonetic, request.Type, request.Translations, request.WordTags)
 	if err != nil {
 		zap.S().Error("Failed to create word with " + request.Original)
 		zap.S().Error(err)

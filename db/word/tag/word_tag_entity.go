@@ -34,6 +34,11 @@ func CreateWordTag(db *database.Database, entity *WordTagEntity) error {
 	return err
 }
 
+func AddWordTagToWord(db *database.Database, tagId int, wordId int) error {
+	_, err := db.SQLDB.Exec(AddWordTagToWordQuery(), tagId, wordId)
+	return err
+}
+
 func UpdateWordTag(db *database.Database, entity *WordTagEntity) (*WordTagEntity, error) {
 	var word WordTagEntity
 	err := db.SQLDB.Get(&word, updateWordTagQuery(), entity.Name, entity.ID)
