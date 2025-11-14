@@ -8,7 +8,6 @@ func getAllWordTagsByDictionaryQuery() string {
 SELECT 
     id AS id,
 	dictionary_id AS dictionary_id,
-	word_id AS word_id,
 	name AS name
 FROM word_tag
 WHERE dictionary_id = $1;`
@@ -19,24 +18,27 @@ WHERE dictionary_id = $1;`
 // - $1: word id
 func getAllWordTagsByWordQuery() string {
 	return `
-SELECT 
-    id AS id,
-	dictionary_id AS dictionary_id,
-	word_id AS word_id,
-	name AS name
-FROM word_tag
-WHERE word_id = $1;`
+SELECT
+    wt.id AS id,
+	wt.dictionary_id AS dictionary_id,
+	wt.name AS name
+
+	wtw.word_id AS word_id,
+	wtw.id AS word_tag_word_id,
+FROM word_tag AS wt
+JOIN word_tag_word AS wtw
+  ON wt.id = wtw.word_tag_id
+WHERE wtw.word_id = $1;`
 }
 
 // CreateWordTagQuery get query to create word tag
 // Params:
 // - $1: name
 // - $2: dictionary id
-// - $3: word id
 func createWordTagQuery() string {
 	return `
-INSERT INTO word_tag (name, dictionary_id, word_id)
-VALUES ($1, $2, $3);
+INSERT INTO word_tag (name, dictionary_id)
+VALUES ($1, $2);
 `
 }
 

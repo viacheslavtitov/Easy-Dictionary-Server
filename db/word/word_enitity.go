@@ -49,9 +49,8 @@ type wordFullEntityRow struct {
 	CategoryName           *string   `db:"category_name"`
 	WordCreatedAt          time.Time `db:"word_created_at"`
 	TranslationCreatedAt   time.Time `db:"translation_created_at"`
-	WordTagId              *int      `db:"word_tag_id"`
-	WordTagWordId          *int      `db:"word_tag_word_id"`
-	WordTagName            *string   `db:"word_tag_name"`
+	WordTagId              *int      `db:"tag_id"`
+	WordTagName            *string   `db:"tag_name"`
 }
 
 func GetAllWordsForDictionary(db *database.Database, dictionaryId int, lastId int, pageSize int) (*[]WordFullEntity, error) {
@@ -104,7 +103,6 @@ func mapWordsFullToEntity(err error, rows []wordFullEntityRow) (*[]WordFullEntit
 		if r.WordTagId != nil {
 			wt := wordTagEntity.WordTagEntity{
 				ID:           *r.WordTagId,
-				WordId:       r.ID,
 				DictionaryId: r.DictionaryId,
 				Name:         *r.WordTagName,
 			}

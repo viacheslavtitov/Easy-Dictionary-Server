@@ -36,7 +36,6 @@ func (wu *wordTagUsecase) Create(c context.Context, dictionaryId int, wordId int
 	defer cancel()
 	return wu.wordTagRepository.Create(ctx, &domainWordTag.WordTag{
 		DictionaryId: dictionaryId,
-		WordId:       wordId,
 		Name:         name})
 }
 

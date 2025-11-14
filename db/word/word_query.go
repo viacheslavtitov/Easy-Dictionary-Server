@@ -31,9 +31,8 @@ SELECT
   tc.id           AS category_id,
   tc.name         AS category_name,
 
-  wt.id           AS word_tag_id,
-  wt.word_id      AS word_tag_word_id,
-  wt.name         AS word_tag_name
+  wt.id           AS tag_id,
+  wt.name         AS tag_name
 FROM word w
 JOIN page p           ON p.id = w.id
 LEFT JOIN translation t
@@ -41,8 +40,11 @@ LEFT JOIN translation t
 LEFT JOIN translation_category tc
        ON tc.id = t.category_id
       AND tc.dictionary_id = w.dictionary_id
+LEFT JOIN word_tag_word wtw
+       ON wtw.word_id = w.id
 LEFT JOIN word_tag wt
-       ON wt.dictionary_id = $1
+       ON wt.id = wtw.word_tag_id
+      AND wt.dictionary_id = w.dictionary_id
 ORDER BY w.id, t.id;`
 }
 
@@ -79,9 +81,8 @@ SELECT
   tc.id           AS category_id,
   tc.name         AS category_name,
 
-  wt.id           AS word_tag_id,
-  wt.word_id      AS word_tag_word_id,
-  wt.name         AS word_tag_name
+  wt.id           AS tag_id,
+  wt.name         AS tag_name
 FROM word w
 JOIN page p           ON p.id = w.id
 LEFT JOIN translation t
@@ -89,8 +90,11 @@ LEFT JOIN translation t
 LEFT JOIN translation_category tc
        ON tc.id = t.category_id
       AND tc.dictionary_id = w.dictionary_id
+LEFT JOIN word_tag_word wtw
+       ON wtw.word_id = w.id
 LEFT JOIN word_tag wt
-       ON wt.dictionary_id = $1
+       ON wt.id = wtw.word_tag_id
+      AND wt.dictionary_id = w.dictionary_id
 ORDER BY w.id, t.id;`
 }
 

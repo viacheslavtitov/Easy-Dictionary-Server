@@ -42,9 +42,8 @@ func FromWordWithTranslationDomain(w *domainWord.WordWithTranslations) *dbWord.W
 	var wordTags []wordTagEntity.WordTagEntity
 	for _, wtEntity := range *w.WordTags {
 		wordTags = append(wordTags, wordTagEntity.WordTagEntity{
-			ID:     wtEntity.ID,
-			WordId: w.ID,
-			Name:   wtEntity.Name,
+			ID:   wtEntity.ID,
+			Name: wtEntity.Name,
 		})
 	}
 	return &dbWord.WordEntity{

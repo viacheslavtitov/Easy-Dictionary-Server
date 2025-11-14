@@ -7,7 +7,6 @@ import (
 type WordTag struct {
 	ID           int    `json:"id"`
 	DictionaryId int    `json:"dictionary_id"`
-	WordId       int    `json:"word_id"`
 	Name         string `json:"name"`
 }
 

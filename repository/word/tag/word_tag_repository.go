@@ -20,7 +20,7 @@ func NewWordTagRepository(db *database.Database) domain.WordTagRepository {
 }
 
 func (wr *wordTagRepository) Create(c context.Context, wordTag *domain.WordTag) error {
-	zap.S().Debugf("Create word tag %s for dictionary %d and word %d", wordTag.Name, wordTag.DictionaryId, wordTag.WordId)
+	zap.S().Debugf("Create word tag %s for dictionary %d", wordTag.Name, wordTag.DictionaryId)
 	err := dbWordTag.CreateWordTag(wr.db, wordTagMapper.FromWordTagDomain(wordTag))
 	return err
 }
@@ -52,7 +52,7 @@ func (wr *wordTagRepository) GetAllForWord(c context.Context, wordId int) (*[]do
 }
 
 func (wr *wordTagRepository) Update(c context.Context, wordTag *domain.WordTag) error {
-	zap.S().Debugf("Update word tag %s for dictionary %d and word %d", wordTag.Name, wordTag.DictionaryId, wordTag.WordId)
+	zap.S().Debugf("Update word tag %s for dictionary %d", wordTag.Name, wordTag.DictionaryId)
 	_, err := dbWordTag.UpdateWordTag(wr.db, wordTagMapper.FromWordTagDomain(wordTag))
 	return err
 }
