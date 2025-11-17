@@ -135,7 +135,7 @@ func (controller *WordTagController) Edit(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param   input body domainWordTag.WordTagRequest true "Word tag data"
-// @Success 201 {object} domain.SuccessResponse
+// @Success 201 {object} domain.SuccessIdResponse
 // @Failure 400 {object} domain.ErrorResponse
 // @Router /api/word/tag/create [post]
 func (controller *WordTagController) Create(c *gin.Context) {
