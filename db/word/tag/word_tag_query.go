@@ -38,7 +38,7 @@ WHERE wtw.word_id = $1;`
 func createWordTagQuery() string {
 	return `
 INSERT INTO word_tag (name, dictionary_id)
-VALUES ($1, $2);
+VALUES ($1, $2)
 RETURNING id;
 `
 }
