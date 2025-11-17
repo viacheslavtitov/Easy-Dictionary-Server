@@ -23,7 +23,7 @@ type EditWordTagRequest struct {
 type WordTagUseCase interface {
 	GetAllForDictionary(c context.Context, dictionaryId int) (*[]WordTag, error)
 	GetAllForWord(c context.Context, wordId int) (*[]WordTag, error)
-	Create(c context.Context, dictionaryId int, name string) error
+	Create(c context.Context, dictionaryId int, name string) (int, error)
 	Update(c context.Context, id int, name string) error
 	DeleteById(c context.Context, id int) (int64, error)
 }
@@ -31,7 +31,7 @@ type WordTagUseCase interface {
 type WordTagRepository interface {
 	GetAllForDictionary(c context.Context, dictionaryId int) (*[]WordTag, error)
 	GetAllForWord(c context.Context, wordId int) (*[]WordTag, error)
-	Create(c context.Context, word *WordTag) error
+	Create(c context.Context, word *WordTag) (int, error)
 	Update(c context.Context, word *WordTag) error
 	DeleteById(c context.Context, id int) (int64, error)
 }

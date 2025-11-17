@@ -31,7 +31,7 @@ func (wu *wordTagUsecase) GetAllForWord(c context.Context, wordId int) (*[]domai
 	return wu.wordTagRepository.GetAllForWord(ctx, wordId)
 }
 
-func (wu *wordTagUsecase) Create(c context.Context, dictionaryId int, name string) error {
+func (wu *wordTagUsecase) Create(c context.Context, dictionaryId int, name string) (int, error) {
 	ctx, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(wu.contextTimeout))
 	defer cancel()
 	return wu.wordTagRepository.Create(ctx, &domainWordTag.WordTag{

@@ -19,10 +19,10 @@ func NewWordTagRepository(db *database.Database) domain.WordTagRepository {
 	return &wordTagRepository{db: db}
 }
 
-func (wr *wordTagRepository) Create(c context.Context, wordTag *domain.WordTag) error {
+func (wr *wordTagRepository) Create(c context.Context, wordTag *domain.WordTag) (int, error) {
 	zap.S().Debugf("Create word tag %s for dictionary %d", wordTag.Name, wordTag.DictionaryId)
-	err := dbWordTag.CreateWordTag(wr.db, wordTagMapper.FromWordTagDomain(wordTag))
-	return err
+	id, err := dbWordTag.CreateWordTag(wr.db, c, wordTagMapper.FromWordTagDomain(wordTag))
+	return id, err
 }
 
 func (wr *wordTagRepository) GetAllForDictionary(c context.Context, dictionaryId int) (*[]domain.WordTag, error) {

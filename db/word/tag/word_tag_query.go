@@ -39,6 +39,7 @@ func createWordTagQuery() string {
 	return `
 INSERT INTO word_tag (name, dictionary_id)
 VALUES ($1, $2);
+RETURNING id;
 `
 }
 

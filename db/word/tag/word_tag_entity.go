@@ -1,8 +1,10 @@
 package db
 
 import (
+	"context"
 	"database/sql"
 	database "easy-dictionary-server/db"
+	"fmt"
 )
 
 type WordTagEntity struct {
@@ -29,9 +31,14 @@ func GetAllWordTagsForWord(db *database.Database, wordId int) (*[]WordTagEntity,
 	return &words, err
 }
 
-func CreateWordTag(db *database.Database, entity *WordTagEntity) error {
-	_, err := db.SQLDB.Exec(createWordTagQuery(), entity.Name, entity.DictionaryId)
-	return err
+func CreateWordTag(db *database.Database, ctx context.Context, entity *WordTagEntity) (int, error) {
+	var tagId int
+	var err error
+	err = db.SQLDB.QueryRowContext(ctx, createWordTagQuery(), entity.Name, entity.DictionaryId).Scan(&tagId)
+	if err != nil {
+		return 0, fmt.Errorf("insert tag: %w", err)
+	}
+	return tagId, err
 }
 
 func AddWordTagToWord(db *database.Database, tagId int, wordId int) error {

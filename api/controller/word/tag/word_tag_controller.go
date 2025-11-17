@@ -150,14 +150,16 @@ func (controller *WordTagController) Create(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"validation_errors": validationErrors})
 		return
 	}
-	err := controller.WordTagUseCase.Create(c, request.DictionaryId, request.Name)
+	tagId, err := controller.WordTagUseCase.Create(c, request.DictionaryId, request.Name)
 	if err != nil {
 		zap.S().Error("Failed to create word tag with " + request.Name)
 		zap.S().Error(err)
 		c.JSON(http.StatusInternalServerError, err.Error())
-	} else {
+	} else if tagId > 0 {
 		zap.S().Debugf("Word created tag %s", request.Name)
-		c.JSON(http.StatusCreated, domain.SuccessResponse{Message: "Word tag created"})
+		c.JSON(http.StatusCreated, domain.SuccessIdResponse{Id: tagId})
+	} else {
+		c.JSON(http.StatusInternalServerError, "Something was wrong")
 	}
 }
 
