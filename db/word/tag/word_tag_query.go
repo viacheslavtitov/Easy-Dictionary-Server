@@ -21,10 +21,10 @@ func getAllWordTagsByWordQuery() string {
 SELECT
     wt.id AS id,
 	wt.dictionary_id AS dictionary_id,
-	wt.name AS name
+	wt.name AS name,
 
 	wtw.word_id AS word_id,
-	wtw.id AS word_tag_word_id,
+	wtw.id AS word_tag_word_id
 FROM word_tag AS wt
 JOIN word_tag_word AS wtw
   ON wt.id = wtw.word_tag_id

@@ -23,7 +23,7 @@ func NewWordRouter(timeout int, group *gin.RouterGroup, database *database.Datab
 		wordTagGroup.POST("api/word/tag/create", lc.Create)
 		wordTagGroup.POST("api/word/tag/edit", lc.Edit)
 		wordTagGroup.GET("api/word/tag/dictionary/all", lc.GetAllForDictionary)
-		wordTagGroup.GET("api/word/tag/word/all", lc.GetAllForDictionary)
+		wordTagGroup.GET("api/word/tag/word/all", lc.GetAllForWord)
 		wordTagGroup.DELETE("api/word/tag/:id", lc.Delete)
 	}
 }
