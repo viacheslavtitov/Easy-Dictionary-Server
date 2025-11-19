@@ -60,6 +60,7 @@ type EditWordRequest struct {
 	Original     string  `json:"original" binding:"required"`
 	Phonetic     *string `json:"phonetic"`
 	Type         *string `json:"type"`
+	TagIds       []int   `json:"tags"`
 }
 
 type WordsWithPaginationResponse struct {
@@ -74,7 +75,7 @@ type WordUseCase interface {
 	Create(c context.Context, dictionaryId int, original string, phonetic *string, wordType *string) error
 	CreateWithTranslations(c context.Context, dictionaryId int, original string, phonetic *string, wordType *string,
 		translations *[]translationDomain.TranslationWithoutWordRequest, tags *[]wordTagDomain.WordTag) error
-	Update(c context.Context, id int, dictionaryId int, original string, phonetic *string, wordType *string) error
+	Update(c context.Context, id int, dictionaryId int, original string, phonetic *string, wordType *string, tagIds []int) error
 	DeleteById(c context.Context, id int) (int64, error)
 }
 
@@ -83,6 +84,6 @@ type WordRepository interface {
 	SearchWordsForDictionary(c context.Context, query string, userId int, dictionaryId int, lastId int, pageSize int) (*WordsWithPaginationResponse, error)
 	Create(c context.Context, dictionaryId int, word *Word) error
 	CreateWithTranslations(c context.Context, dictionaryId int, word *WordWithTranslations) error
-	Update(c context.Context, word *Word) error
+	Update(c context.Context, id int, dictionaryId int, original string, phonetic *string, wordType *string, tagIds []int) error
 	DeleteById(c context.Context, id int) (int64, error)
 }

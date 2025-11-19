@@ -137,9 +137,8 @@ UPDATE word
 SET 
     original = $1,
     phonetic = $2,
-    type = $3,
-WHERE id = $4
-RETURNING id, original, phonetic, type, dictionary_id;`
+    type = $3
+WHERE id = $4;`
 }
 
 // DeleteWordByIdQuery get query to delete word by id from word table

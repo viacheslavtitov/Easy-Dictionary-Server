@@ -30,6 +30,17 @@ func FromWordDomain(w *domainWord.Word) *dbWord.WordEntity {
 	}
 }
 
+func FromWordDomainToUpdate(id int, dictionaryId int, original string, phonetic *string, wordType *string, tagIds []int) *dbWord.UpdateWordEntity {
+	return &dbWord.UpdateWordEntity{
+		ID:           id,
+		DictionaryId: dictionaryId,
+		Original:     original,
+		Phonetic:     phonetic,
+		Type:         wordType,
+		WordTagsIds:  tagIds,
+	}
+}
+
 func FromWordWithTranslationDomain(w *domainWord.WordWithTranslations) *dbWord.WordEntity {
 	var translations []translationEntity.TranslationEmptyEntity
 	for _, wEntity := range *w.Translations {

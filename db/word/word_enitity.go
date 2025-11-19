@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/lib/pq"
 	"go.uber.org/zap"
 )
 
@@ -23,6 +24,15 @@ type WordEntity struct {
 	CreatedAt    time.Time `db:"created_at"`
 	Translations *[]translationEntity.TranslationEmptyEntity
 	WordTags     *[]wordTagEntity.WordTagEntity
+}
+
+type UpdateWordEntity struct {
+	ID           int     `db:"id"`
+	DictionaryId int     `db:"dictionary_id"`
+	Original     string  `db:"original"`
+	Phonetic     *string `db:"phonetic"`
+	Type         *string `db:"type"`
+	WordTagsIds  []int
 }
 
 type WordFullEntity struct {
@@ -191,13 +201,47 @@ func CreateWordWithTranslations(db *database.Database, ctx context.Context, dict
 	return wordId, nil
 }
 
-func UpdateWord(db *database.Database, entity *WordEntity) (*WordEntity, error) {
-	var word WordEntity
-	err := db.SQLDB.Get(&word, updateWordQuery(), entity.Original, entity.Phonetic, entity.Type, entity.ID)
+func UpdateWord(db *database.Database, entity *UpdateWordEntity) error {
+	tx, err := db.SQLDB.Beginx()
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return &word, nil
+	defer func() {
+		if err != nil {
+			_ = tx.Rollback()
+		}
+	}()
+
+	// update word
+	res, err := tx.Exec(updateWordQuery(), entity.Original, entity.Phonetic, entity.Type, entity.ID)
+	if err != nil {
+		return err
+	}
+
+	affected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if affected == 0 {
+		return fmt.Errorf("word not found or not belongs to dictionary")
+	}
+
+	// delete all tags if they exist
+	_, err = tx.Exec(wordTagEntity.DeleteWordTagsByWordIdQuery(), entity.ID)
+	if err != nil {
+		return err
+	}
+
+	if len(entity.WordTagsIds) > 0 {
+		// add new tags for word
+		_, err = tx.Exec(wordTagEntity.BulkInsertWordTagsForWordQuery(), entity.ID, pq.Array(entity.WordTagsIds))
+		if err != nil {
+			return err
+		}
+	}
+
+	err = tx.Commit()
+	return err
 }
 
 func DeleteWordById(db *database.Database, id int) (sql.Result, error) {

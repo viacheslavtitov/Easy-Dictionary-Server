@@ -67,9 +67,26 @@ WHERE id = $2
 RETURNING id, dictionary_id, name;`
 }
 
-// DeleteWordTagByIdQuery get query to delete word by id from word table
+// DeleteWordTagByIdQuery get query to delete word tag by id from word table
 // Params:
 // - $1: id
 func deleteWordTagByIdQuery() string {
 	return `DELETE FROM word_tag WHERE id = $1`
+}
+
+// DeleteWordTagsByWordIdQuery get query to delete all tags by word id from word tag word table
+// Params:
+// - $1: word id
+func DeleteWordTagsByWordIdQuery() string {
+	return `DELETE FROM word_tag_word WHERE word_id = $1`
+}
+
+// BulkInsertWordTagsForWordQuery get query to insert tag ids for word
+// Params:
+// - $1: word id
+// - $2: tag ids
+func BulkInsertWordTagsForWordQuery() string {
+	return `
+INSERT INTO word_tag_word (word_id, word_tag_id)
+SELECT $1, UNNEST($2::INT[]);`
 }

@@ -141,7 +141,7 @@ func (controller *WordController) Edit(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"validation_errors": validationErrors})
 		return
 	}
-	err := controller.WordUseCase.Update(c, request.ID, request.DictionaryId, request.Original, request.Phonetic, request.Type)
+	err := controller.WordUseCase.Update(c, request.ID, request.DictionaryId, request.Original, request.Phonetic, request.Type, request.TagIds)
 	if err != nil {
 		zap.S().Error("Failed to update word with " + request.Original)
 		zap.S().Error(err)

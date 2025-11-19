@@ -66,15 +66,10 @@ func (wu *wordUsecase) CreateWithTranslations(c context.Context, dictionaryId in
 		Translations: &convertedTranslations})
 }
 
-func (wu *wordUsecase) Update(c context.Context, id int, dictionaryId int, original string, phonetic *string, wordType *string) error {
+func (wu *wordUsecase) Update(c context.Context, id int, dictionaryId int, original string, phonetic *string, wordType *string, tagIds []int) error {
 	ctx, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(wu.contextTimeout))
 	defer cancel()
-	return wu.wordRepository.Update(ctx, &domainWord.Word{
-		ID:           id,
-		DictionaryId: dictionaryId,
-		Original:     original,
-		Phonetic:     phonetic,
-		Type:         wordType})
+	return wu.wordRepository.Update(ctx, id, dictionaryId, original, phonetic, wordType, tagIds)
 }
 
 func (wu *wordUsecase) DeleteById(c context.Context, id int) (int64, error) {

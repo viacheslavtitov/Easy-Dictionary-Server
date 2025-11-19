@@ -75,9 +75,16 @@ func (wr *wordRepository) SearchWordsForDictionary(c context.Context, query stri
 	return &domain.WordsWithPaginationResponse{Words: words, NextLastID: nextLastID, HasMore: hasMore}, nil
 }
 
-func (wr *wordRepository) Update(c context.Context, word *domain.Word) error {
-	zap.S().Debugf("Update word %s for dictionary %d", word.Original, word.DictionaryId)
-	_, err := dbWord.UpdateWord(wr.db, wordMapper.FromWordDomain(word))
+func (wr *wordRepository) Update(c context.Context, id int, dictionaryId int, original string, phonetic *string, wordType *string, tagIds []int) error {
+	zap.S().Debugf("Update word %s for dictionary %d", original, dictionaryId)
+	err := dbWord.UpdateWord(wr.db, wordMapper.FromWordDomainToUpdate(
+		id,
+		dictionaryId,
+		original,
+		phonetic,
+		wordType,
+		tagIds,
+	))
 	return err
 }
 
