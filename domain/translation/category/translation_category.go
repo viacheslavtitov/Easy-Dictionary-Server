@@ -11,6 +11,11 @@ type TranslationCategory struct {
 	UserId       int    `json:"user_id"`
 }
 
+type ShortTranslationCategory struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}
+
 type TranslationCategoryRequest struct {
 	Name         string `json:"name" binding:"required"`
 	DictionaryId int    `json:"dictionary_id" binding:"required"`

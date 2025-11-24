@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	database "easy-dictionary-server/db"
 	dbDictionary "easy-dictionary-server/db/dictionary"
 	domain "easy-dictionary-server/domain/dictionary"
@@ -21,6 +22,15 @@ func (dr *dictionaryRepository) Create(userId int, dictionary domain.Dictionary)
 	zap.S().Debugf("Create dictionary for user %d", userId)
 	err := dbDictionary.CreateDictionary(dr.db, userId, dictionaryMapper.FromDictionaryDomain(&dictionary, userId))
 	return err
+}
+
+func (dr *dictionaryRepository) GetDetailForUser(c context.Context, id int) (*domain.DetailDictionary, error) {
+	zap.S().Debugf("GetDetailForUser %d", id)
+	dictionaryEntity, err := dbDictionary.GetDetailForUser(dr.db, id)
+	if err != nil {
+		return nil, err
+	}
+	return dictionaryMapper.ToDetailDictionaryDomain(dictionaryEntity), nil
 }
 
 func (dr *dictionaryRepository) GetAllForUser(userId int) (*[]domain.Dictionary, error) {

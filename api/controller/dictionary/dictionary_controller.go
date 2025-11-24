@@ -17,6 +17,39 @@ type DictionaryController struct {
 	DictionaryUseCase dictionaryDomain.DictionaryUseCase
 }
 
+// GetDetailForUser godoc
+// @Summary      Get detail info for user
+// @Description  Get detail info for user
+// @Tags         dictionary
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  dictionaryDomain.DetailDictionary
+// @Failure      400  {object}  domain.ErrorResponse
+// @Failure      404  {object}  domain.ErrorResponse
+// @Failure      500  {object}  domain.ErrorResponse
+// @Router       /api/dictionary/all [get]
+func (dictionaryController *DictionaryController) GetDetailForUser(c *gin.Context) {
+	dictionaryId := c.Param("id")
+	zap.S().Infof("Get detail info for dictionary %d", dictionaryId)
+	if _, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
+		return
+	}
+	if dictionaryIdInt, err := strconv.Atoi(dictionaryId); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid dictionary ID"})
+		return
+	} else {
+		dictionary, err := dictionaryController.DictionaryUseCase.GetDetailForUser(c, dictionaryIdInt)
+		if err != nil {
+			zap.S().Error("Failed to get detail dictionary")
+			zap.S().Error(err)
+			c.JSON(http.StatusInternalServerError, err.Error())
+		} else {
+			zap.S().Debug("Got dictionary")
+			c.JSON(http.StatusOK, &dictionary)
+		}
+	}
+}
+
 // GetAllForUser godoc
 // @Summary      Get all dictionaries for user
 // @Description  Get all dictionaries for user

@@ -19,6 +19,12 @@ func NewDictionaryUsecase(dictionaryRepository domainDictionary.DictionaryReposi
 	}
 }
 
+func (du *dictionaryUsecase) GetDetailForUser(c context.Context, id int) (*domainDictionary.DetailDictionary, error) {
+	_, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(du.contextTimeout))
+	defer cancel()
+	return du.dictionaryRepository.GetDetailForUser(c, id)
+}
+
 func (du *dictionaryUsecase) GetAllForUser(c context.Context, userId int) (*[]domainDictionary.Dictionary, error) {
 	_, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(du.contextTimeout))
 	defer cancel()

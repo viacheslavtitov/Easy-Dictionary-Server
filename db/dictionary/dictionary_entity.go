@@ -4,6 +4,11 @@ import (
 	"database/sql"
 	database "easy-dictionary-server/db"
 	dbLanguage "easy-dictionary-server/db/language"
+	dbTranslationCategory "easy-dictionary-server/db/translation/category"
+	dbWordTag "easy-dictionary-server/db/word/tag"
+	"encoding/json"
+
+	"github.com/lib/pq"
 )
 
 type DictionaryEntity struct {
@@ -36,6 +41,26 @@ type DetailShortDictionaryEntity struct {
 	WordTagCount int                        `json:"word_tag_count"`
 	WordCount    int                        `json:"word_count"`
 	QuizCount    int                        `json:"quiz_count"`
+}
+
+type detailRow struct {
+	ID         int            `db:"dictionary_id"`
+	Dialect    *string        `db:"dictionary_dialect"`
+	LangFrom   []byte         `db:"lang_from"`  // JSON
+	LangTo     []byte         `db:"lang_to"`    // JSON
+	WordTags   []byte         `db:"word_tags"`  // JSON array
+	Categories []byte         `db:"categories"` // JSON array
+	WordTypes  pq.StringArray `db:"word_types"` // text[]
+}
+
+type DetailDictionaryEntity struct {
+	ID         int                                                     `json:"id"`
+	Dialect    *string                                                 `json:"dialect"`
+	LangFrom   *dbLanguage.LanguageEntity                              `json:"lang_from"`
+	LangTo     *dbLanguage.LanguageEntity                              `json:"lang_to"`
+	WordTags   *[]dbWordTag.WordTagEntity                              `json:"tags"`
+	Categories *[]dbTranslationCategory.TranslationCategoryShortEntity `json:"categories"`
+	WordTypes  *[]string                                               `json:"types"`
 }
 
 func GetAllDictionariesForUser(db *database.Database, userId int) (*[]DictionaryEntity, error) {
@@ -104,4 +129,40 @@ func GetAllDetailShortForUser(db *database.Database, userId int) (*[]DetailShort
 		dictionaries = append(dictionaries, *u)
 	}
 	return &dictionaries, err
+}
+
+func GetDetailForUser(db *database.Database, dictionaryId int) (*DetailDictionaryEntity, error) {
+	var row detailRow
+	err := db.SQLDB.Get(&row, getDetailDictionaryForUserQuery(), dictionaryId)
+	if err != nil {
+		return nil, err
+	}
+	var detail DetailDictionaryEntity
+	detail.ID = row.ID
+	detail.Dialect = row.Dialect
+
+	// parse LangFrom / LangTo
+	var lf dbLanguage.LanguageEntity
+	json.Unmarshal(row.LangFrom, &lf)
+	detail.LangFrom = &lf
+
+	var lt dbLanguage.LanguageEntity
+	json.Unmarshal(row.LangTo, &lt)
+	detail.LangTo = &lt
+
+	// tags
+	var tags []dbWordTag.WordTagEntity
+	json.Unmarshal(row.WordTags, &tags)
+	detail.WordTags = &tags
+
+	// categories
+	var cats []dbTranslationCategory.TranslationCategoryShortEntity
+	json.Unmarshal(row.Categories, &cats)
+	detail.Categories = &cats
+
+	// word_types
+	wt := []string(row.WordTypes)
+	detail.WordTypes = &wt
+
+	return &detail, nil
 }

@@ -35,3 +35,15 @@ func FromDictionaryDomain(d *domainDictionary.Dictionary, userId int) *dbDiction
 		UserId:     userId,
 	}
 }
+
+func ToDetailDictionaryDomain(d *dbDictionary.DetailDictionaryEntity) *domainDictionary.DetailDictionary {
+	return &domainDictionary.DetailDictionary{
+		ID:         d.ID,
+		Dialect:    d.Dialect,
+		LangFrom:   ToLanguageDomain(d.LangFrom),
+		LangTo:     ToLanguageDomain(d.LangTo),
+		WordTags:   ToWordTagDomainArray(d.WordTags),
+		Categories: ToTranslationCategoryDomainArray(d.Categories),
+		WordTypes:  d.WordTypes,
+	}
+}

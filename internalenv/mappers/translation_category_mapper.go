@@ -6,7 +6,7 @@ import (
 )
 
 func ToTranslationCategoryDomain(tc *dbTranslationCategory.TranslationCategoryEntity) *domainTranslationCategory.TranslationCategory {
-	if(tc == nil) {
+	if tc == nil {
 		return nil
 	}
 	return &domainTranslationCategory.TranslationCategory{
@@ -17,8 +17,29 @@ func ToTranslationCategoryDomain(tc *dbTranslationCategory.TranslationCategoryEn
 	}
 }
 
+func ToShortTranslationCategoryDomain(tc *dbTranslationCategory.TranslationCategoryShortEntity) *domainTranslationCategory.ShortTranslationCategory {
+	if tc == nil {
+		return nil
+	}
+	return &domainTranslationCategory.ShortTranslationCategory{
+		ID:   tc.ID,
+		Name: tc.Name,
+	}
+}
+
+func ToTranslationCategoryDomainArray(tc *[]dbTranslationCategory.TranslationCategoryShortEntity) *[]domainTranslationCategory.ShortTranslationCategory {
+	if tc == nil {
+		return &[]domainTranslationCategory.ShortTranslationCategory{}
+	}
+	var categories []domainTranslationCategory.ShortTranslationCategory
+	for _, cat := range *tc {
+		categories = append(categories, *ToShortTranslationCategoryDomain(&cat))
+	}
+	return &categories
+}
+
 func FromTranslationCategoryDomain(tc *domainTranslationCategory.TranslationCategory, userId int) *dbTranslationCategory.TranslationCategoryEntity {
-	if(tc == nil) {
+	if tc == nil {
 		return nil
 	}
 	return &dbTranslationCategory.TranslationCategoryEntity{
@@ -30,7 +51,7 @@ func FromTranslationCategoryDomain(tc *domainTranslationCategory.TranslationCate
 }
 
 func ToTranslationCategoryShortDomain(tc *dbTranslationCategory.TranslationCategoryShortEntity, userId int, dictionaryId int) *domainTranslationCategory.TranslationCategory {
-	if(tc == nil) {
+	if tc == nil {
 		return nil
 	}
 	return &domainTranslationCategory.TranslationCategory{
@@ -42,7 +63,7 @@ func ToTranslationCategoryShortDomain(tc *dbTranslationCategory.TranslationCateg
 }
 
 func ToTranslationCategoryResponseDomain(tc *domainTranslationCategory.TranslationCategory) *domainTranslationCategory.TranslationCategoryResponse {
-	if(tc == nil) {
+	if tc == nil {
 		return nil
 	}
 	return &domainTranslationCategory.TranslationCategoryResponse{

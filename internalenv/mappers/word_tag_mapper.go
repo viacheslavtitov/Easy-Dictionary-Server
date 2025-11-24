@@ -13,6 +13,17 @@ func ToWordTagDomain(w *dbWordTag.WordTagEntity) *domainWordTag.WordTag {
 	}
 }
 
+func ToWordTagDomainArray(w *[]dbWordTag.WordTagEntity) *[]domainWordTag.WordTag {
+	if w == nil {
+		return &[]domainWordTag.WordTag{}
+	}
+	var tags []domainWordTag.WordTag
+	for _, tag := range *w {
+		tags = append(tags, *ToWordTagDomain(&tag))
+	}
+	return &tags
+}
+
 func FromWordTagDomain(w *domainWordTag.WordTag) *dbWordTag.WordTagEntity {
 	return &dbWordTag.WordTagEntity{
 		ID:           w.ID,

@@ -3,6 +3,8 @@ package domain
 import (
 	"context"
 	languageDomain "easy-dictionary-server/domain/language"
+	translationCategoryDomain "easy-dictionary-server/domain/translation/category"
+	wordTagDomain "easy-dictionary-server/domain/word/tag"
 )
 
 type Dictionary struct {
@@ -10,6 +12,16 @@ type Dictionary struct {
 	Dialect    *string `json:"dialect"`
 	LangFromId int     `json:"lang_from_id"`
 	LangToId   int     `json:"lang_to_id"`
+}
+
+type DetailDictionary struct {
+	ID         int                                                   `json:"id"`
+	Dialect    *string                                               `json:"dialect"`
+	LangFrom   *languageDomain.Language                              `json:"lang_from"`
+	LangTo     *languageDomain.Language                              `json:"lang_to"`
+	WordTags   *[]wordTagDomain.WordTag                              `json:"tags"`
+	Categories *[]translationCategoryDomain.ShortTranslationCategory `json:"categories"`
+	WordTypes  *[]string                                             `json:"word_types"`
 }
 
 type DictionaryRequest struct {
@@ -34,6 +46,7 @@ type DetailShortDictionary struct {
 }
 
 type DictionaryUseCase interface {
+	GetDetailForUser(c context.Context, id int) (*DetailDictionary, error)
 	GetAllForUser(c context.Context, userId int) (*[]Dictionary, error)
 	GetAllDetailShortForUser(c context.Context, userId int) (*[]DetailShortDictionary, error)
 	Create(c context.Context, userId int, dialect *string, langFromId int, langToId int) error
@@ -42,6 +55,7 @@ type DictionaryUseCase interface {
 }
 
 type DictionaryRepository interface {
+	GetDetailForUser(c context.Context, id int) (*DetailDictionary, error)
 	GetAllForUser(userId int) (*[]Dictionary, error)
 	GetAllDetailShortForUser(userId int) (*[]DetailShortDictionary, error)
 	Create(userId int, dictionary Dictionary) error
