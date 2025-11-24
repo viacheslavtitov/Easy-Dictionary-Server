@@ -70,8 +70,8 @@ type WordsWithPaginationResponse struct {
 }
 
 type WordUseCase interface {
-	GetAllForDictionary(c context.Context, userId int, dictionaryId int, lastId int, pageSize int) (*WordsWithPaginationResponse, error)
-	SearchWordsForDictionary(c context.Context, query string, userId int, dictionaryId int, lastId int, pageSize int) (*WordsWithPaginationResponse, error)
+	SearchWordsForDictionary(c context.Context, userId int, query string, dictionaryId int, lastId int, pageSize int, createdFrom *time.Time, createdTo *time.Time,
+		wordTypes *[]string, categoryIds *[]int, tagIds *[]int) (*WordsWithPaginationResponse, error)
 	Create(c context.Context, dictionaryId int, original string, phonetic *string, wordType *string) error
 	CreateWithTranslations(c context.Context, dictionaryId int, original string, phonetic *string, wordType *string,
 		translations *[]translationDomain.TranslationWithoutWordRequest, tags *[]wordTagDomain.WordTag) error
@@ -80,8 +80,8 @@ type WordUseCase interface {
 }
 
 type WordRepository interface {
-	GetAllForDictionary(c context.Context, userId int, dictionaryId int, lastId int, pageSize int) (*WordsWithPaginationResponse, error)
-	SearchWordsForDictionary(c context.Context, query string, userId int, dictionaryId int, lastId int, pageSize int) (*WordsWithPaginationResponse, error)
+	SearchWordsForDictionary(c context.Context, userId int, query string, dictionaryId int, lastId int, pageSize int, createdFrom *time.Time, createdTo *time.Time,
+		wordTypes *[]string, categoryIds *[]int, tagIds *[]int) (*WordsWithPaginationResponse, error)
 	Create(c context.Context, dictionaryId int, word *Word) error
 	CreateWithTranslations(c context.Context, dictionaryId int, word *WordWithTranslations) error
 	Update(c context.Context, id int, dictionaryId int, original string, phonetic *string, wordType *string, tagIds []int) error

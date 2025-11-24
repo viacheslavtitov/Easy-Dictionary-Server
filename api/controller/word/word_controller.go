@@ -5,6 +5,7 @@ import (
 	"easy-dictionary-server/domain"
 	domainWord "easy-dictionary-server/domain/word"
 	validatorutil "easy-dictionary-server/internalenv/validator"
+	"time"
 
 	"net/http"
 	"strconv"
@@ -26,6 +27,12 @@ type WordController struct {
 // @Param   dictionaryId    query     int     true     "ID dictionary"
 // @Param   lastId    query     int     true     "Last id in the previous response"
 // @Param   pageSize    query     int     true     "Size of items in response"
+// @Param   query    query     string     false     "Filter by word"
+// @Param   categoryIds    query     []int     false     "Filter by categories"
+// @Param   tagIds    query     []int     false     "Filter by tags"
+// @Param   wordTypes    query     []string     false     "Filter by word types"
+// @Param   from    query     string     false     "Filter by time from (DateOnly)" Format(date-time)
+// @Param   to    query     string     false     "Filter by time to (DateOnly)" Format(date-time)
 // @Success      200  {object}  domainWord.WordsWithPaginationResponse
 // @Failure      400  {object}  domain.ErrorResponse
 // @Failure      404  {object}  domain.ErrorResponse
@@ -51,61 +58,43 @@ func (controller *WordController) GetAllForDictionary(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page size"})
 		return
 	}
-	zap.S().Infof("GET all words for dictionary %d with lastId %d and pageSize %d", dictionaryIdInt, lastIdInt, pageSizeInt)
-	wordsResponse, err := controller.WordUseCase.GetAllForDictionary(c, *userId, dictionaryIdInt, lastIdInt, pageSizeInt)
-	if err != nil {
-		zap.S().Error("Failed to get words")
-		zap.S().Error(err)
-		c.JSON(http.StatusInternalServerError, err.Error())
-	} else {
-		count := len(wordsResponse.Words)
-		zap.S().Debugf("Got words %d", count)
-		c.JSON(http.StatusOK, wordsResponse)
-	}
-}
 
-// SearchForDictionary godoc
-// @Summary      Get all words for dictionary by search query
-// @Description  Get all words for dictionary by search query
-// @Tags         word
-// @Accept       json
-// @Produce      json
-// @Param   dictionaryId    query     int     true     "ID dictionary"
-// @Param   lastId    query     int     true     "Last id in the previous response"
-// @Param   pageSize    query     int     true     "Size of items in response"
-// @Param   query    query     int     true     "Search letters"
-// @Success      200  {object}  domainWord.WordsWithPaginationResponse
-// @Failure      400  {object}  domain.ErrorResponse
-// @Failure      404  {object}  domain.ErrorResponse
-// @Failure      500  {object}  domain.ErrorResponse
-// @Router       /api/word/search [get]
-func (controller *WordController) SearchForDictionary(c *gin.Context) {
-	userId, _, valid := controllerCommon.ValidateUserIdInContext(c)
-	if !valid {
-		return
-	}
-	dictionaryIdInt, err := controllerCommon.ParseQueryInt(c, "dictionaryId")
+	categoryIds, err := controllerCommon.ParseQueryIntArray(c, "categoryIds")
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid dictionary Id"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
+	} else if categoryIds != nil {
+		zap.S().Infow("Accept filter by categoryIds", categoryIds)
 	}
-	lastIdInt, err := controllerCommon.ParseQueryInt(c, "lastId")
+	tagIds, err := controllerCommon.ParseQueryIntArray(c, "tagIds")
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid last read Id"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
+	} else if tagIds != nil {
+		zap.S().Infow("Accept filter by tagIds", tagIds)
 	}
-	pageSizeInt, err := controllerCommon.ParseQueryInt(c, "pageSize")
+	wordTypes := c.QueryArray("wordTypes")
+	zap.S().Infow("Accept filter by wordTypes", wordTypes)
+	createdFrom, err := controllerCommon.ParseDateTime(c, "from")
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page size"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
+	} else if createdFrom != nil {
+		zap.S().Infof("Accept filter by createdFrom = %v", createdFrom.Format(time.DateOnly))
+	}
+	createdTo, err := controllerCommon.ParseDateTime(c, "to")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	} else if createdTo != nil {
+		zap.S().Infof("Accept filter by createdTo = %v", createdTo.Format(time.DateOnly))
 	}
 	query := c.Query("query")
-	if len(query) == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Query is empty"})
-		return
-	}
-	zap.S().Infof("GET search words in dictionary %d with lastId %d and pageSize %d and query %s", dictionaryIdInt, lastIdInt, pageSizeInt, query)
-	wordsResponse, err := controller.WordUseCase.SearchWordsForDictionary(c, query, *userId, dictionaryIdInt, lastIdInt, pageSizeInt)
+	zap.S().Infof("Accept filter by query = %s", query)
+
+	zap.S().Infof("GET all words for dictionary %d with lastId %d and pageSize %d", dictionaryIdInt, lastIdInt, pageSizeInt)
+	wordsResponse, err := controller.WordUseCase.SearchWordsForDictionary(c, *userId, query, dictionaryIdInt, lastIdInt, pageSizeInt,
+		createdFrom, createdTo, &wordTypes, categoryIds, tagIds)
 	if err != nil {
 		zap.S().Error("Failed to get words")
 		zap.S().Error(err)

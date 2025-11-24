@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	database "easy-dictionary-server/db"
 	dbWord "easy-dictionary-server/db/word"
@@ -31,31 +32,10 @@ func (wr *wordRepository) CreateWithTranslations(c context.Context, dictionaryId
 	return err
 }
 
-func (wr *wordRepository) GetAllForDictionary(c context.Context, userId int, dictionaryId int, lastId int, pageSize int) (*domain.WordsWithPaginationResponse, error) {
-	zap.S().Debugf("GetAllForDictionary %d", dictionaryId)
-	wordEntities, err := dbWord.GetAllWordsForDictionary(wr.db, dictionaryId, lastId, pageSize)
-	if err != nil {
-		return &domain.WordsWithPaginationResponse{Words: []domain.WordWithTranslationsAndCategories{}, NextLastID: 0, HasMore: false}, err
-	}
-	hasMore := false
-	if len(*wordEntities) > pageSize {
-		hasMore = true
-		*wordEntities = (*wordEntities)[:pageSize]
-	}
-	nextLastID := lastId
-	if wordEntities != nil && len(*wordEntities) > 0 {
-		nextLastID = (*wordEntities)[len((*wordEntities))-1].ID
-	}
-	var words []domain.WordWithTranslationsAndCategories
-	for _, wEntity := range *wordEntities {
-		words = append(words, *wordMapper.ToWordWithTranslationAndCategoryDomain(&wEntity, userId, dictionaryId))
-	}
-	return &domain.WordsWithPaginationResponse{Words: words, NextLastID: nextLastID, HasMore: hasMore}, nil
-}
-
-func (wr *wordRepository) SearchWordsForDictionary(c context.Context, query string, userId int, dictionaryId int, lastId int, pageSize int) (*domain.WordsWithPaginationResponse, error) {
+func (wr *wordRepository) SearchWordsForDictionary(c context.Context, userId int, query string, dictionaryId int, lastId int, pageSize int, createdFrom *time.Time, createdTo *time.Time,
+	wordTypes *[]string, categoryIds *[]int, tagIds *[]int) (*domain.WordsWithPaginationResponse, error) {
 	zap.S().Debugf("SearchWordsForDictionary %d %s", dictionaryId, query)
-	wordEntities, err := dbWord.SearchWordsForDictionary(wr.db, query, dictionaryId, lastId, pageSize)
+	wordEntities, err := dbWord.SearchWordsForDictionary(wr.db, query, dictionaryId, lastId, pageSize, createdFrom, createdTo, wordTypes, categoryIds, tagIds)
 	if err != nil {
 		return &domain.WordsWithPaginationResponse{Words: []domain.WordWithTranslationsAndCategories{}, NextLastID: 0, HasMore: false}, err
 	}

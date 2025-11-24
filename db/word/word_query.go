@@ -5,6 +5,12 @@ package db
 // - $1: dictionary id
 // - $2: last id from latest page
 // - $3: page size
+// - $4: created_from TIMESTAMP or NULL
+// - $5: created_to TIMESTAMP or NULL
+// - $6: word_types TEXT[] or NULL
+// - $7: category_ids INT[] or NULL
+// - $8: tag_ids INT[] or null
+// - $9: query by original field (text, nullable/empty)
 func getAllWordsByDictionaryQuery() string {
 	return `
 WITH page AS (
@@ -12,6 +18,16 @@ WITH page AS (
   FROM word
   WHERE dictionary_id = $1
     AND id > $2               -- $2 = lastId (0 for first page)
+    AND ($4::timestamp IS NULL OR created_at >= $4::timestamp) -- $4 created_from
+    AND ($5::timestamp IS NULL OR created_at <= $5::timestamp) -- $5 created_to
+    AND (
+      $6::text[] IS NULL
+      OR type = ANY($6::text[])          -- $6 word_types
+    )
+    AND (
+      $9::text IS NULL
+      OR original ILIKE '%' || $9::text || '%' -- $9
+    )
   ORDER BY id
   LIMIT $3                    -- $3 = pageSize (+1, if you want to know has_more)
 )
@@ -45,57 +61,16 @@ LEFT JOIN word_tag_word wtw
 LEFT JOIN word_tag wt
        ON wt.id = wtw.word_tag_id
       AND wt.dictionary_id = w.dictionary_id
-ORDER BY w.id, t.id;`
-}
-
-// GetSearchWordsByDictionaryQuery get query to get all words for dictionary table
-// Params:
-// - $1: dictionary id
-// - $2: search query string by original column
-// - $3: last id from latest page
-// - $4: page size
-func getSearchWordsByDictionaryQuery() string {
-	return `
-WITH page AS (
-  SELECT id
-  FROM word
-  WHERE dictionary_id = $1
-    AND original ILIKE '%' || $2 || '%'
-    AND id > $3               -- $3 = lastId (0 for first page)
-  ORDER BY id
-  LIMIT $4                    -- $4 = pageSize (+1, if you want to know has_more)
-)
-SELECT
-  w.id            AS word_id,
-  w.dictionary_id AS word_dictionary_id,
-  w.original      AS word_original,
-  w.phonetic      AS word_phonetic,
-  w.type          AS word_type,
-  w.created_at AS word_created_at,
-
-  t.id            AS translation_id,
-  t.description   AS translation_description,
-  t.translate     AS translation_text,
-  t.created_at AS translation_created_at,
-
-  tc.id           AS category_id,
-  tc.name         AS category_name,
-
-  wt.id           AS tag_id,
-  wt.name         AS tag_name
-FROM word w
-JOIN page p           ON p.id = w.id
-LEFT JOIN translation t
-       ON t.word_id = w.id
-LEFT JOIN translation_category tc
-       ON tc.id = t.category_id
-      AND tc.dictionary_id = w.dictionary_id
-LEFT JOIN word_tag_word wtw
-       ON wtw.word_id = w.id
-LEFT JOIN word_tag wt
-       ON wt.id = wtw.word_tag_id
-      AND wt.dictionary_id = w.dictionary_id
-ORDER BY w.id, t.id;`
+WHERE
+  (
+    $7::int[] IS NULL
+    OR tc.id = ANY($7::int[])       -- category_ids
+  )
+  AND (
+    $8::int[] IS NULL
+    OR wt.id = ANY($8::int[])       -- tag_ids
+  )
+ORDER BY w.id, t.id, wt.id;`
 }
 
 // CreateWordAndReturnIdQuery get query to create word

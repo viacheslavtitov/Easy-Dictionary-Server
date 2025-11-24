@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"time"
 
 	translationDomain "easy-dictionary-server/domain/translation"
 	domainWord "easy-dictionary-server/domain/word"
@@ -21,16 +22,11 @@ func NewWordUsecase(wordRepository domainWord.WordRepository, timeout int) domai
 	}
 }
 
-func (wu *wordUsecase) GetAllForDictionary(c context.Context, userId int, dictionaryId int, lastId int, pageSize int) (*domainWord.WordsWithPaginationResponse, error) {
+func (wu *wordUsecase) SearchWordsForDictionary(c context.Context, userId int, query string, dictionaryId int, lastId int, pageSize int, createdFrom *time.Time, createdTo *time.Time,
+	wordTypes *[]string, categoryIds *[]int, tagIds *[]int) (*domainWord.WordsWithPaginationResponse, error) {
 	ctx, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(wu.contextTimeout))
 	defer cancel()
-	return wu.wordRepository.GetAllForDictionary(ctx, userId, dictionaryId, lastId, pageSize)
-}
-
-func (wu *wordUsecase) SearchWordsForDictionary(c context.Context, query string, userId int, dictionaryId int, lastId int, pageSize int) (*domainWord.WordsWithPaginationResponse, error) {
-	ctx, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(wu.contextTimeout))
-	defer cancel()
-	return wu.wordRepository.SearchWordsForDictionary(ctx, query, userId, dictionaryId, lastId, pageSize)
+	return wu.wordRepository.SearchWordsForDictionary(ctx, userId, query, dictionaryId, lastId, pageSize, createdFrom, createdTo, wordTypes, categoryIds, tagIds)
 }
 
 func (wu *wordUsecase) Create(c context.Context, dictionaryId int, original string, phonetic *string, wordType *string) error {

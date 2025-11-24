@@ -9,8 +9,10 @@ import (
 	wordTagEntity "easy-dictionary-server/db/word/tag"
 	pointers "easy-dictionary-server/internalenv/utils"
 	"fmt"
+	"strings"
 	"time"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 	"go.uber.org/zap"
 )
@@ -63,35 +65,54 @@ type wordFullEntityRow struct {
 	WordTagName            *string   `db:"tag_name"`
 }
 
-func GetAllWordsForDictionary(db *database.Database, dictionaryId int, lastId int, pageSize int) (*[]WordFullEntity, error) {
-	var words []wordFullEntityRow
-	err := db.SQLDB.Select(&words, getAllWordsByDictionaryQuery(), dictionaryId, lastId, pageSize+1)
+func SearchWordsForDictionary(db *database.Database, query string, dictionaryId int, lastId int, pageSize int, createdFrom *time.Time, createdTo *time.Time,
+	wordTypes *[]string, categoryIds *[]int, tagIds *[]int) (*[]WordFullEntity, error) {
+	var wt interface{}
+	if wordTypes != nil && len(*wordTypes) > 0 {
+		wt = pq.Array(*wordTypes)
+	} else {
+		wt = nil
+	}
+	var catIds interface{}
+	if categoryIds != nil && len(*categoryIds) > 0 {
+		catIds = pq.Array(*categoryIds)
+	} else {
+		catIds = nil
+	}
+	var tIds interface{}
+	if tagIds != nil && len(*tagIds) > 0 {
+		tIds = pq.Array(*tagIds)
+	} else {
+		tIds = nil
+	}
+	var searchOriginal interface{}
+	q := strings.TrimSpace(query)
+	if q != "" {
+		searchOriginal = q
+	} else {
+		searchOriginal = nil
+	}
+	rows, err := db.SQLDB.Queryx(getAllWordsByDictionaryQuery(), dictionaryId, lastId, pageSize+1, createdFrom, createdTo,
+		wt, catIds, tIds, searchOriginal)
 	if err != nil {
 		return nil, err
 	}
-	return mapWordsFullToEntity(err, words)
+	defer rows.Close()
+	return mapWordsFullToEntity(err, rows)
 }
 
-func SearchWordsForDictionary(db *database.Database, query string, dictionaryId int, lastId int, pageSize int) (*[]WordFullEntity, error) {
-	var words []wordFullEntityRow
-	err := db.SQLDB.Select(&words, getSearchWordsByDictionaryQuery(), dictionaryId, query, lastId, pageSize+1)
+func mapWordsFullToEntity(err error, rows *sqlx.Rows) (*[]WordFullEntity, error) {
 	if err != nil {
 		return nil, err
 	}
-	return mapWordsFullToEntity(err, words)
-}
+	wordsByID := make(map[int]*WordFullEntity)
+	order := make([]int, 0)
 
-func mapWordsFullToEntity(err error, rows []wordFullEntityRow) (*[]WordFullEntity, error) {
-	if err != nil {
-		return nil, err
-	}
-	if len(rows) == 0 {
-		return &[]WordFullEntity{}, nil
-	}
-	wordsByID := make(map[int]*WordFullEntity, len(rows))
-	order := make([]int, 0, len(rows))
-
-	for _, r := range rows {
+	for rows.Next() {
+		var r wordFullEntityRow
+		if err := rows.StructScan(&r); err != nil {
+			return nil, err
+		}
 		w, ok := wordsByID[r.ID]
 		if !ok {
 			translations := make([]translationEntity.TranslationWithCategoryEntity, 0, 4)
