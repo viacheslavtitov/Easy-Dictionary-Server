@@ -27,7 +27,7 @@ type DictionaryController struct {
 // @Failure      400  {object}  domain.ErrorResponse
 // @Failure      404  {object}  domain.ErrorResponse
 // @Failure      500  {object}  domain.ErrorResponse
-// @Router       /api/dictionary/all [get]
+// @Router       /api/dictionary/:id [get]
 func (dictionaryController *DictionaryController) GetDetailForUser(c *gin.Context) {
 	dictionaryId := c.Param("id")
 	zap.S().Infof("Get detail info for dictionary %d", dictionaryId)
