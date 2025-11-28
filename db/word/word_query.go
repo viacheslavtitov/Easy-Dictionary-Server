@@ -63,12 +63,25 @@ LEFT JOIN word_tag wt
       AND wt.dictionary_id = w.dictionary_id
 WHERE
   (
-    $7::int[] IS NULL
-    OR tc.id = ANY($7::int[])       -- category_ids
+    -- 1) if all filters are null
+    $6::text[] IS NULL
+    AND $7::int[] IS NULL
+    AND $8::int[] IS NULL
   )
-  AND (
-    $8::int[] IS NULL
-    OR wt.id = ANY($8::int[])       -- tag_ids
+  OR (
+    -- 2) find in word_types
+    $6::text[] IS NOT NULL
+    AND w.type = ANY($6::text[])
+  )
+  OR (
+    -- 3) find in category_ids
+    $7::int[] IS NOT NULL
+    AND tc.id = ANY($7::int[])
+  )
+  OR (
+    -- 4) find in tag_ids
+    $8::int[] IS NOT NULL
+    AND wt.id = ANY($8::int[])
   )
 ORDER BY w.id, t.id, wt.id;`
 }
