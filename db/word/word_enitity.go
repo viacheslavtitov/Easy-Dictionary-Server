@@ -104,6 +104,7 @@ func SearchWordsForDictionary(db *database.Database, query string, dictionaryId 
 	rows, err := db.SQLDB.Queryx(getAllWordsByDictionaryQuery(), dictionaryId, lastId, pageSize+1, createdFrom, createdTo,
 		wt, catIds, tIds, searchOriginal)
 	if err != nil {
+		zap.S().Debugln("Failed to query words")
 		return nil, err
 	}
 	defer rows.Close()
@@ -118,8 +119,10 @@ func mapWordsFullToEntity(err error, rows *sqlx.Rows) (*[]WordFullEntity, error)
 	order := make([]int, 0)
 
 	for rows.Next() {
+		zap.S().Debugln("Row has next")
 		var r wordFullEntityRow
 		if err := rows.StructScan(&r); err != nil {
+			zap.S().Debugln("Failed to scan rows to wordFullEntityRow")
 			return nil, err
 		}
 		w, ok := wordsByID[r.ID]
@@ -180,6 +183,7 @@ func mapWordsFullToEntity(err error, rows *sqlx.Rows) (*[]WordFullEntity, error)
 	for _, id := range order {
 		result = append(result, *wordsByID[id])
 	}
+	zap.S().Debugf("Mapped words %d", len(result))
 	return &result, nil
 }
 
