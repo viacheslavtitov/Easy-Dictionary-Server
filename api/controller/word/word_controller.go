@@ -59,21 +59,21 @@ func (controller *WordController) GetAllForDictionary(c *gin.Context) {
 		return
 	}
 
-	categoryIds, err := controllerCommon.ParseQueryIntArray(c, "categoryIds")
+	categoryIds, err := controllerCommon.GetIntSliceParam(c, "categoryIds")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	} else if categoryIds != nil {
 		zap.S().Infow("Accept filter by categoryIds", categoryIds)
 	}
-	tagIds, err := controllerCommon.ParseQueryIntArray(c, "tagIds")
+	tagIds, err := controllerCommon.GetIntSliceParam(c, "tagIds")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	} else if tagIds != nil {
 		zap.S().Infow("Accept filter by tagIds", tagIds)
 	}
-	wordTypes := c.QueryArray("wordTypes")
+	wordTypes, _ := controllerCommon.GetStringSliceParam(c, "wordTypes")
 	zap.S().Infow("Accept filter by wordTypes", wordTypes)
 	createdFrom, err := controllerCommon.ParseDateTime(c, "from")
 	if err != nil {

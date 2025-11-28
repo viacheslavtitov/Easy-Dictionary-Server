@@ -81,3 +81,43 @@ func ParseDateTime(c *gin.Context, param string) (*time.Time, error) {
 	}
 	return nil, nil
 }
+
+func GetIntSliceParam(c *gin.Context, param string) (*[]int, error) {
+	vals := c.QueryArray(param) // maybe &id=1&id=2&id=3
+	if len(vals) == 0 {
+		single := c.Query(param) // maybe, "1,2,3"
+		if single != "" {
+			vals = strings.Split(single, ",")
+		}
+	}
+	if len(vals) == 0 {
+		return nil, nil
+	}
+	out := make([]int, 0, len(vals))
+	for _, s := range vals {
+		n, err := strconv.Atoi(strings.TrimSpace(s))
+		if err != nil {
+			return nil, fmt.Errorf("Param %s is not int", param)
+		}
+		out = append(out, n)
+	}
+	return &out, nil
+}
+
+func GetStringSliceParam(c *gin.Context, param string) ([]string, error) {
+	vals := c.QueryArray(param) // maybe &id=1&id=2&id=3
+	if len(vals) == 0 {
+		single := c.Query(param) // maybe, "1,2,3"
+		if single != "" {
+			vals = strings.Split(single, ",")
+		}
+	}
+	if len(vals) == 0 {
+		return nil, nil
+	}
+	out := make([]string, 0, len(vals))
+	for _, s := range vals {
+		out = append(out, s)
+	}
+	return out, nil
+}
