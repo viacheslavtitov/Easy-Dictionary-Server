@@ -67,29 +67,38 @@ type wordFullEntityRow struct {
 
 func SearchWordsForDictionary(db *database.Database, query string, dictionaryId int, lastId int, pageSize int, createdFrom *time.Time, createdTo *time.Time,
 	wordTypes *[]string, categoryIds *[]int, tagIds *[]int) (*[]WordFullEntity, error) {
+	zap.S().Debugln("SearchWordsForDictionary")
 	var wt interface{}
 	if wordTypes != nil && len(*wordTypes) > 0 {
+		zap.S().Debugf("-- wordTypes (%d)", len(*wordTypes))
 		wt = pq.Array(*wordTypes)
 	} else {
+		zap.S().Debug("-- wordTypes is empty")
 		wt = nil
 	}
 	var catIds interface{}
 	if categoryIds != nil && len(*categoryIds) > 0 {
+		zap.S().Debugf("-- categoryIds (%d)", len(*categoryIds))
 		catIds = pq.Array(*categoryIds)
 	} else {
+		zap.S().Debug("-- categoryIds is empty")
 		catIds = nil
 	}
 	var tIds interface{}
 	if tagIds != nil && len(*tagIds) > 0 {
+		zap.S().Debugf("-- tagIds (%d)", len(*tagIds))
 		tIds = pq.Array(*tagIds)
 	} else {
+		zap.S().Debug("-- tagIds is empty")
 		tIds = nil
 	}
 	var searchOriginal interface{}
 	q := strings.TrimSpace(query)
 	if q != "" {
+		zap.S().Debugf("-- query (%s)", searchOriginal)
 		searchOriginal = q
 	} else {
+		zap.S().Debug("-- query is empty")
 		searchOriginal = nil
 	}
 	rows, err := db.SQLDB.Queryx(getAllWordsByDictionaryQuery(), dictionaryId, lastId, pageSize+1, createdFrom, createdTo,
