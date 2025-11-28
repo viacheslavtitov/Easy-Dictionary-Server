@@ -132,12 +132,16 @@ func mapWordsFullToEntity(err error, rows *sqlx.Rows) (*[]WordFullEntity, error)
 		}
 
 		if r.WordTagId != nil {
-			wt := wordTagEntity.WordTagEntity{
-				ID:           *r.WordTagId,
-				DictionaryId: r.DictionaryId,
-				Name:         *r.WordTagName,
+			_, ok := findWordTagByID(w.WordTags, *r.WordTagId)
+			if !ok {
+				wt := wordTagEntity.WordTagEntity{
+					ID:           *r.WordTagId,
+					DictionaryId: r.DictionaryId,
+					Name:         *r.WordTagName,
+				}
+				zap.S().Debugf("Map word tag %d", *r.WordTagId)
+				*w.WordTags = append(*w.WordTags, wt)
 			}
-			*w.WordTags = append(*w.WordTags, wt)
 		}
 
 		if r.TranslationId == nil {
@@ -212,10 +216,13 @@ func CreateWordWithTranslations(db *database.Database, ctx context.Context, dict
 			return 0, fmt.Errorf("prepare word tag insert: %w", err)
 		}
 		defer stmtTag.Close()
+		zap.S().Debugf("Try to insert tags %d", len(*entity.WordTags))
 		for _, tag := range *entity.WordTags {
 			if _, err = stmtTag.ExecContext(ctx, tag.ID, wordId); err != nil {
 				zap.S().Debugln("Failed to insert tag")
 				return 0, fmt.Errorf("insert tag: %w", err)
+			} else {
+				zap.S().Debugf("Tag id %d was added to word %d and name %s", tag.ID, wordId, entity.Original)
 			}
 		}
 	}
@@ -268,4 +275,16 @@ func UpdateWord(db *database.Database, entity *UpdateWordEntity) error {
 func DeleteWordById(db *database.Database, id int) (sql.Result, error) {
 	rowsDeleted, err := db.SQLDB.Exec(deleteWordByIdQuery(), id)
 	return rowsDeleted, err
+}
+
+func findWordTagByID(tags *[]wordTagEntity.WordTagEntity, id int) (*wordTagEntity.WordTagEntity, bool) {
+	if tags == nil {
+		return nil, false
+	}
+	for i := range *tags {
+		if (*tags)[i].ID == id {
+			return &(*tags)[i], true
+		}
+	}
+	return nil, false
 }
