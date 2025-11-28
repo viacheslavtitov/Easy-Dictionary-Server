@@ -40,12 +40,17 @@ func (controller *TranslationCategoryController) GetAllForUser(c *gin.Context) {
 			zap.S().Error(err)
 			c.JSON(http.StatusInternalServerError, err.Error())
 		} else {
-			zap.S().Debugf("Got translation categories %d", len(*tcategories))
 			var categories []domainTranslationCategory.TranslationCategoryResponse
 			for _, tCategory := range *tcategories {
 				categories = append(categories, *translationCategoryMapper.ToTranslationCategoryResponseDomain(&tCategory))
 			}
-			c.JSON(http.StatusOK, &categories)
+			count := len(categories)
+			zap.S().Debugf("Got translation categories %d", len(categories))
+			if count > 0 {
+				c.JSON(http.StatusOK, &categories)
+			} else {
+				c.JSON(http.StatusOK, []domainTranslationCategory.TranslationCategoryResponse{})
+			}
 		}
 	}
 }

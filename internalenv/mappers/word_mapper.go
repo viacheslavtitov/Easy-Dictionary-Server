@@ -43,19 +43,23 @@ func FromWordDomainToUpdate(id int, dictionaryId int, original string, phonetic 
 
 func FromWordWithTranslationDomain(w *domainWord.WordWithTranslations) *dbWord.WordEntity {
 	var translations []translationEntity.TranslationEmptyEntity
-	for _, wEntity := range *w.Translations {
-		translations = append(translations, translationEntity.TranslationEmptyEntity{
-			CategoryId:  wEntity.CategoryId,
-			Translate:   wEntity.Translate,
-			Description: wEntity.Description,
-		})
+	if w.Translations != nil {
+		for _, wEntity := range *w.Translations {
+			translations = append(translations, translationEntity.TranslationEmptyEntity{
+				CategoryId:  wEntity.CategoryId,
+				Translate:   wEntity.Translate,
+				Description: wEntity.Description,
+			})
+		}
 	}
 	var wordTags []wordTagEntity.WordTagEntity
-	for _, wtEntity := range *w.WordTags {
-		wordTags = append(wordTags, wordTagEntity.WordTagEntity{
-			ID:   wtEntity.ID,
-			Name: wtEntity.Name,
-		})
+	if w.WordTags != nil {
+		for _, wtEntity := range *w.WordTags {
+			wordTags = append(wordTags, wordTagEntity.WordTagEntity{
+				ID:   wtEntity.ID,
+				Name: wtEntity.Name,
+			})
+		}
 	}
 	return &dbWord.WordEntity{
 		ID:           w.ID,
