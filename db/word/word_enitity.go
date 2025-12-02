@@ -101,25 +101,30 @@ func SearchWordsForDictionary(db *database.Database, query string, dictionaryId 
 		zap.S().Debug("-- query is empty")
 		searchOriginal = nil
 	}
-	rows, err := db.SQLDB.Queryx(getAllWordsByDictionaryQuery(), dictionaryId, lastId, pageSize+1, createdFrom, createdTo,
+	var wordIDs []int
+	err := db.SQLDB.Select(&wordIDs, getAllWordsByDictionaryQuery(), dictionaryId, lastId, pageSize+1, createdFrom, createdTo,
 		wt, catIds, tIds, searchOriginal)
 	if err != nil {
-		zap.S().Debugln("Failed to query words")
+		zap.S().Debugln("Failed to query word ids")
+		return nil, err
+	}
+	if len(wordIDs) == 0 {
+		return &[]WordFullEntity{}, nil
+	}
+	rows, err := db.SQLDB.Queryx(getWordsDetailInfo(), dictionaryId, pq.Array(wordIDs))
+	if err != nil {
+		zap.S().Debugln("Failed to query word details")
 		return nil, err
 	}
 	defer rows.Close()
-	return mapWordsFullToEntity(err, rows)
+	return mapWordsFullToEntity(rows)
 }
 
-func mapWordsFullToEntity(err error, rows *sqlx.Rows) (*[]WordFullEntity, error) {
-	if err != nil {
-		return nil, err
-	}
+func mapWordsFullToEntity(rows *sqlx.Rows) (*[]WordFullEntity, error) {
 	wordsByID := make(map[int]*WordFullEntity)
 	order := make([]int, 0)
 
 	for rows.Next() {
-		zap.S().Debugln("Row has next")
 		var r wordFullEntityRow
 		if err := rows.StructScan(&r); err != nil {
 			zap.S().Debugln("Failed to scan rows to wordFullEntityRow")

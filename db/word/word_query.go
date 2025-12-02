@@ -13,6 +13,48 @@ package db
 // - $9: query by original field (text, nullable/empty)
 func getAllWordsByDictionaryQuery() string {
 	return `
+SELECT w.id
+FROM word w
+WHERE
+  w.dictionary_id = $1
+  AND w.id > $2
+  AND ($4::timestamp IS NULL OR w.created_at >= $4::timestamp)
+  AND ($5::timestamp IS NULL OR w.created_at <= $5::timestamp)
+  AND ($6::text[] IS NULL OR w.type = ANY($6::text[]))
+
+  AND (
+    $7::int[] IS NULL
+    OR EXISTS (
+      SELECT 1
+      FROM translation t
+      JOIN translation_category tc ON tc.id = t.category_id
+      WHERE t.word_id = w.id
+        AND tc.id = ANY($7::int[])
+    )
+  )
+
+  AND (
+    $8::int[] IS NULL
+    OR EXISTS (
+      SELECT 1
+      FROM word_tag_word wtw
+      JOIN word_tag wt ON wt.id = wtw.word_tag_id
+      WHERE wtw.word_id = w.id
+        AND wt.id = ANY($8::int[])
+    )
+  )
+
+  AND ($9::text IS NULL OR w.original ILIKE '%' || $9::text || '%')
+ORDER BY w.id
+LIMIT $3;`
+}
+
+// GetAllWordsByDictionaryQuery get query to get all words for dictionary table with details (translations, categories, tags)
+// Params:
+// $1: dictionary_id (INT)
+// $2: word_ids INT[]
+func getWordsDetailInfo() string {
+	return `
 SELECT
   w.id            AS word_id,
   w.dictionary_id AS word_dictionary_id,
@@ -44,15 +86,8 @@ LEFT JOIN word_tag wt
       AND wt.dictionary_id = w.dictionary_id
 WHERE
   w.dictionary_id = $1
-  AND w.id > $2              -- lastId
-  AND ($4::timestamp IS NULL OR w.created_at >= $4::timestamp)
-  AND ($5::timestamp IS NULL OR w.created_at <= $5::timestamp)
-  AND ($6::text[] IS NULL OR w.type = ANY($6::text[]))
-  AND ($7::int[] IS NULL OR tc.id = ANY($7::int[]))
-  AND ($8::int[] IS NULL OR wt.id = ANY($8::int[]))
-  AND ($9::text IS NULL OR w.original ILIKE '%' || $9::text || '%')
-ORDER BY w.id, t.id, wt.id
-LIMIT $3;`
+  AND w.id = ANY($2::int[])
+ORDER BY w.id, t.id, wt.id;`
 }
 
 // CreateWordAndReturnIdQuery get query to create word

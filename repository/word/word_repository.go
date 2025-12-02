@@ -36,7 +36,7 @@ func (wr *wordRepository) SearchWordsForDictionary(c context.Context, userId int
 	wordTypes *[]string, categoryIds *[]int, tagIds *[]int) (*domain.WordsWithPaginationResponse, error) {
 	zap.S().Debugf("SearchWordsForDictionary %d %s", dictionaryId, query)
 	wordEntities, err := dbWord.SearchWordsForDictionary(wr.db, query, dictionaryId, lastId, pageSize, createdFrom, createdTo, wordTypes, categoryIds, tagIds)
-	if err != nil {
+	if err != nil || wordEntities == nil {
 		return &domain.WordsWithPaginationResponse{Words: []domain.WordWithTranslationsAndCategories{}, NextLastID: 0, HasMore: false}, err
 	}
 	hasMore := false
@@ -44,10 +44,13 @@ func (wr *wordRepository) SearchWordsForDictionary(c context.Context, userId int
 		hasMore = true
 		*wordEntities = (*wordEntities)[:pageSize]
 	}
+	wordCount := len(*wordEntities)
+	zap.S().Debugf("result is %d words count", wordCount)
 	nextLastID := lastId
-	if wordEntities != nil && len(*wordEntities) > 0 {
-		nextLastID = (*wordEntities)[len((*wordEntities))-1].ID
+	if wordCount > 0 {
+		nextLastID = (*wordEntities)[wordCount-1].ID
 	}
+	zap.S().Debugf("hasMore %t with next last id %d", hasMore, nextLastID)
 	var words []domain.WordWithTranslationsAndCategories
 	for _, wEntity := range *wordEntities {
 		words = append(words, *wordMapper.ToWordWithTranslationAndCategoryDomain(&wEntity, userId, dictionaryId))
