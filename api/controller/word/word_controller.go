@@ -5,6 +5,8 @@ import (
 	"easy-dictionary-server/domain"
 	domainWord "easy-dictionary-server/domain/word"
 	validatorutil "easy-dictionary-server/internalenv/validator"
+	repositoryWord "easy-dictionary-server/repository/word"
+	"errors"
 	"time"
 
 	"net/http"
@@ -165,9 +167,14 @@ func (controller *WordController) Create(c *gin.Context) {
 	}
 	err := controller.WordUseCase.Create(c, request.DictionaryId, request.Original, request.Phonetic, request.Type)
 	if err != nil {
-		zap.S().Error("Failed to create word with " + request.Original)
-		zap.S().Error(err)
-		c.JSON(http.StatusInternalServerError, err.Error())
+		if errors.Is(err, repositoryWord.ErrWordAlreadyExists) {
+			zap.S().Error(err)
+			c.JSON(http.StatusConflict, err.Error())
+		} else {
+			zap.S().Error("Failed to create word with " + request.Original)
+			zap.S().Error(err)
+			c.JSON(http.StatusInternalServerError, err.Error())
+		}
 	} else {
 		zap.S().Debugf("Word created %s", request.Original)
 		c.JSON(http.StatusCreated, domain.SuccessResponse{Message: "Word created"})
@@ -198,9 +205,14 @@ func (controller *WordController) CreateWordWithTranslations(c *gin.Context) {
 	}
 	err := controller.WordUseCase.CreateWithTranslations(c, request.DictionaryId, request.Original, request.Phonetic, request.Type, request.Translations, request.WordTags)
 	if err != nil {
-		zap.S().Error("Failed to create word with " + request.Original)
-		zap.S().Error(err)
-		c.JSON(http.StatusInternalServerError, err.Error())
+		if errors.Is(err, repositoryWord.ErrWordAlreadyExists) {
+			zap.S().Error(err)
+			c.JSON(http.StatusConflict, err.Error())
+		} else {
+			zap.S().Error("Failed to create word with " + request.Original)
+			zap.S().Error(err)
+			c.JSON(http.StatusInternalServerError, err.Error())
+		}
 	} else {
 		zap.S().Debugf("Word created %s", request.Original)
 		c.JSON(http.StatusCreated, domain.SuccessResponse{Message: "Word created"})

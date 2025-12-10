@@ -100,6 +100,7 @@ func createWordAndReturnIdQuery() string {
 	return `
 INSERT INTO word (original, phonetic, type, dictionary_id)
 VALUES ($1, $2, $3, $4)
+ON CONFLICT (dictionary_id, LOWER(original)) DO NOTHING
 RETURNING id;
 `
 }
@@ -113,8 +114,8 @@ RETURNING id;
 func createWordQuery() string {
 	return `
 INSERT INTO word (original, phonetic, type, dictionary_id)
-VALUES ($1, $2, $3, $4);
-`
+VALUES ($1, $2, $3, $4)
+ON CONFLICT (dictionary_id, LOWER(original)) DO NOTHING`
 }
 
 // UpdateWordQuery get query to update word

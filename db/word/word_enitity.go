@@ -8,6 +8,7 @@ import (
 	translationCategoryDB "easy-dictionary-server/db/translation/category"
 	wordTagEntity "easy-dictionary-server/db/word/tag"
 	pointers "easy-dictionary-server/internalenv/utils"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -16,6 +17,8 @@ import (
 	"github.com/lib/pq"
 	"go.uber.org/zap"
 )
+
+var ErrWordAlreadyExists = errors.New("")
 
 type WordEntity struct {
 	ID           int       `db:"id"`
@@ -214,6 +217,9 @@ func CreateWordWithTranslations(db *database.Database, ctx context.Context, dict
 	var wordId int
 	err = db.SQLDB.QueryRowContext(ctx, createWordAndReturnIdQuery(), entity.Original, entity.Phonetic, entity.Type, dictionaryId).Scan(&wordId)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return 0, fmt.Errorf("Word %s is already exist%w", entity.Original, ErrWordAlreadyExists)
+		}
 		return 0, fmt.Errorf("insert word: %w", err)
 	}
 	zap.S().Debugf("Word inserted by id %d", wordId)

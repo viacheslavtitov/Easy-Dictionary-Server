@@ -2,6 +2,8 @@ package repository
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"time"
 
 	database "easy-dictionary-server/db"
@@ -11,6 +13,15 @@ import (
 
 	"go.uber.org/zap"
 )
+
+var ErrWordAlreadyExists = errors.New("")
+
+func handleError(err error) error {
+	if errors.Is(err, dbWord.ErrWordAlreadyExists) {
+		return fmt.Errorf("%s%w", err.Error(), ErrWordAlreadyExists)
+	}
+	return err
+}
 
 type wordRepository struct {
 	db *database.Database
@@ -23,13 +34,13 @@ func NewWordRepository(db *database.Database) domain.WordRepository {
 func (wr *wordRepository) Create(c context.Context, dictionaryId int, word *domain.Word) error {
 	zap.S().Debugf("Create word %s for user %d", word.Original, dictionaryId)
 	err := dbWord.CreateWord(wr.db, dictionaryId, wordMapper.FromWordDomain(word))
-	return err
+	return handleError(err)
 }
 
 func (wr *wordRepository) CreateWithTranslations(c context.Context, dictionaryId int, word *domain.WordWithTranslations) error {
 	zap.S().Debugf("Create word %s for user %d", word.Original, dictionaryId)
 	_, err := dbWord.CreateWordWithTranslations(wr.db, c, dictionaryId, wordMapper.FromWordWithTranslationDomain(word))
-	return err
+	return handleError(err)
 }
 
 func (wr *wordRepository) SearchWordsForDictionary(c context.Context, userId int, query string, dictionaryId int, lastId int, pageSize int, createdFrom *time.Time, createdTo *time.Time,
