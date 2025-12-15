@@ -18,9 +18,9 @@ func NewDictionaryRepository(db *database.Database) domain.DictionaryRepository 
 	return &dictionaryRepository{db: db}
 }
 
-func (dr *dictionaryRepository) Create(userId int, dictionary domain.Dictionary) error {
+func (dr *dictionaryRepository) Create(c context.Context, userId int, dictionary domain.Dictionary, tenses []string) error {
 	zap.S().Debugf("Create dictionary for user %d", userId)
-	err := dbDictionary.CreateDictionary(dr.db, userId, dictionaryMapper.FromDictionaryDomain(&dictionary, userId))
+	_, err := dbDictionary.CreateDictionary(dr.db, c, userId, dictionaryMapper.FromDictionaryDomain(&dictionary, userId), tenses)
 	return err
 }
 
@@ -59,9 +59,9 @@ func (dr *dictionaryRepository) GetAllDetailShortForUser(userId int) (*[]domain.
 	return &dictionaries, nil
 }
 
-func (dr *dictionaryRepository) Update(userId int, id int, dialect *string) error {
+func (dr *dictionaryRepository) Update(userId int, id int, dialect *string, tenses []string) error {
 	zap.S().Debugf("Update dictionary for user %d", userId)
-	_, err := dbDictionary.UpdateDictionary(dr.db, id, dialect)
+	err := dbDictionary.UpdateDictionary(dr.db, id, dialect, tenses)
 	return err
 }
 

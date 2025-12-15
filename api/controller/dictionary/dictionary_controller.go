@@ -130,7 +130,7 @@ func (dictionaryController *DictionaryController) Edit(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{"validation_errors": validationErrors})
 			return
 		}
-		err := dictionaryController.DictionaryUseCase.Update(c, *userID, request.ID, request.Dialect)
+		err := dictionaryController.DictionaryUseCase.Update(c, *userID, request.ID, request.Dialect, request.Tenses)
 		if err != nil {
 			zap.S().Errorf("Failed to update dictionary by id %d", request.ID)
 			zap.S().Error(err)
@@ -164,7 +164,7 @@ func (dictionaryController *DictionaryController) Create(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{"validation_errors": validationErrors})
 			return
 		}
-		err := dictionaryController.DictionaryUseCase.Create(c, *userID, request.Dialect, request.LangFromId, request.LangToId)
+		err := dictionaryController.DictionaryUseCase.Create(c, *userID, request.Dialect, request.LangFromId, request.LangToId, request.Tenses)
 		if err != nil {
 			zap.S().Error("Failed to create dictionary ")
 			zap.S().Error(err)

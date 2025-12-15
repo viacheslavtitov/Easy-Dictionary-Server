@@ -45,5 +45,6 @@ func ToDetailDictionaryDomain(d *dbDictionary.DetailDictionaryEntity) *domainDic
 		WordTags:   ToWordTagDomainArray(d.WordTags),
 		Categories: ToTranslationCategoryDomainArray(d.Categories),
 		WordTypes:  d.WordTypes,
+		Tenses:     ToTenseDomainArray(d.Tenses),
 	}
 }

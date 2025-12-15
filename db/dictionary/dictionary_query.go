@@ -136,6 +136,21 @@ func getDetailDictionaryForUserQuery() string {
         WHERE tc.dictionary_id = d.id
     ) AS categories,
 
+    -- tenses
+    (
+        SELECT COALESCE(
+            jsonb_agg(
+                DISTINCT jsonb_build_object(
+                    'id',   ten.id,
+                    'name', ten.name
+                )
+            ),
+            '[]'::jsonb
+        )
+        FROM tense ten
+        WHERE ten.dictionary_id = d.id
+    ) AS tenses,
+
     -- word types
     (
         SELECT COALESCE(

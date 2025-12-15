@@ -1,14 +1,18 @@
 package db
 
 import (
+	"context"
 	"database/sql"
 	database "easy-dictionary-server/db"
 	dbLanguage "easy-dictionary-server/db/language"
+	dbTense "easy-dictionary-server/db/tense"
 	dbTranslationCategory "easy-dictionary-server/db/translation/category"
 	dbWordTag "easy-dictionary-server/db/word/tag"
 	"encoding/json"
+	"fmt"
 
 	"github.com/lib/pq"
+	"go.uber.org/zap"
 )
 
 type DictionaryEntity struct {
@@ -50,6 +54,7 @@ type detailRow struct {
 	LangTo     []byte         `db:"lang_to"`    // JSON
 	WordTags   []byte         `db:"word_tags"`  // JSON array
 	Categories []byte         `db:"categories"` // JSON array
+	Tenses     []byte         `db:"tenses"`     // JSON array
 	WordTypes  pq.StringArray `db:"word_types"` // text[]
 }
 
@@ -60,6 +65,7 @@ type DetailDictionaryEntity struct {
 	LangTo     *dbLanguage.LanguageEntity                              `json:"lang_to"`
 	WordTags   *[]dbWordTag.WordTagEntity                              `json:"tags"`
 	Categories *[]dbTranslationCategory.TranslationCategoryShortEntity `json:"categories"`
+	Tenses     *[]dbTense.TenseEntity                                  `json:"tenses"`
 	WordTypes  *[]string                                               `json:"types"`
 }
 
@@ -72,18 +78,81 @@ func GetAllDictionariesForUser(db *database.Database, userId int) (*[]Dictionary
 	return &dictionaries, err
 }
 
-func CreateDictionary(db *database.Database, userId int, entity *DictionaryEntity) error {
-	_, err := db.SQLDB.Exec(createUserDictionaryQuery(), entity.Dialect, entity.LangFromId, entity.LangToId, userId)
-	return err
+func CreateDictionary(db *database.Database, ctx context.Context, userId int, entity *DictionaryEntity, tenses []string) (int, error) {
+	zap.S().Debugf("CreateDictionary for user %d with tenses %d", userId, len(tenses))
+	tx, err := db.SQLDB.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelReadCommitted})
+	if err != nil {
+		zap.S().Debugln("Failed to start transaction")
+		return 0, err
+	}
+	defer func() {
+		if err != nil {
+			_ = tx.Rollback()
+		} else {
+			err = tx.Commit()
+		}
+	}()
+	var dictionaryId int
+	err = db.SQLDB.QueryRowContext(ctx, createUserDictionaryQuery(), entity.Dialect, entity.LangFromId, entity.LangToId, userId).Scan(&dictionaryId)
+	if err != nil {
+		return 0, err
+	}
+	zap.S().Debugf("Dictionary inserted by id %d", dictionaryId)
+	stmt, err := tx.PrepareContext(ctx, dbTense.CreateTenseQuery())
+	if err != nil {
+		return 0, fmt.Errorf("prepare translation insert: %w", err)
+	}
+	defer stmt.Close()
+	for _, t := range tenses {
+		if _, err = stmt.ExecContext(ctx, dictionaryId, t); err != nil {
+			zap.S().Debugln("Failed to insert transaction")
+			return 0, fmt.Errorf("insert translation: %w", err)
+		}
+	}
+	return dictionaryId, err
 }
 
-func UpdateDictionary(db *database.Database, id int, dialect *string) (*DictionaryEntity, error) {
-	var dictionary DictionaryEntity
-	err := db.SQLDB.Get(&dictionary, updateUserDictionaryQuery(), dialect, id)
+func UpdateDictionary(db *database.Database, id int, dialect *string, tenses []string) error {
+	tx, err := db.SQLDB.Beginx()
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return &dictionary, nil
+	defer func() {
+		if err != nil {
+			_ = tx.Rollback()
+		}
+	}()
+
+	// update dictionary
+	res, err := tx.Exec(updateUserDictionaryQuery(), dialect, id)
+	if err != nil {
+		return err
+	}
+
+	affected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if affected == 0 {
+		return fmt.Errorf("dictionary not found or not belongs to dictionary")
+	}
+
+	// delete all tenses if they exist
+	_, err = tx.Exec(dbTense.DeleteAllTensesByDictionaryIdQuery(), id)
+	if err != nil {
+		return err
+	}
+
+	if len(tenses) > 0 {
+		// add new tenses for dictionary
+		_, err = tx.Exec(dbTense.BulkInsertTensesForDictionaryQuery(), id, pq.Array(tenses))
+		if err != nil {
+			return err
+		}
+	}
+
+	err = tx.Commit()
+	return err
 }
 
 func DeleteDictionaryById(db *database.Database, id int) (sql.Result, error) {
@@ -159,6 +228,11 @@ func GetDetailForUser(db *database.Database, dictionaryId int) (*DetailDictionar
 	var cats []dbTranslationCategory.TranslationCategoryShortEntity
 	json.Unmarshal(row.Categories, &cats)
 	detail.Categories = &cats
+
+	// tenses
+	var tenses []dbTense.TenseEntity
+	json.Unmarshal(row.Tenses, &tenses)
+	detail.Tenses = &tenses
 
 	// word_types
 	wt := []string(row.WordTypes)

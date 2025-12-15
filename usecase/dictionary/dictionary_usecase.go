@@ -37,19 +37,19 @@ func (du *dictionaryUsecase) GetAllDetailShortForUser(c context.Context, userId 
 	return du.dictionaryRepository.GetAllDetailShortForUser(userId)
 }
 
-func (du *dictionaryUsecase) Create(c context.Context, userId int, dialect *string, langFromId int, langToId int) error {
+func (du *dictionaryUsecase) Create(c context.Context, userId int, dialect *string, langFromId int, langToId int, tenses []string) error {
 	_, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(du.contextTimeout))
 	defer cancel()
-	return du.dictionaryRepository.Create(userId, domainDictionary.Dictionary{
+	return du.dictionaryRepository.Create(c, userId, domainDictionary.Dictionary{
 		Dialect:    dialect,
 		LangFromId: langFromId,
-		LangToId:   langToId})
+		LangToId:   langToId}, tenses)
 }
 
-func (du *dictionaryUsecase) Update(c context.Context, userId int, id int, dialect *string) error {
+func (du *dictionaryUsecase) Update(c context.Context, userId int, id int, dialect *string, tenses []string) error {
 	_, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(du.contextTimeout))
 	defer cancel()
-	return du.dictionaryRepository.Update(userId, id, dialect)
+	return du.dictionaryRepository.Update(userId, id, dialect, tenses)
 }
 
 func (du *dictionaryUsecase) DeleteById(c context.Context, id int) (int64, error) {
