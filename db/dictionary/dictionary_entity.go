@@ -137,12 +137,6 @@ func UpdateDictionary(db *database.Database, id int, dialect *string, tenses []s
 		return fmt.Errorf("dictionary not found or not belongs to dictionary")
 	}
 
-	// delete all tenses if they exist
-	_, err = tx.Exec(dbTense.DeleteAllTensesByDictionaryIdQuery(), id)
-	if err != nil {
-		return err
-	}
-
 	if len(tenses) > 0 {
 		// add new tenses for dictionary
 		_, err = tx.Exec(dbTense.BulkInsertTensesForDictionaryQuery(), id, pq.Array(tenses))
