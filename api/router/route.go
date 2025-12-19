@@ -5,6 +5,7 @@ import (
 	routeDictionary "easy-dictionary-server/api/router/dictionary"
 	routeLanguage "easy-dictionary-server/api/router/language"
 	routeQuiz "easy-dictionary-server/api/router/quiz"
+	routeTense "easy-dictionary-server/api/router/tense"
 	routeTranslation "easy-dictionary-server/api/router/translation"
 	routeTranslationCategory "easy-dictionary-server/api/router/translation/category"
 	routeUser "easy-dictionary-server/api/router/user"
@@ -31,4 +32,5 @@ func Setup(timeout int, group *gin.RouterGroup, database *database.Database, env
 	routeTranslation.NewTranslationRouter(timeout, group, database, env)
 	routeWordTag.NewWordRouter(timeout, group, database, env)
 	routeQuiz.NewQuizRouter(timeout, group, database, env)
+	routeTense.NewTenseRouter(timeout, group, database, env)
 }
