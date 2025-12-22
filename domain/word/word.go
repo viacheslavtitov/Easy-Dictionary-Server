@@ -38,6 +38,7 @@ type WordWithTranslationsAndCategories struct {
 	CreatedAt    time.Time                                      `json:"created_at"`
 	Translations *[]translationDomain.TranslationWithCategories `json:"translations"`
 	WordTags     *[]wordTagDomain.WordTag                       `json:"tags"`
+	WordTenses   *[]wordTenseDomain.WordTense                   `json:"tenses"`
 }
 
 type WordRequest struct {

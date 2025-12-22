@@ -72,7 +72,12 @@ SELECT
   tc.name         AS category_name,
 
   wt.id           AS tag_id,
-  wt.name         AS tag_name
+  wt.name         AS tag_name,
+
+  wte.id          AS word_tense_id,
+  wte.tense_id    AS tense_id,
+  wte.original    AS word_tense_original,
+  wte.phonetic    AS word_tense_phonetic
 FROM word w
 LEFT JOIN translation t
        ON t.word_id = w.id
@@ -84,6 +89,8 @@ LEFT JOIN word_tag_word wtw
 LEFT JOIN word_tag wt
        ON wt.id = wtw.word_tag_id
       AND wt.dictionary_id = w.dictionary_id
+LEFT JOIN word_tense wte
+  ON wte.word_id = w.id
 WHERE
   w.dictionary_id = $1
   AND w.id = ANY($2::int[])

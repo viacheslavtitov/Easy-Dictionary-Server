@@ -51,6 +51,7 @@ type WordFullEntity struct {
 	CreatedAt    time.Time `db:"created_at"`
 	Translations *[]translationEntity.TranslationWithCategoryEntity
 	WordTags     *[]wordTagEntity.WordTagEntity
+	WordTenses   *[]wordTenseEntity.WordTenseEntity
 }
 
 type wordFullEntityRow struct {
@@ -68,6 +69,10 @@ type wordFullEntityRow struct {
 	TranslationCreatedAt   time.Time `db:"translation_created_at"`
 	WordTagId              *int      `db:"tag_id"`
 	WordTagName            *string   `db:"tag_name"`
+	WordTenseId            *int      `db:"word_tense_id"`
+	TenseId                *int      `db:"tense_id"`
+	WordTenseOriginal      *string   `db:"word_tense_original"`
+	WordTensePhonetic      *string   `db:"word_tense_phonetic"`
 }
 
 func SearchWordsForDictionary(db *database.Database, query string, dictionaryId int, lastId int, pageSize int, createdFrom *time.Time, createdTo *time.Time,
@@ -139,15 +144,17 @@ func mapWordsFullToEntity(rows *sqlx.Rows) (*[]WordFullEntity, error) {
 		if !ok {
 			translations := make([]translationEntity.TranslationWithCategoryEntity, 0, 4)
 			wordTags := make([]wordTagEntity.WordTagEntity, 0, 4)
+			wordTenses := make([]wordTenseEntity.WordTenseEntity, 0, 4)
 			w = &WordFullEntity{
 				ID:           r.ID,
 				DictionaryId: r.DictionaryId,
 				Original:     r.Original,
 				Phonetic:     r.Phonetic,
 				Type:         r.Type,
-				Translations: &translations,
 				CreatedAt:    r.WordCreatedAt,
+				Translations: &translations,
 				WordTags:     &wordTags,
+				WordTenses:   &wordTenses,
 			}
 			wordsByID[r.ID] = w
 			order = append(order, r.ID)
@@ -166,27 +173,43 @@ func mapWordsFullToEntity(rows *sqlx.Rows) (*[]WordFullEntity, error) {
 			}
 		}
 
-		if r.TranslationId == nil {
-			continue
-		}
-
-		t := translationEntity.TranslationWithCategoryEntity{
-			ID:          *r.TranslationId,
-			WordId:      r.ID,
-			Description: r.TranslationDescription,
-			CreatedAt:   r.TranslationCreatedAt,
-		}
-		t.Translate = pointers.Deref(r.TranslationTranslate)
-
-		if r.CategoryId != nil || r.CategoryName != nil {
-			cat := &translationCategoryDB.TranslationCategoryShortEntity{
-				ID:   pointers.DerefInt(r.CategoryId),
-				Name: pointers.Deref(r.CategoryName),
+		if r.WordTenseId != nil {
+			_, ok := findWordTenseByID(w.WordTenses, *r.WordTenseId)
+			if !ok {
+				wt := wordTenseEntity.WordTenseEntity{
+					ID:       *r.WordTenseId,
+					Original: *r.WordTenseOriginal,
+					TenseId:  *r.TenseId,
+					Phonetic: r.WordTensePhonetic,
+					WordId:   w.ID,
+				}
+				zap.S().Debugf("Map word tense %d", *r.WordTenseId)
+				*w.WordTenses = append(*w.WordTenses, wt)
 			}
-			t.Category = cat
 		}
 
-		*w.Translations = append(*w.Translations, t)
+		if r.TranslationId != nil {
+			_, ok := findWordTranslationByID(w.Translations, *r.TranslationId)
+			if !ok {
+				t := translationEntity.TranslationWithCategoryEntity{
+					ID:          *r.TranslationId,
+					WordId:      r.ID,
+					Description: r.TranslationDescription,
+					CreatedAt:   r.TranslationCreatedAt,
+				}
+				t.Translate = pointers.Deref(r.TranslationTranslate)
+
+				if r.CategoryId != nil || r.CategoryName != nil {
+					cat := &translationCategoryDB.TranslationCategoryShortEntity{
+						ID:   pointers.DerefInt(r.CategoryId),
+						Name: pointers.Deref(r.CategoryName),
+					}
+					t.Category = cat
+				}
+
+				*w.Translations = append(*w.Translations, t)
+			}
+		}
 	}
 
 	result := make([]WordFullEntity, 0, len(wordsByID))
@@ -329,6 +352,30 @@ func findWordTagByID(tags *[]wordTagEntity.WordTagEntity, id int) (*wordTagEntit
 	for i := range *tags {
 		if (*tags)[i].ID == id {
 			return &(*tags)[i], true
+		}
+	}
+	return nil, false
+}
+
+func findWordTenseByID(tenses *[]wordTenseEntity.WordTenseEntity, id int) (*wordTenseEntity.WordTenseEntity, bool) {
+	if tenses == nil {
+		return nil, false
+	}
+	for i := range *tenses {
+		if (*tenses)[i].ID == id {
+			return &(*tenses)[i], true
+		}
+	}
+	return nil, false
+}
+
+func findWordTranslationByID(translations *[]translationEntity.TranslationWithCategoryEntity, id int) (*translationEntity.TranslationWithCategoryEntity, bool) {
+	if translations == nil {
+		return nil, false
+	}
+	for i := range *translations {
+		if (*translations)[i].ID == id {
+			return &(*translations)[i], true
 		}
 	}
 	return nil, false

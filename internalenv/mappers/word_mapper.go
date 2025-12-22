@@ -91,5 +91,6 @@ func ToWordWithTranslationAndCategoryDomain(w *dbWord.WordFullEntity, userId int
 		Translations: &translations,
 		CreatedAt:    w.CreatedAt,
 		WordTags:     &wordTags,
+		WordTenses:   ToWordTenseDomainArray(w.WordTenses),
 	}
 }
