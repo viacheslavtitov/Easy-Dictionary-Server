@@ -12,9 +12,9 @@ import (
 	"go.uber.org/zap"
 )
 
-func NewWordRouter(timeout int, group *gin.RouterGroup, database *database.Database, env *internalenv.Env) {
+func NewWordTenseRouter(timeout int, group *gin.RouterGroup, database *database.Database, env *internalenv.Env) {
 	zap.S().Info("Set up word tag route")
-	rl := repository.NewWordTagRepository(database)
+	rl := repository.NewWordTenseRepository(database)
 	lc := &controller.WordTenseController{
 		WordTenseUseCase: usecase.NewWordTenseUsecase(rl, timeout),
 	}
@@ -22,7 +22,7 @@ func NewWordRouter(timeout int, group *gin.RouterGroup, database *database.Datab
 	{
 		wordTagGroup.POST("api/word/tense/create", lc.Create)
 		wordTagGroup.POST("api/word/tense/edit", lc.Edit)
-		wordTagGroup.GET("api/word/tense/all", lc.GetAllForWord)
+		wordTagGroup.GET("api/word/tense/all/:id", lc.GetAllForWord)
 		wordTagGroup.DELETE("api/word/tense/:id", lc.Delete)
 	}
 }

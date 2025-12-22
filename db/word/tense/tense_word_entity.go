@@ -34,13 +34,20 @@ func CreateWordTense(db *database.Database, ctx context.Context, entity *WordTen
 	return wordTenseId, err
 }
 
-func UpdateWordTense(db *database.Database, entity *WordTenseEntity) (*WordTenseEntity, error) {
-	var wordTense WordTenseEntity
-	err := db.SQLDB.Get(&wordTense, updateWordTenseQuery(), entity.Original, entity.Phonetic, entity.ID)
+func UpdateWordTense(db *database.Database, entity *WordTenseEntity) error {
+	res, err := db.SQLDB.Exec(updateWordTenseQuery(), entity.Original, entity.Phonetic, entity.ID)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return &wordTense, nil
+
+	affected, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if affected == 0 {
+		return fmt.Errorf("Word tense not found")
+	}
+	return nil
 }
 
 func DeleteWordTenseById(db *database.Database, id int) (sql.Result, error) {

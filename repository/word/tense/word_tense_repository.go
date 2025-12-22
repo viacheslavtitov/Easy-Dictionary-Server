@@ -15,7 +15,7 @@ type wordTenseRepository struct {
 	db *database.Database
 }
 
-func NewWordTagRepository(db *database.Database) domain.WordTenseRepository {
+func NewWordTenseRepository(db *database.Database) domain.WordTenseRepository {
 	return &wordTenseRepository{db: db}
 }
 
@@ -36,8 +36,8 @@ func (wr *wordTenseRepository) GetAllWordTenses(c context.Context, wordId int) (
 }
 
 func (wr *wordTenseRepository) Update(c context.Context, wordTense *domain.WordTense) error {
-	zap.S().Debugf("Update word tense %s for word %d", wordTense.Original, wordTense.WordId)
-	_, err := dbWordTense.UpdateWordTense(wr.db, wordTenseMapper.FromWordTenseDomain(wordTense))
+	zap.S().Debugf("Update word tense %s for word %d by id %d", wordTense.Original, wordTense.WordId, wordTense.ID)
+	err := dbWordTense.UpdateWordTense(wr.db, wordTenseMapper.FromWordTenseDomain(wordTense))
 	return err
 }
 

@@ -10,7 +10,6 @@ func createWordTenseAndReturnIdQuery() string {
 	return `
 INSERT INTO word_tense (tense_id, word_id, original, phonetic)
 VALUES ($1, $2, $3, $4)
-ON CONFLICT (dictionary_id, LOWER(original)) DO NOTHING
 RETURNING id;
 `
 }

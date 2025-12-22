@@ -5,9 +5,9 @@ import (
 	"easy-dictionary-server/domain"
 	domainWordTense "easy-dictionary-server/domain/word/tense"
 	validatorutil "easy-dictionary-server/internalenv/validator"
+	"strconv"
 
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -28,13 +28,14 @@ type WordTenseController struct {
 // @Failure      400  {object}  domain.ErrorResponse
 // @Failure      404  {object}  domain.ErrorResponse
 // @Failure      500  {object}  domain.ErrorResponse
-// @Router       /api/word/tense/all [get]
+// @Router       /api/word/tense/all/:id [get]
 func (controller *WordTenseController) GetAllForWord(c *gin.Context) {
 	if _, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
 	}
-	wordIdInt, err := controllerCommon.ParseQueryInt(c, "id")
+	wordIdInt, err := controllerCommon.ParseParamInt(c, "id")
 	if err != nil {
+		zap.S().Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid word Id"})
 		return
 	}
@@ -96,10 +97,10 @@ func (controller *WordTenseController) Edit(c *gin.Context) {
 // @Tags word_tense
 // @Accept  json
 // @Produce  json
-// @Param   input body domainWordomainWordTensedTag.WordTenseRequest true "Word tense data"
+// @Param   input body domainWordTense.WordTenseRequest true "Word tense data"
 // @Success 201 {object} domain.SuccessIdResponse
 // @Failure 400 {object} domain.ErrorResponse
-// @Router /api/word/tag/create [post]
+// @Router /api/word/tense/create [post]
 func (controller *WordTenseController) Create(c *gin.Context) {
 	zap.S().Info("POST Create word tag")
 	if _, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
@@ -136,19 +137,19 @@ func (controller *WordTenseController) Create(c *gin.Context) {
 // @Failure 400 {object} domain.ErrorResponse
 // @Router /api/word/tense/:id [delete]
 func (controller *WordTenseController) Delete(c *gin.Context) {
-	wordTenseId := c.Param("id")
-	zap.S().Infof("DELETE Delete word tense %d", wordTenseId)
 	if _, _, valid := controllerCommon.ValidateUserIdInContext(c); !valid {
 		return
 	}
-	if wordTenseIdInt, err := strconv.Atoi(wordTenseId); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid word ID"})
+	wordTenseId, err := controllerCommon.ParseParamInt(c, "id")
+	if err != nil {
+		zap.S().Error(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid word tense Id"})
 		return
-	} else {
-		rows, err := controller.WordTenseUseCase.DeleteById(c, wordTenseIdInt)
-		if controllerCommon.ValidateDeleteByIdResult(c, wordTenseId, "Failed to delete word tense by", rows, err) {
-			zap.S().Debugf("Word tense deleted %s", wordTenseId)
-			c.JSON(http.StatusOK, domain.SuccessResponse{Message: "Word tense deleted"})
-		}
+	}
+	zap.S().Infof("DELETE Delete word tense %d", wordTenseId)
+	rows, err := controller.WordTenseUseCase.DeleteById(c, wordTenseId)
+	if controllerCommon.ValidateDeleteByIdResult(c, strconv.Itoa(wordTenseId), "Failed to delete word tense by", rows, err) {
+		zap.S().Debugf("Word tense deleted %s", wordTenseId)
+		c.JSON(http.StatusOK, domain.SuccessResponse{Message: "Word tense deleted"})
 	}
 }

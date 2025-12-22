@@ -39,6 +39,7 @@ func (wu *wordTenseUsecase) Update(c context.Context, id int, wordId int, tenseI
 	ctx, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(wu.contextTimeout))
 	defer cancel()
 	return wu.wordTenseRepository.Update(ctx, &domainWordTense.WordTense{
+		ID:       id,
 		WordId:   wordId,
 		TenseId:  tenseId,
 		Original: original,

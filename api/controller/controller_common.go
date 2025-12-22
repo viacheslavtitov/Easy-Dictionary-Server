@@ -53,6 +53,11 @@ func ParseQueryInt(c *gin.Context, param string) (int, error) {
 	return strconv.Atoi(val)
 }
 
+func ParseParamInt(c *gin.Context, param string) (int, error) {
+	val := c.Param(param)
+	return strconv.Atoi(val)
+}
+
 func ParseQueryIntArray(c *gin.Context, param string) (*[]int, error) {
 	var ids []int
 	raw := c.Query(param)
