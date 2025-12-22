@@ -7,6 +7,7 @@ import (
 	translationDomain "easy-dictionary-server/domain/translation"
 	domainWord "easy-dictionary-server/domain/word"
 	wordTagDomain "easy-dictionary-server/domain/word/tag"
+	wordTenseDomain "easy-dictionary-server/domain/word/tense"
 	commonUseCase "easy-dictionary-server/usecase"
 )
 
@@ -40,7 +41,7 @@ func (wu *wordUsecase) Create(c context.Context, dictionaryId int, original stri
 }
 
 func (wu *wordUsecase) CreateWithTranslations(c context.Context, dictionaryId int, original string, phonetic *string, wordType *string,
-	translations *[]translationDomain.TranslationWithoutWordRequest, tags *[]wordTagDomain.WordTag) error {
+	translations *[]translationDomain.TranslationWithoutWordRequest, tags *[]wordTagDomain.WordTag, tenses *[]wordTenseDomain.WordTense) error {
 	ctx, cancel := context.WithTimeout(c, commonUseCase.ReadWriteTimeOut(wu.contextTimeout))
 	defer cancel()
 	var convertedTranslations []translationDomain.Translation
@@ -53,13 +54,15 @@ func (wu *wordUsecase) CreateWithTranslations(c context.Context, dictionaryId in
 			Description: t.Description,
 		})
 	}
+
 	return wu.wordRepository.CreateWithTranslations(ctx, dictionaryId, &domainWord.WordWithTranslations{
 		DictionaryId: dictionaryId,
 		Original:     original,
 		Phonetic:     phonetic,
 		Type:         wordType,
 		WordTags:     tags,
-		Translations: &convertedTranslations})
+		Translations: &convertedTranslations,
+		WordTenses:   tenses})
 }
 
 func (wu *wordUsecase) Update(c context.Context, id int, dictionaryId int, original string, phonetic *string, wordType *string, tagIds []int) error {

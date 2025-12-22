@@ -26,6 +26,17 @@ func ToWordTenseDomainArray(w *[]dbWordTense.WordTenseEntity) *[]domainWordTense
 	return &tags
 }
 
+func FromWordTenseDomainArray(w *[]domainWordTense.WordTense) *[]dbWordTense.WordTenseEntity {
+	if w == nil {
+		return &[]dbWordTense.WordTenseEntity{}
+	}
+	var tags []dbWordTense.WordTenseEntity
+	for _, tag := range *w {
+		tags = append(tags, *FromWordTenseDomain(&tag))
+	}
+	return &tags
+}
+
 func FromWordTenseDomain(w *domainWordTense.WordTense) *dbWordTense.WordTenseEntity {
 	return &dbWordTense.WordTenseEntity{
 		ID:       w.ID,

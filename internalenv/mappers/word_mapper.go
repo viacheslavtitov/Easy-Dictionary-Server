@@ -69,6 +69,7 @@ func FromWordWithTranslationDomain(w *domainWord.WordWithTranslations) *dbWord.W
 		Type:         w.Type,
 		Translations: &translations,
 		WordTags:     &wordTags,
+		WordTenses:   FromWordTenseDomainArray(w.WordTenses),
 	}
 }
 

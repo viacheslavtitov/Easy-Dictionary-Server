@@ -203,7 +203,8 @@ func (controller *WordController) CreateWordWithTranslations(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"validation_errors": validationErrors})
 		return
 	}
-	err := controller.WordUseCase.CreateWithTranslations(c, request.DictionaryId, request.Original, request.Phonetic, request.Type, request.Translations, request.WordTags)
+	err := controller.WordUseCase.CreateWithTranslations(c, request.DictionaryId, request.Original, request.Phonetic, request.Type, request.Translations,
+		request.WordTags, request.WordTenses)
 	if err != nil {
 		if errors.Is(err, repositoryWord.ErrWordAlreadyExists) {
 			zap.S().Error(err)

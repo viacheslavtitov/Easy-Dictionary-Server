@@ -7,6 +7,7 @@ import (
 	translationEntity "easy-dictionary-server/db/translation"
 	translationCategoryDB "easy-dictionary-server/db/translation/category"
 	wordTagEntity "easy-dictionary-server/db/word/tag"
+	wordTenseEntity "easy-dictionary-server/db/word/tense"
 	pointers "easy-dictionary-server/internalenv/utils"
 	"errors"
 	"fmt"
@@ -29,6 +30,7 @@ type WordEntity struct {
 	CreatedAt    time.Time `db:"created_at"`
 	Translations *[]translationEntity.TranslationEmptyEntity
 	WordTags     *[]wordTagEntity.WordTagEntity
+	WordTenses   *[]wordTenseEntity.WordTenseEntity
 }
 
 type UpdateWordEntity struct {
@@ -201,7 +203,8 @@ func CreateWord(db *database.Database, dictionaryId int, entity *WordEntity) err
 }
 
 func CreateWordWithTranslations(db *database.Database, ctx context.Context, dictionaryId int, entity *WordEntity) (int, error) {
-	zap.S().Debugf("CreateWordWithTranslations for dictionary %d with translations %d", dictionaryId, len(*entity.Translations))
+	zap.S().Debugf("CreateWordWithTranslations for dictionary %d with translations %d tags %d and tenses %d",
+		dictionaryId, len(*entity.Translations), len(*entity.WordTags), len(*entity.WordTenses))
 	tx, err := db.SQLDB.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelReadCommitted})
 	if err != nil {
 		zap.S().Debugln("Failed to start transaction")
@@ -230,7 +233,7 @@ func CreateWordWithTranslations(db *database.Database, ctx context.Context, dict
 	defer stmt.Close()
 	for _, t := range *entity.Translations {
 		if _, err = stmt.ExecContext(ctx, wordId, t.CategoryId, t.Translate, t.Description); err != nil {
-			zap.S().Debugln("Failed to insert transaction")
+			zap.S().Debugf("Failed to insert translation %s for word id %d", t.Translate, wordId)
 			return 0, fmt.Errorf("insert translation: %w", err)
 		}
 	}
@@ -243,12 +246,30 @@ func CreateWordWithTranslations(db *database.Database, ctx context.Context, dict
 		zap.S().Debugf("Try to insert tags %d", len(*entity.WordTags))
 		for _, tag := range *entity.WordTags {
 			if _, err = stmtTag.ExecContext(ctx, tag.ID, wordId); err != nil {
-				zap.S().Debugln("Failed to insert tag")
+				zap.S().Debugf("Failed to insert tag %s for word id %d", tag.Name, wordId)
 				return 0, fmt.Errorf("insert tag: %w", err)
 			} else {
 				zap.S().Debugf("Tag id %d was added to word %d and name %s", tag.ID, wordId, entity.Original)
 			}
 		}
+		defer stmtTag.Close()
+	}
+	if entity.WordTenses != nil && len(*entity.WordTenses) > 0 {
+		stmtTense, err := tx.PrepareContext(ctx, wordTenseEntity.CreateWordTenseAndReturnIdQuery())
+		if err != nil {
+			return 0, fmt.Errorf("prepare word tense insert: %w", err)
+		}
+		defer stmtTense.Close()
+		zap.S().Debugf("Try to insert tenses %d", len(*entity.WordTenses))
+		for _, tense := range *entity.WordTenses {
+			if _, err = stmtTense.ExecContext(ctx, tense.ID, wordId, tense.Original, tense.Phonetic); err != nil {
+				zap.S().Debugf("Failed to insert tense %s for word id %d", tense.Original, wordId)
+				return 0, fmt.Errorf("insert tense: %w", err)
+			} else {
+				zap.S().Debugf("Tense id %d was added to word %d and name %s", tense.ID, wordId, entity.Original)
+			}
+		}
+		defer stmtTense.Close()
 	}
 	return wordId, nil
 }

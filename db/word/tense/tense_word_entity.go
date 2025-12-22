@@ -27,7 +27,7 @@ func GetAllWordTensesForWord(db *database.Database, wordId int) (*[]WordTenseEnt
 func CreateWordTense(db *database.Database, ctx context.Context, entity *WordTenseEntity) (int, error) {
 	var wordTenseId int
 	var err error
-	err = db.SQLDB.QueryRowContext(ctx, createWordTenseAndReturnIdQuery(), entity.TenseId, entity.WordId, entity.Original, entity.Phonetic).Scan(&wordTenseId)
+	err = db.SQLDB.QueryRowContext(ctx, CreateWordTenseAndReturnIdQuery(), entity.TenseId, entity.WordId, entity.Original, entity.Phonetic).Scan(&wordTenseId)
 	if err != nil {
 		return 0, fmt.Errorf("insert word tense: %w", err)
 	}

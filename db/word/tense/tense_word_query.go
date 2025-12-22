@@ -6,7 +6,7 @@ package db
 // - $2: word id
 // - $3: original
 // - $4: phonetic
-func createWordTenseAndReturnIdQuery() string {
+func CreateWordTenseAndReturnIdQuery() string {
 	return `
 INSERT INTO word_tense (tense_id, word_id, original, phonetic)
 VALUES ($1, $2, $3, $4)

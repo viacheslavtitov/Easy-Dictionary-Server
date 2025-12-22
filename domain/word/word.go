@@ -4,6 +4,7 @@ import (
 	"context"
 	translationDomain "easy-dictionary-server/domain/translation"
 	wordTagDomain "easy-dictionary-server/domain/word/tag"
+	wordTenseDomain "easy-dictionary-server/domain/word/tense"
 	"time"
 )
 
@@ -25,6 +26,7 @@ type WordWithTranslations struct {
 	CreatedAt    time.Time                        `json:"created_at"`
 	Translations *[]translationDomain.Translation `json:"translations"`
 	WordTags     *[]wordTagDomain.WordTag         `json:"tags"`
+	WordTenses   *[]wordTenseDomain.WordTense     `json:"tenses"`
 }
 
 type WordWithTranslationsAndCategories struct {
@@ -52,6 +54,7 @@ type WordWithTranslationRequest struct {
 	Type         *string                                            `json:"type"`
 	Translations *[]translationDomain.TranslationWithoutWordRequest `json:"translations" binding:"required"`
 	WordTags     *[]wordTagDomain.WordTag                           `json:"tags"`
+	WordTenses   *[]wordTenseDomain.WordTense                       `json:"tenses"`
 }
 
 type EditWordRequest struct {
@@ -74,7 +77,7 @@ type WordUseCase interface {
 		wordTypes *[]string, categoryIds *[]int, tagIds *[]int) (*WordsWithPaginationResponse, error)
 	Create(c context.Context, dictionaryId int, original string, phonetic *string, wordType *string) error
 	CreateWithTranslations(c context.Context, dictionaryId int, original string, phonetic *string, wordType *string,
-		translations *[]translationDomain.TranslationWithoutWordRequest, tags *[]wordTagDomain.WordTag) error
+		translations *[]translationDomain.TranslationWithoutWordRequest, tags *[]wordTagDomain.WordTag, tenses *[]wordTenseDomain.WordTense) error
 	Update(c context.Context, id int, dictionaryId int, original string, phonetic *string, wordType *string, tagIds []int) error
 	DeleteById(c context.Context, id int) (int64, error)
 }
